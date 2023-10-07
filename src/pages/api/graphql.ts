@@ -35,7 +35,7 @@ const handler = startServerAndCreateNextHandler(server)
 
 const graphql: NextApiHandler = async (req, res) => {
   await NextCors(req, res, {
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     origin: '*',
     credentials: true,
   })
