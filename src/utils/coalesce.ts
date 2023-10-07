@@ -3,7 +3,7 @@ export function coalesce<T>(
   keys: string[],
   defaultValue: T
 ): T {
-  for (let key of keys) {
+  for (const key of keys) {
     if (obj[key] !== undefined) {
       return obj[key]!
     }

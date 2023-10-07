@@ -85,6 +85,7 @@ export type GetVideoById = {
     qualityLabel: string
     size: string
   }>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   captions: Array<any>
   musicTracks: Array<{
     song: string

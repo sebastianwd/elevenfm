@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     domains: ['www.theaudiodb.com', 'lastfm.freetls.fastly.net'],
   },
-  reactStrictMode: false,
+  reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: true,
   },

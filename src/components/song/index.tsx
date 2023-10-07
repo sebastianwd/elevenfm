@@ -19,6 +19,7 @@ interface SongProps {
   isFavorited?: boolean
   onClick: () => void
   showArtist?: boolean
+  onShowLyrics?: () => void
 }
 
 const DynamicDropdown = dynamic(() => import('../dropdown'), {

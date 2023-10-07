@@ -15,13 +15,12 @@ import { twMerge } from 'tailwind-merge'
 import {
   artistQuery,
   getAlbumsQuery,
-  getLyricsQuery,
+  // getLyricsQuery,
   getVideoInfoQuery,
   queryClient,
   similarArtistsQuery,
   topsongsByArtistQuery,
 } from '~/api'
-import { Modal } from '~/components/modal/modal'
 import { Seo } from '~/components/seo'
 import { Song } from '~/components/song'
 import { VideoPlayer } from '~/components/video-player'

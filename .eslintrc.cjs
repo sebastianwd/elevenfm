@@ -31,6 +31,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'simple-import-sort', 'react-hooks', 'react'],
   rules: {
     'react-hooks/rules-of-hooks': 'warn',
+    'react-hooks/exhaustive-deps': 'warn',
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/no-use-before-define': 0,
     'react/prop-types': 0,
