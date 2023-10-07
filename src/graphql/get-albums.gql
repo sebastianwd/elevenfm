@@ -1,0 +1,11 @@
+query getAlbumsQuery($artist: String!) {
+  getAlbums(artist: $artist, limit: 10, page: 1) {
+    artist
+    coverImage
+    description
+    genre
+    name
+    tracks
+    year
+  }
+}

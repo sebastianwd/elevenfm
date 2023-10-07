@@ -1,0 +1,8 @@
+query similarArtistsQuery($artist: String!, $limit: Int, $onlyNames: Boolean) {
+  similarArtists(artist: $artist, limit: $limit, onlyNames: $onlyNames) {
+    name
+    image
+    bannerImage
+    __typename
+  }
+}

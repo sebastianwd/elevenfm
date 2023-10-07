@@ -1,0 +1,8 @@
+query getAlbumBySongQuery($artist: String!, $song: String!) {
+  getAlbumBySong(artist: $artist, song: $song) {
+    artist
+    coverUrl
+    title
+    __typename
+  }
+}

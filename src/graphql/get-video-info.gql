@@ -1,0 +1,8 @@
+query getVideoInfoQuery($query: String!) {
+  getVideoInfo(query: $query) {
+    artist
+    title
+    videoId
+    __typename
+  }
+}

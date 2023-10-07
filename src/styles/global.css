@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+html,
+body,
+#__next {
+  @apply flex min-h-screen flex-col dark:bg-dark-700 dark:text-gray-200;
+}
+
+@layer components {
+  .bg-gradient-blend::before {
+    @apply absolute top-0 left-0 h-full w-full;
+    content: '';
+    background: linear-gradient(
+        to bottom,
+        transparent -80%,
+        theme('colors.dark.700') 100%
+      ),
+      linear-gradient(to left, transparent 99%, theme('colors.dark.700') 100%);
+  }
+}
+
+html {
+  font-family: sans-serif;
+}

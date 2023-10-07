@@ -1,0 +1,19 @@
+query artistQuery($name: String!) {
+  artist(name: $name) {
+    name
+    biography
+    bannerImage
+    genre
+    formedYear
+    twitter
+    disbanded
+    facebook
+    location
+    disbanded
+    style
+    logo
+    image
+    website
+    __typename
+  }
+}
