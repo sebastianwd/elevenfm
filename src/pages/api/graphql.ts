@@ -38,6 +38,7 @@ const graphql: NextApiHandler = async (req, res) => {
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     origin: '*',
     credentials: true,
+    optionsSuccessStatus: 200,
   })
 
   if (req.method === 'OPTIONS') {

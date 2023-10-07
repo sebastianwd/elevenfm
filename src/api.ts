@@ -3,11 +3,9 @@ import { GraphQLClient } from 'graphql-request'
 
 import { getSdk } from '~/generated/graphql'
 
-import { getBaseUrl } from './utils/get-base-url'
+import { getBaseURL } from './utils/get-base-url'
 
-console.log('getBaseUrl', process.env.NEXT_PUBLIC_VERCEL_URL)
-
-const gqlClient = new GraphQLClient(`${getBaseUrl()}/api/graphql`)
+const gqlClient = new GraphQLClient(`${getBaseURL('/api/graphql')}`)
 
 export const {
   artistQuery,
