@@ -3,7 +3,7 @@ import { GraphQLClient } from 'graphql-request'
 
 import { getSdk } from '~/generated/graphql'
 
-const gqlClient = new GraphQLClient('http://localhost:3000/api/graphql')
+const gqlClient = new GraphQLClient('/api/graphql')
 
 export const {
   artistQuery,
