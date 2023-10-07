@@ -1,20 +1,21 @@
+import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
-import { motion, AnimatePresence } from 'framer-motion'
-
+import { AnimatePresence, motion } from 'framer-motion'
+import { head } from 'lodash'
 import Image from 'next/image'
+import { type ChangeEvent, useCallback, useState } from 'react'
+
+import { getVideoInfoQuery, queryClient } from '~/api'
 import {
   Song as SongType,
   usePlayerInstance,
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+
 import { NextIcon, PreviousIcon, RandomIcon } from '../icons'
 import { RangeSlider } from '../range-slider'
-import { type ChangeEvent, useCallback, useState } from 'react'
-import { QueueListIcon } from '@heroicons/react/24/outline'
 import { Song } from '../song'
-import { getVideoInfoQuery, queryClient } from '~/api'
-import { head } from 'lodash'
 
 const formatSeconds = (seconds: number) => {
   // format time and consider adding 0 if less than 10
@@ -136,7 +137,7 @@ export const FooterPlayer = () => {
 
   return (
     <>
-      <div className='fixed bottom-28 right-0 md:right-5 max-h-screen w-full md:w-1/2 lg:w-1/3 z-50'>
+      <div className='fixed bottom-28 right-0 md:right-5 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
         <AnimatePresence>
           {showQueue ? (
             <QueueList queue={currentQueue} onPlay={onPlaySong} />

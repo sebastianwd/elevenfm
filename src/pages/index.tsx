@@ -2,6 +2,7 @@
 import type { NextPage } from 'next'
 
 import { SearchTrigger } from '~/components/search-trigger'
+import { Seo } from '~/components/seo'
 import { useGlobalSearchStore } from '~/store/use-global-search'
 
 const Home: NextPage = () => {
@@ -9,6 +10,7 @@ const Home: NextPage = () => {
 
   return (
     <>
+      <Seo description='Enjoy unlimited free music, find similar artists, full albums, lyrics and much more!' />
       <div className='container mx-auto flex h-full flex-col px-6 md:px-8'>
         <h1 className='mb-4 mt-8 text-3xl md:text-4xl lg:mt-28' id='home'>
           Discover new music <br /> or listen to your favorite artists!

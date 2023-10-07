@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import { queryClient } from '~/api'
 
-const AppProvider = (props: {
+export const AppProvider = (props: {
   children: React.ReactNode
   pageProps: AppProps['pageProps']
 }) => {
@@ -16,5 +16,3 @@ const AppProvider = (props: {
     </QueryClientProvider>
   )
 }
-
-export default AppProvider

@@ -6,7 +6,7 @@ import responseCachePlugin from '@apollo/server-plugin-response-cache'
 import { startServerAndCreateNextHandler } from '@as-integrations/next'
 import { pick } from 'lodash'
 import { NextApiHandler, PageConfig } from 'next'
-import { parseBody } from 'next/dist/server/api-utils/node'
+import { parseBody } from 'next/dist/server/api-utils/node/parse-body'
 import NextCors from 'nextjs-cors'
 import { buildSchema } from 'type-graphql'
 

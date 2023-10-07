@@ -1,6 +1,5 @@
 import '../styles/global.css'
 
-import { Hydrate, QueryClientProvider } from '@tanstack/react-query'
 import { debounce } from 'lodash'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
@@ -8,10 +7,9 @@ import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 
 import { searchArtistQuery } from '~/api'
-import { queryClient } from '~/api'
 import { CommandPalette } from '~/components/command-palette'
 import MainLayout from '~/layouts/main'
-import AppProvider from '~/providers/app-provider'
+import { AppProvider } from '~/providers/app-provider'
 import { useGlobalSearchStore } from '~/store/use-global-search'
 
 const ArtistSearchCommandPalette = () => {
@@ -68,20 +66,18 @@ const MyApp = (props: AppProps) => {
   const { Component, pageProps } = props
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Hydrate state={pageProps?.dehydratedState}>
-        <Head>
-          <meta
-            name='viewport'
-            content='minimum-scale=1, initial-scale=1, width=device-width'
-          />
-        </Head>
-        <MainLayout>
-          <Component {...pageProps} />
-        </MainLayout>
-        <ArtistSearchCommandPalette />
-      </Hydrate>
-    </QueryClientProvider>
+    <AppProvider pageProps={pageProps}>
+      <Head>
+        <meta
+          name='viewport'
+          content='minimum-scale=1, initial-scale=1, width=device-width'
+        />
+      </Head>
+      <MainLayout>
+        <Component {...pageProps} />
+      </MainLayout>
+      <ArtistSearchCommandPalette />
+    </AppProvider>
   )
 }
 

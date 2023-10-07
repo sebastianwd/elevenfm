@@ -21,6 +21,8 @@ import {
   similarArtistsQuery,
   topsongsByArtistQuery,
 } from '~/api'
+import { Modal } from '~/components/modal/modal'
+import { Seo } from '~/components/seo'
 import { Song } from '~/components/song'
 import { VideoPlayer } from '~/components/video-player'
 import { usePlayerState } from '~/store/use-player'
@@ -389,6 +391,11 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
 
   return (
     <>
+      <Seo
+        title={data?.artist.name}
+        description={`Listen to ${data?.artist.name} on ElevenFM`}
+        image={data?.artist.bannerImage || undefined}
+      />
       <div className='container mx-auto w-full max-w-[1920px]'>
         <div className='grid lg:grid-cols-3'>
           <header

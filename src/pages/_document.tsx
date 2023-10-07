@@ -15,18 +15,18 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html className="dark">
+      <Html className='dark'>
         <Head>
           <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css?family=Roboto:200,400,500,700&display=swap"
+            rel='stylesheet'
+            href='https://fonts.googleapis.com/css?family=Roboto:200,400,500,700&display=swap'
           />
           <link
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;700&display=swap"
-            rel="stylesheet"
+            href='https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;700&display=swap'
+            rel='stylesheet'
           />
         </Head>
-        <body className="font-poppins dark:prose-invert">
+        <body className='font-poppins dark:prose-invert'>
           <Main />
           <NextScript />
         </body>
