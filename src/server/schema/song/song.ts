@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from 'type-graphql'
 
-@ObjectType()
+@ObjectType('song')
 export class Song {
   @Field()
   title: string
@@ -27,7 +27,7 @@ export class Song {
   playlistId?: number | null
 }
 
-@ObjectType()
+@ObjectType('songVideo')
 export class SongVideo {
   @Field()
   title: string
@@ -39,7 +39,7 @@ export class SongVideo {
   videoId!: string
 }
 
-@ObjectType()
+@ObjectType('songAlbum')
 export class SongAlbum {
   @Field()
   title: string
@@ -51,7 +51,7 @@ export class SongAlbum {
   coverUrl?: string
 }
 
-@ObjectType()
+@ObjectType('songLyrics')
 export class SongLyrics {
   @Field()
   title: string

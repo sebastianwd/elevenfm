@@ -1,8 +1,6 @@
-const IS_SERVER = typeof window === 'undefined'
+export function getBaseURL() {
+  if (process.env.VERCEL_ENV === 'preview')
+    return `https://${process.env.VERCEL_URL}`
 
-export function getBaseURL(path: string) {
-  const baseURL = IS_SERVER
-    ? process.env.NEXT_PUBLIC_SITE_URL!
-    : window.location.origin
-  return new URL(path, baseURL).toString()
+  return process.env.NEXT_PUBLIC_SITE_URL
 }

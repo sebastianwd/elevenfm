@@ -5,7 +5,7 @@ import { getSdk } from '~/generated/graphql'
 
 import { getBaseURL } from './utils/get-base-url'
 
-const gqlClient = new GraphQLClient(`${getBaseURL('/api/graphql')}`)
+const gqlClient = new GraphQLClient(`${getBaseURL()}/api/graphql`)
 
 export const {
   artistQuery,

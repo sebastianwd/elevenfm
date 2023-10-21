@@ -1,14 +1,14 @@
+import { compact, find, isEmpty, map, sortBy, toLower } from 'lodash'
 import { Arg, Int, Query, Resolver } from 'type-graphql'
 
 import { audioDB } from '~/server/modules/audiodb/audiodb'
 import { lastFM } from '~/server/modules/lastfm/lastfm'
+import { getCoverImage } from '~/utils/get-cover-image'
 
+import { Album } from '../album/album'
+import { CacheControl } from '../cache-control'
 import { Song } from '../song/song'
 import { Artist } from './artist'
-import { Album } from '../album/album'
-import { compact, find, isEmpty, map, sortBy, toLower } from 'lodash'
-import { getCoverImage } from '~/utils/get-cover-image'
-import { CacheControl } from '../cache-control'
 
 @Resolver(Artist)
 export class ArtistResolver {

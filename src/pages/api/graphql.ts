@@ -7,7 +7,6 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next'
 import { pick } from 'lodash'
 import { NextApiHandler, PageConfig } from 'next'
 import { parseBody } from 'next/dist/server/api-utils/node/parse-body'
-import NextCors from 'nextjs-cors'
 import { buildSchema } from 'type-graphql'
 
 import { ArtistResolver } from '~/server/schema/artist/artist-resolver'
@@ -21,7 +20,10 @@ const server = new ApolloServer({
   schema,
   introspection: true,
   plugins: [
-    ApolloServerPluginCacheControl({ calculateHttpHeaders: 'if-cacheable' }),
+    ApolloServerPluginCacheControl({
+      calculateHttpHeaders: 'if-cacheable',
+      defaultMaxAge: 1,
+    }),
     responseCachePlugin(),
   ],
   formatError: (error) => {
@@ -31,15 +33,18 @@ const server = new ApolloServer({
   },
 })
 
-const handler = startServerAndCreateNextHandler(server)
+const handler = startServerAndCreateNextHandler(server, {
+  context: async (req, res) => {
+    res.setHeader('Access-Control-Allow-Credentials', 'true')
+    res.setHeader('Access-Control-Allow-Origin', '*')
+
+    return { req, res }
+  },
+})
 
 const graphql: NextApiHandler = async (req, res) => {
-  await NextCors(req, res, {
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    origin: '*',
-    credentials: true,
-    optionsSuccessStatus: 200,
-  })
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Origin', '*')
 
   if (req.method === 'OPTIONS') {
     res.status(200).end()
@@ -53,7 +58,11 @@ const graphql: NextApiHandler = async (req, res) => {
     req.body = await parseBody(req, '10mb')
   }
 
-  await handler(req, res)
+  try {
+    return await handler(req, res)
+  } catch (e) {
+    res.status(500).send(`Error: ${e instanceof Error ? e.message : `${e}`}`)
+  }
 }
 
 export default graphql

@@ -1,6 +1,8 @@
-import { Menu } from '~/components/menu'
-import { FooterPlayer } from '~/components/player'
 import { usePathname } from 'next/navigation'
+
+import { Menu } from '~/components/menu'
+import { Modal } from '~/components/modal'
+import { FooterPlayer } from '~/components/player'
 import { VideoPlayer } from '~/components/video-player'
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
@@ -17,8 +19,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </main>
       </div>
-      <div className='h-24' />
+      <div className='h-28' />
       <FooterPlayer />
+      <Modal />
       {isHome ? <VideoPlayer /> : null}
     </>
   )

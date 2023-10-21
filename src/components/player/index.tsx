@@ -1,11 +1,12 @@
 import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
+import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { head } from 'lodash'
 import Image from 'next/image'
 import { type ChangeEvent, useCallback, useState } from 'react'
 
-import { getVideoInfoQuery, queryClient } from '~/api'
+import { getLyricsQuery, getVideoInfoQuery, queryClient } from '~/api'
 import {
   Song as SongType,
   usePlayerInstance,
@@ -13,7 +14,8 @@ import {
   usePlayerState,
 } from '~/store/use-player'
 
-import { NextIcon, PreviousIcon, RandomIcon } from '../icons'
+import { LyricsIcon, NextIcon, PreviousIcon, RandomIcon } from '../icons'
+import { WavesLoader } from '../loader'
 import { RangeSlider } from '../range-slider'
 import { Song } from '../song'
 
@@ -86,6 +88,62 @@ const QueueList = (props: QueueListProps) => {
   )
 }
 
+interface LyricsProps {
+  song: string
+  artist: string
+}
+
+const Lyrics = (props: LyricsProps) => {
+  const { artist, song } = props
+
+  const { data, isInitialLoading } = useQuery({
+    queryKey: ['getLyricsQuery', song, artist],
+    queryFn: () =>
+      getLyricsQuery({
+        song: song || '',
+        artist: artist || '',
+      }),
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    enabled: Boolean(song && artist),
+  })
+
+  const lyrics = data?.getLyrics?.lyrics
+
+  const renderContent = () => {
+    if (isInitialLoading) {
+      return (
+        <div className='flex justify-center items-center h-full'>
+          <WavesLoader />
+        </div>
+      )
+    }
+
+    if (!lyrics) {
+      return (
+        <div className='flex justify-center items-center h-full'>
+          <p className='text-gray-100'>Lyrics not found</p>
+        </div>
+      )
+    }
+
+    return <pre className='whitespace-pre-line px-4 py-2 text-lg'>{lyrics}</pre>
+  }
+
+  return (
+    <motion.div
+      className='bg-dark-800 rounded-lg'
+      initial='hidden'
+      exit='hidden'
+      animate='show'
+      variants={container}
+    >
+      <h3 className='font-semibold text-lg px-5 py-3'>{song}</h3>
+      <ul className='h-[36rem] overflow-auto'>{renderContent()}</ul>
+    </motion.div>
+  )
+}
+
 export const FooterPlayer = () => {
   const {
     isPlaying,
@@ -115,6 +173,7 @@ export const FooterPlayer = () => {
   )
 
   const [showQueue, setShowQueue] = useState(false)
+  const [showLyrics, setShowLyrics] = useState(false)
 
   const onPlaySong = useCallback(async (song: string, artist: string) => {
     const data = await queryClient.fetchQuery({
@@ -137,6 +196,16 @@ export const FooterPlayer = () => {
 
   return (
     <>
+      <div className='fixed bottom-28 left-0 mx-auto md:right-5 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
+        <AnimatePresence>
+          {showLyrics ? (
+            <Lyrics
+              artist={currentSong?.artist || ''}
+              song={currentSong?.title || ''}
+            />
+          ) : null}
+        </AnimatePresence>
+      </div>
       <div className='fixed bottom-28 right-0 md:right-5 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
         <AnimatePresence>
           {showQueue ? (
@@ -237,12 +306,28 @@ export const FooterPlayer = () => {
               className='absolute md:relative w-full left-0 md:w-auto md:left-auto md:px-0 px-4'
             />
           </div>
-          <div className='hidden items-center justify-end md:flex'>
+          <div className='hidden items-center justify-end md:flex gap-3'>
+            <button
+              onClick={() => {
+                setShowLyrics(!showLyrics)
+              }}
+              className='inline-flex'
+              title='Lyrics'
+              type='button'
+            >
+              <LyricsIcon
+                className={`h-6 w-6 ${
+                  showLyrics ? 'text-primary-500' : 'text-gray-200'
+                }`}
+              />
+            </button>
             <button
               onClick={() => {
                 setShowQueue(!showQueue)
               }}
               className='inline-flex'
+              title='Queue'
+              type='button'
             >
               <QueueListIcon
                 className={`h-6 w-6 ${

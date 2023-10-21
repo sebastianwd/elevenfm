@@ -37,6 +37,7 @@ interface PlayerState {
   playPrevious: () => void
   isShuffled: boolean
   setShuffle: (random: boolean) => void
+  addToQueue: (song: Song) => void
 }
 
 interface PlayerInstanceState {
@@ -195,7 +196,7 @@ export const usePlayerState = create<PlayerState>()(
           state.currentSong = song
         })
 
-        const album = await getAlbum(song)
+        const coverUrl = song.albumCoverUrl || (await getAlbum(song))?.coverUrl
 
         set((state) => {
           state.currentSong = {
@@ -203,8 +204,35 @@ export const usePlayerState = create<PlayerState>()(
             title: song.title,
             duration: song.duration,
             url: song.url,
-            albumCoverUrl: album?.coverUrl,
+            albumCoverUrl: coverUrl,
           }
+        })
+      },
+      addToQueue: async (song: Song) => {
+        const state = get()
+
+        const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
+
+        const currentSongIndex = activeQueue.findIndex(
+          (song) =>
+            song.title === state.currentSong?.title &&
+            song.artist === state.currentSong?.artist
+        )
+
+        const newQueue = [...activeQueue]
+
+        newQueue.splice(currentSongIndex + 1, 0, song)
+
+        set((state) => {
+          state.queue = newQueue
+        })
+
+        const shuffledQueue = [...state.shuffledQueue]
+
+        shuffledQueue.splice(currentSongIndex + 1, 0, song)
+
+        set((state) => {
+          state.shuffledQueue = shuffledQueue
         })
       },
     }))

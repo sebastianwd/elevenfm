@@ -6,6 +6,7 @@ import {
   PlayIcon,
 } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
+import { head } from 'lodash'
 import type { GetServerSideProps, NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -53,7 +54,7 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
         cacheTime: Infinity,
       })
 
-      const sample = data?.getVideoInfo.shift()
+      const sample = head(data?.getVideoInfo)
 
       const album = albums?.find((album) => album.name === selectedAlbum)
 
@@ -61,6 +62,7 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
         artist,
         title: song,
         url: `https://www.youtube.com/watch?v=${sample?.videoId}`,
+        albumCoverUrl: album?.coverImage || '',
       })
 
       setQueue(
@@ -176,7 +178,9 @@ const ArtistSongs = (props: ArtistSongsProps) => {
         cacheTime: Infinity,
       })
 
-      const sample = data?.getVideoInfo.shift()
+      const sample = head(data?.getVideoInfo)
+
+      console.log('sample', sample)
 
       setCurrentSong({
         artist,
@@ -311,6 +315,8 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
             }
             onClick={() => onPlaySong(song, artist)}
             song={song}
+            artist={artist}
+            showArtist={false}
           />
         )
       })}

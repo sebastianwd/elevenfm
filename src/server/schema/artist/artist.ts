@@ -1,6 +1,6 @@
 import { Field, ObjectType } from 'type-graphql'
 
-@ObjectType()
+@ObjectType('artist')
 export class Artist {
   @Field()
   name: string

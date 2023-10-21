@@ -50,8 +50,8 @@ export const Menu = () => {
 
   return (
     <>
-      <div className='sticky top-0 h-full w-full px-4 md:fixed md:w-36 md:px-0 md:pb-24 z-40'>
-        <div className='sticky top-0 flex h-full flex-grow justify-center rounded-[40px] bg-dark-800 p-4 md:px-0'>
+      <div className='sticky top-0 h-full w-full px-4 md:fixed md:w-36 md:px-0 z-40 md:z-0'>
+        <div className='sticky top-0 flex h-full flex-grow justify-center rounded-[40px] bg-dark-800 p-4 md:px-0 md:pb-24'>
           <ul className='flex overflow-hidden md:flex-col md:py-10 md:[&>*]:mb-4'>
             <MenuItem href='/' icon={<HomeIcon />}>
               Home
