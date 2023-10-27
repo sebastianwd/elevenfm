@@ -1,12 +1,20 @@
 /* eslint-disable @next/next/no-img-element */
 import type { NextPage } from 'next'
+import { useEffect } from 'react'
 
 import { SearchTrigger } from '~/components/search-trigger'
 import { Seo } from '~/components/seo'
 import { useGlobalSearchStore } from '~/store/use-global-search'
+import { useLayoutState } from '~/store/use-layout-state'
 
 const Home: NextPage = () => {
   const { setIsOpen } = useGlobalSearchStore()
+
+  const { setVideoPosition } = useLayoutState()
+
+  useEffect(() => {
+    setVideoPosition('home-page')
+  }, [setVideoPosition])
 
   return (
     <>
@@ -29,6 +37,7 @@ const Home: NextPage = () => {
           alt='Landing logo'
         />
       </div>
+      <div data-home-page className='hidden' />
     </>
   )
 }

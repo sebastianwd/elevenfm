@@ -47,6 +47,7 @@
     "react-dom": "18.2.0",
     "react-player": "^2.13.0",
     "reflect-metadata": "^0.1.13",
+    "simplebar-react": "^3.2.4",
     "tailwind-merge": "^1.14.0",
     "type-graphql": "^2.0.0-beta.2",
     "zustand": "^4.4.3",

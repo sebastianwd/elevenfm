@@ -1,4 +1,5 @@
 import '../styles/global.css'
+import 'simplebar-react/dist/simplebar.min.css'
 
 import { debounce } from 'lodash'
 import type { AppProps } from 'next/app'

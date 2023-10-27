@@ -20,6 +20,36 @@ body,
       ),
       linear-gradient(to left, transparent 99%, theme('colors.dark.700') 100%);
   }
+
+  .gradient-border::after {
+    --border: 4;
+    --radius: 12;
+    --alpha: 0;
+    --bg-size: calc(100% + (2px * var(--border)));
+    --gradient: conic-gradient(
+      from 180deg at 50% 70%,
+      hsla(0, 0%, 98%, 1) 0deg,
+      #eec32d 72.0000010728836deg,
+      #ec4b4b 144.0000021457672deg,
+      #709ab9 216.00000858306885deg,
+      #4dffbf 288.0000042915344deg,
+      hsla(0, 0%, 98%, 1) 1turn
+    );
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: var(--gradient) center center / var(--bg-size) var(--bg-size);
+    border-radius: calc(var(--radius) * 1px);
+    border: calc(var(--border) * 1px) solid transparent;
+    mask: linear-gradient(
+        hsl(0 0% 100% / var(--alpha)),
+        hsl(0 0% 100% / var(--alpha))
+      ),
+      linear-gradient(hsl(0 0% 100%), hsl(0 0% 100%));
+    mask-clip: padding-box, border-box;
+    mask-composite: intersect;
+  }
 }
 
 html {

@@ -12,7 +12,7 @@ export const Seo = (props: SeoProps) => {
 
   return (
     <NextSeo
-      title={title}
+      title={title || 'ElevenFM - Enjoy unlimited free music!'}
       titleTemplate={title ? '%s | ElevenFM' : 'ElevenFM'}
       canonical={`${process.env.NEXT_PUBLIC_DOMAIN}${path}`}
       description={description}

@@ -24,7 +24,7 @@ import {
 } from '~/api'
 import { Seo } from '~/components/seo'
 import { Song } from '~/components/song'
-import { VideoPlayer } from '~/components/video-player'
+import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
 
 interface ArtistAlbumsProps {
@@ -394,6 +394,12 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
     }
   }, [data?.artist.website])
 
+  const { setVideoPosition } = useLayoutState()
+
+  React.useEffect(() => {
+    setVideoPosition('artist-page')
+  }, [setVideoPosition])
+
   return (
     <>
       <Seo
@@ -444,9 +450,7 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
             </div>
           </header>
           <div className='flex justify-center col-span-2 lg:col-span-1'>
-            <div className='aspect-video max-w-full'>
-              <VideoPlayer />
-            </div>
+            <div data-artist-page className='aspect-video max-w-full' />
           </div>
         </div>
         <div className='grid lg:grid-cols-3'>

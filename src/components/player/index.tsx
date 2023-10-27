@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { head } from 'lodash'
 import Image from 'next/image'
 import { type ChangeEvent, useCallback, useState } from 'react'
+import SimpleBar from 'simplebar-react'
 
 import { getLyricsQuery, getVideoInfoQuery, queryClient } from '~/api'
 import {
@@ -83,7 +84,14 @@ const QueueList = (props: QueueListProps) => {
       variants={container}
     >
       <h3 className='font-semibold text-lg px-5 py-3'>Queue</h3>
-      <ul className='h-[36rem] overflow-auto'>{renderContent()}</ul>
+      <SimpleBar
+        className='h-[36rem] overflow-auto pr-4'
+        classNames={{
+          scrollbar: 'bg-primary-500 w-1 rounded',
+        }}
+      >
+        <ul>{renderContent()}</ul>
+      </SimpleBar>
     </motion.div>
   )
 }
@@ -139,7 +147,14 @@ const Lyrics = (props: LyricsProps) => {
       variants={container}
     >
       <h3 className='font-semibold text-lg px-5 py-3'>{song}</h3>
-      <ul className='h-[36rem] overflow-auto'>{renderContent()}</ul>
+      <SimpleBar
+        className='h-[36rem] overflow-auto pr-4'
+        classNames={{
+          scrollbar: 'bg-primary-500 w-1 rounded',
+        }}
+      >
+        {renderContent()}
+      </SimpleBar>
     </motion.div>
   )
 }
@@ -196,7 +211,7 @@ export const FooterPlayer = () => {
 
   return (
     <>
-      <div className='fixed bottom-28 left-0 mx-auto md:right-5 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
+      <div className='fixed bottom-28 left-0 mx-auto md:right-4 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
         <AnimatePresence>
           {showLyrics ? (
             <Lyrics
@@ -206,7 +221,7 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <div className='fixed bottom-28 right-0 md:right-5 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
+      <div className='fixed bottom-28 right-0 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
         <AnimatePresence>
           {showQueue ? (
             <QueueList queue={currentQueue} onPlay={onPlaySong} />

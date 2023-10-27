@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useLayoutEffect } from 'react'
 import type ReactPlayer from 'react-player'
 
 import {
@@ -42,6 +42,7 @@ export const VideoPlayer = () => {
 
   const onPlayerProgress = useCallback(
     (options: { playedSeconds: number; played: number }) => {
+      console.log('onPlayerProgress')
       setPlayerProgress({
         playedSeconds: options.playedSeconds,
         played: options.played,
@@ -52,6 +53,7 @@ export const VideoPlayer = () => {
 
   const updatePlayerProgress = useCallback(
     (node: Omit<ReactPlayer, 'refs'>) => {
+      console.log('updatePlayerProgress')
       if (isPlaying && playedProgress !== 0) {
         node.seekTo(playedProgress, 'fraction')
       }
@@ -59,7 +61,7 @@ export const VideoPlayer = () => {
     [isPlaying, playedProgress]
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (instance.current) {
       updatePlayerProgress(instance.current)
     }
