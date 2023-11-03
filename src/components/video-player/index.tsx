@@ -42,7 +42,6 @@ export const VideoPlayer = () => {
 
   const onPlayerProgress = useCallback(
     (options: { playedSeconds: number; played: number }) => {
-      console.log('onPlayerProgress')
       setPlayerProgress({
         playedSeconds: options.playedSeconds,
         played: options.played,
@@ -53,7 +52,6 @@ export const VideoPlayer = () => {
 
   const updatePlayerProgress = useCallback(
     (node: Omit<ReactPlayer, 'refs'>) => {
-      console.log('updatePlayerProgress')
       if (isPlaying && playedProgress !== 0) {
         node.seekTo(playedProgress, 'fraction')
       }
