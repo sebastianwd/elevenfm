@@ -108,3 +108,37 @@ export const LyricsIcon = (props: SVGProps<SVGSVGElement>) => (
     </g>
   </svg>
 )
+
+export const TheaterModeIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='100%'
+    height='100%'
+    viewBox='0 0 24 24'
+    {...props}
+  >
+    <rect
+      fill='none'
+      stroke='currentColor'
+      strokeWidth={2}
+      x={1}
+      y={1}
+      width={22}
+      height={22}
+      rx={2}
+      ry={2}
+    />
+    <rect
+      x={4}
+      y={5}
+      width={16}
+      height={9}
+      rx='1.5'
+      ry='1.5'
+      fill='currentColor'
+    />
+    <circle cx={7} cy={17} r='1.5' fill='currentColor' />
+    <circle cx={12} cy={17} r='1.5' fill='currentColor' />
+    <circle cx={17} cy={17} r='1.5' fill='currentColor' />
+  </svg>
+)

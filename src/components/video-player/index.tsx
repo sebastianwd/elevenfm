@@ -1,7 +1,8 @@
 import dynamic from 'next/dynamic'
-import { useCallback, useLayoutEffect } from 'react'
+import { memo, useCallback } from 'react'
 import type ReactPlayer from 'react-player'
 
+import { useLayoutState } from '~/store/use-layout-state'
 import {
   usePlayerInstance,
   usePlayerProgressState,
@@ -12,7 +13,7 @@ const DynamicReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
 })
 
-export const VideoPlayer = () => {
+const VideoPlayer = memo(() => {
   const { isPlaying, setIsPlaying, currentSong, setDuration, playNext } =
     usePlayerState()
 
@@ -23,6 +24,8 @@ export const VideoPlayer = () => {
   )
 
   const setPlayerProgress = usePlayerProgressState((state) => state.setProgress)
+
+  const videoPosition = useLayoutState((state) => state.videoPosition)
 
   const onPlayerPlay = useCallback(() => {
     if (!currentSong) {
@@ -52,18 +55,12 @@ export const VideoPlayer = () => {
 
   const updatePlayerProgress = useCallback(
     (node: Omit<ReactPlayer, 'refs'>) => {
-      if (isPlaying && playedProgress !== 0) {
+      if (playedProgress !== 0) {
         node.seekTo(playedProgress, 'fraction')
       }
     },
-    [isPlaying, playedProgress]
+    [playedProgress]
   )
-
-  useLayoutEffect(() => {
-    if (instance.current) {
-      updatePlayerProgress(instance.current)
-    }
-  }, [instance.current])
 
   return (
     <DynamicReactPlayer
@@ -79,6 +76,7 @@ export const VideoPlayer = () => {
       stopOnUnmount={false}
       progressInterval={500}
       onProgress={onPlayerProgress}
+      position={videoPosition}
       onDuration={(duration) => {
         if (!currentSong) {
           return
@@ -90,8 +88,18 @@ export const VideoPlayer = () => {
         // @ts-expect-error - hide from redux devtools for performance
         node.toJSON = () => ({ hidden: 'to help redux devtools :)' })
 
+        const previousPosition = instance.current?.props.position
+
         instance.current = node
+
+        if (previousPosition !== node.props.position) {
+          updatePlayerProgress(instance.current)
+        }
       }}
     />
   )
-}
+})
+
+VideoPlayer.displayName = 'VideoPlayer'
+
+export { VideoPlayer }

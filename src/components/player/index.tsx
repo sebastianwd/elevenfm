@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
@@ -6,8 +7,10 @@ import { head } from 'lodash'
 import Image from 'next/image'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
+import { twMerge } from 'tailwind-merge'
 
 import { getLyricsQuery, getVideoInfoQuery, queryClient } from '~/api'
+import { useLayoutState } from '~/store/use-layout-state'
 import {
   Song as SongType,
   usePlayerInstance,
@@ -15,7 +18,13 @@ import {
   usePlayerState,
 } from '~/store/use-player'
 
-import { LyricsIcon, NextIcon, PreviousIcon, RandomIcon } from '../icons'
+import {
+  LyricsIcon,
+  NextIcon,
+  PreviousIcon,
+  RandomIcon,
+  TheaterModeIcon,
+} from '../icons'
 import { WavesLoader } from '../loader'
 import { RangeSlider } from '../range-slider'
 import { Song } from '../song'
@@ -51,7 +60,7 @@ const QueueList = (props: QueueListProps) => {
   const renderContent = () => {
     if (queue.length === 0) {
       return (
-        <div className='flex justify-center items-center h-full'>
+        <div className='flex justify-center items-center h-[36rem]'>
           <p className='text-gray-400'>Queue is empty</p>
         </div>
       )
@@ -99,9 +108,10 @@ const QueueList = (props: QueueListProps) => {
 interface LyricsProps {
   song: string
   artist: string
+  className?: string
 }
 
-const Lyrics = (props: LyricsProps) => {
+export const Lyrics = (props: LyricsProps) => {
   const { artist, song } = props
 
   const { data, isInitialLoading } = useQuery({
@@ -121,7 +131,7 @@ const Lyrics = (props: LyricsProps) => {
   const renderContent = () => {
     if (isInitialLoading) {
       return (
-        <div className='flex justify-center items-center h-full'>
+        <div className='flex justify-center items-center h-[36rem]'>
           <WavesLoader />
         </div>
       )
@@ -129,32 +139,34 @@ const Lyrics = (props: LyricsProps) => {
 
     if (!lyrics) {
       return (
-        <div className='flex justify-center items-center h-full'>
+        <div className='flex justify-center items-center h-[36rem]'>
           <p className='text-gray-100'>Lyrics not found</p>
         </div>
       )
     }
 
-    return <pre className='whitespace-pre-line px-4 py-2 text-lg'>{lyrics}</pre>
+    return (
+      <SimpleBar
+        className={twMerge(`h-[36rem] overflow-auto pr-4`, props.className)}
+        classNames={{
+          scrollbar: 'bg-primary-500 w-1 rounded',
+        }}
+      >
+        <pre className='whitespace-pre-line px-4 py-2 text-lg'>{lyrics}</pre>{' '}
+      </SimpleBar>
+    )
   }
 
   return (
     <motion.div
-      className='bg-dark-800 rounded-lg'
+      className='bg-dark-800 rounded-lg h-full'
       initial='hidden'
       exit='hidden'
       animate='show'
       variants={container}
     >
       <h3 className='font-semibold text-lg px-5 py-3'>{song}</h3>
-      <SimpleBar
-        className='h-[36rem] overflow-auto pr-4'
-        classNames={{
-          scrollbar: 'bg-primary-500 w-1 rounded',
-        }}
-      >
-        {renderContent()}
-      </SimpleBar>
+      {renderContent()}
     </motion.div>
   )
 }
@@ -175,6 +187,11 @@ export const FooterPlayer = () => {
   const { progress } = usePlayerProgressState()
 
   const { instance } = usePlayerInstance()
+
+  const { theaterMode, setTheaterMode } = useLayoutState((state) => ({
+    theaterMode: state.theaterMode,
+    setTheaterMode: state.setTheaterMode,
+  }))
 
   const onChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -297,6 +314,21 @@ export const FooterPlayer = () => {
               >
                 <NextIcon className='h-8 w-8' />
               </button>
+              <div className='w-2' />
+              <button
+                onClick={() => {
+                  setShowLyrics(!showLyrics)
+                }}
+                className='md:hidden inline-flex'
+                title='Lyrics'
+                type='button'
+              >
+                <LyricsIcon
+                  className={`h-6 w-6 ${
+                    showLyrics ? 'text-primary-500' : 'text-gray-200'
+                  }`}
+                />
+              </button>
               <button
                 onClick={() => {
                   setShowQueue(!showQueue)
@@ -322,6 +354,20 @@ export const FooterPlayer = () => {
             />
           </div>
           <div className='hidden items-center justify-end md:flex gap-3'>
+            <button
+              onClick={() => {
+                setTheaterMode(!theaterMode)
+              }}
+              className='inline-flex'
+              title='Theater Mode'
+              type='button'
+            >
+              <TheaterModeIcon
+                className={`h-5 w-5 ${
+                  theaterMode ? 'text-primary-500' : 'text-gray-200'
+                }`}
+              />
+            </button>
             <button
               onClick={() => {
                 setShowLyrics(!showLyrics)

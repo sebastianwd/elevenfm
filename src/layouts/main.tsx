@@ -16,19 +16,17 @@ const VideoPlayerContainer = () => {
     setDomReady(true)
   }, [])
 
-  return domReady
-    ? createPortal(
-        <VideoPlayer />,
-        document.querySelector(`[data-${videoPosition}]`) as Element
-      )
+  const container = domReady
+    ? document.querySelector(`[data-${videoPosition}]`)
     : null
+
+  return domReady && container ? createPortal(<VideoPlayer />, container) : null
 }
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <div className='relative flex w-full flex-grow flex-col flex-wrap py-4 md:flex-row md:flex-nowrap md:py-0'>
-        <div className='flex-shrink-0 md:w-36'></div>
         <Menu />
         <main role='main' className='w-full flex-grow'>
           {children}

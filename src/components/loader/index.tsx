@@ -22,7 +22,7 @@ export const WavesLoader = () => {
           <div
             key={index}
             className={twMerge(
-              `w-1 h-14 bg-gradient-to-br from-primary-500 to-primary-500 mx-2 animate-waves rounded-xl grow shrink-0`,
+              `w-0.5 h-10 bg-gradient-to-br from-primary-500 to-primary-500 mx-2 animate-waves rounded-xl grow shrink-0 opacity-0`,
               delayClasses[(index + 1) as keyof typeof delayClasses]
             )}
           ></div>

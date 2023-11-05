@@ -16,12 +16,13 @@ import { twMerge } from 'tailwind-merge'
 import {
   artistQuery,
   getAlbumsQuery,
-  // getLyricsQuery,
   getVideoInfoQuery,
   queryClient,
   similarArtistsQuery,
   topsongsByArtistQuery,
 } from '~/api'
+import { WavesLoader } from '~/components/loader'
+import { Lyrics } from '~/components/player'
 import { Seo } from '~/components/seo'
 import { Song } from '~/components/song'
 import { useLayoutState } from '~/store/use-layout-state'
@@ -108,35 +109,41 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
       <>
         <h3 className='text-xl font-semibold mb-4'>Albums</h3>
         <div className='flex flex-wrap -mx-2 -mr-1'>
-          {albums?.map((album, i) => {
-            return (
-              <div
-                key={album.name + i}
-                className='w-1/2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 flex flex-col px-2 mb-5'
-              >
-                <button
-                  onClick={() => {
-                    onAlbumSelect(album.name)
-                  }}
+          {getAlbums.isLoading ? (
+            <div className='w-full flex justify-center h-28 md:h-56'>
+              <WavesLoader />
+            </div>
+          ) : (
+            albums?.map((album, i) => {
+              return (
+                <div
+                  key={album.name + i}
+                  className='w-1/2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 flex flex-col px-2 mb-5'
                 >
-                  <div className='relative group'>
-                    <Image
-                      alt={album.name}
-                      width={164}
-                      height={164}
-                      quality={80}
-                      src={album.coverImage || '/cover-placeholder.png'}
-                      className='w-full rounded-md object-cover'
-                    />
-                    <div className='group-hover:visible invisible absolute group-hover:bg-black/30 w-full h-full top-0 left-0 transition-colors flex items-center justify-center'>
-                      <PlayIcon className='group-hover:text-primary-500 w-10 h-10 text-transparent transition-colors' />
+                  <button
+                    onClick={() => {
+                      onAlbumSelect(album.name)
+                    }}
+                  >
+                    <div className='relative group'>
+                      <Image
+                        alt={album.name}
+                        width={164}
+                        height={164}
+                        quality={80}
+                        src={album.coverImage || '/cover-placeholder.png'}
+                        className='w-full rounded-md object-cover'
+                      />
+                      <div className='group-hover:visible invisible absolute group-hover:bg-black/30 w-full h-full top-0 left-0 transition-colors flex items-center justify-center'>
+                        <PlayIcon className='group-hover:text-primary-500 w-10 h-10 text-transparent transition-colors' />
+                      </div>
                     </div>
-                  </div>
-                  <span className='text-center text-sm'>{album.name}</span>
-                </button>
-              </div>
-            )
-          })}
+                    <span className='text-center text-sm'>{album.name}</span>
+                  </button>
+                </div>
+              )
+            })
+          )}
         </div>
       </>
     )
@@ -158,11 +165,6 @@ const ArtistSongs = (props: ArtistSongsProps) => {
     staleTime: Infinity,
     cacheTime: Infinity,
   })
-
-  /* const res = getLyricsQuery({
-    artist: 'Thursday',
-    song: 'Understanding In A Car Crash',
-  })*/
 
   const [listSearchValue, setListSearchValue] = React.useState('')
 
@@ -330,7 +332,7 @@ interface SimilarArtistsProps {
 const SimilarArtists = (props: SimilarArtistsProps) => {
   const { artist } = props
 
-  const { data: similarArtists } = useQuery({
+  const { data: similarArtists, isLoading } = useQuery({
     queryKey: ['similarArtists', artist],
     queryFn: () =>
       similarArtistsQuery({ artist: artist, limit: 9, onlyNames: false }),
@@ -339,31 +341,63 @@ const SimilarArtists = (props: SimilarArtistsProps) => {
 
   return (
     <div className='flex flex-wrap -px-4'>
-      {similarArtists?.similarArtists.map((artist, i) => {
-        return (
-          <div
-            key={artist.name + i}
-            className='w-1/2 2xl:w-1/3 flex flex-col px-1 mb-1 h-28 md:h-64'
-          >
-            <Link
-              href={`/artist/${artist.name}`}
-              className='h-full relative group overflow-hidden rounded-md'
+      {isLoading ? (
+        <div className='w-full flex justify-center h-28 md:h-56'>
+          <WavesLoader />
+        </div>
+      ) : (
+        similarArtists?.similarArtists.map((artist, i) => {
+          return (
+            <div
+              key={artist.name + i}
+              className='w-1/2 2xl:w-1/3 flex flex-col px-1 mb-1 h-28 md:h-64'
             >
-              <Image
-                alt={artist.name}
-                width={164}
-                height={164}
-                quality={80}
-                src={artist.image || '/cover-placeholder.png'}
-                className='w-full object-cover h-full group-hover:scale-105 group-hover:blur-sm transition-all'
-              />
-              <div className='absolute bg-black/50 group-hover:bg-black/40 w-full h-full top-0 left-0 transition-colors flex items-center justify-center'>
-                <span className='text-center text-slate-50'>{artist.name}</span>
-              </div>
-            </Link>
-          </div>
-        )
-      })}
+              <Link
+                href={`/artist/${artist.name}`}
+                className='h-full relative group overflow-hidden rounded-md'
+              >
+                <Image
+                  alt={artist.name}
+                  width={164}
+                  height={164}
+                  quality={80}
+                  src={artist.image || '/cover-placeholder.png'}
+                  className='w-full object-cover h-full group-hover:scale-105 group-hover:blur-sm transition-all'
+                />
+                <div className='absolute bg-black/50 group-hover:bg-black/40 w-full h-full top-0 left-0 transition-colors flex items-center justify-center'>
+                  <span className='text-center text-slate-50'>
+                    {artist.name}
+                  </span>
+                </div>
+              </Link>
+            </div>
+          )
+        })
+      )}
+    </div>
+  )
+}
+
+const TheaterMode = () => {
+  const currentSong = usePlayerState((state) => state.currentSong)
+
+  if (!currentSong) {
+    return <p className='text-center my-auto'>No song playing</p>
+  }
+
+  return (
+    <div className='grid grid-cols-1 lg:grid-cols-3 lg:grow'>
+      <div
+        data-theater-mode
+        className='aspect-video max-w-full lg:h-full lg:col-span-2'
+      />
+      <div className='lg:col-span-1'>
+        <Lyrics
+          artist={currentSong?.artist}
+          song={currentSong?.title}
+          className='lg:h-[calc(100svh-11rem)] h-[calc(100svh/1.95)]'
+        />
+      </div>
     </div>
   )
 }
@@ -394,11 +428,11 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
     }
   }, [data?.artist.website])
 
-  const { setVideoPosition } = useLayoutState()
+  const { setVideoPosition, theaterMode } = useLayoutState()
 
   React.useEffect(() => {
-    setVideoPosition('artist-page')
-  }, [setVideoPosition])
+    setVideoPosition(theaterMode ? 'theater-mode' : 'artist-page')
+  }, [setVideoPosition, theaterMode])
 
   return (
     <>
@@ -407,137 +441,147 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
         description={`Listen to ${data?.artist.name} on ElevenFM`}
         image={data?.artist.bannerImage || undefined}
       />
-      <div className='container mx-auto w-full max-w-[1920px]'>
-        <div className='grid lg:grid-cols-3'>
-          <header
-            className='bg-gradient-blend relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top'
-            style={{
-              backgroundImage: data?.artist.bannerImage
-                ? `url("${data.artist.bannerImage}")`
-                : undefined,
-            }}
-          >
-            <div className='z-10 mt-auto flex w-full items-center gap-7 px-8 mb-16 flex-col md:flex-row'>
-              {data?.artist.image && (
-                <Image
-                  alt='artist'
-                  width={200}
-                  height={200}
-                  quality={100}
-                  src={data?.artist.image}
-                  className='h-40 w-40 rounded-md object-cover'
-                />
-              )}
-              <div>
-                <div className='flex items-center gap-4 justify-center md:justify-start'>
-                  <h1 className='text-2xl md:text-3xl lg:text-5xl text-gray-50'>
-                    {data?.artist.name}
-                  </h1>
-                  {artistWebsite && (
-                    <a
-                      href={artistWebsite}
-                      target='_blank'
-                      rel='noreferrer noopener'
-                    >
-                      <GlobeAltIcon className='h-6' />
-                    </a>
+      <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
+        {theaterMode ? (
+          <TheaterMode />
+        ) : (
+          <>
+            <div className='grid lg:grid-cols-3'>
+              <header
+                className='bg-gradient-blend relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top'
+                style={{
+                  backgroundImage: data?.artist.bannerImage
+                    ? `url("${data.artist.bannerImage}")`
+                    : undefined,
+                }}
+              >
+                <div className='z-10 mt-auto flex w-full items-center gap-7 px-8 mb-16 flex-col md:flex-row'>
+                  {data?.artist.image && (
+                    <Image
+                      alt='artist'
+                      width={200}
+                      height={200}
+                      quality={100}
+                      src={data?.artist.image}
+                      className='h-40 w-40 rounded-md object-cover'
+                    />
                   )}
+                  <div>
+                    <div className='flex items-center gap-4 justify-center md:justify-start'>
+                      <h1 className='text-2xl md:text-3xl lg:text-5xl text-gray-50'>
+                        {data?.artist.name}
+                      </h1>
+                      {artistWebsite && (
+                        <a
+                          href={artistWebsite}
+                          target='_blank'
+                          rel='noreferrer noopener'
+                        >
+                          <GlobeAltIcon className='h-6' />
+                        </a>
+                      )}
+                    </div>
+                    <h5 className='text-sm font-thin md:text-left text-center text-gray-300'>
+                      {data?.artist.genre}
+                    </h5>
+                  </div>
                 </div>
-                <h5 className='text-sm font-thin md:text-left text-center text-gray-300'>
-                  {data?.artist.genre}
-                </h5>
+              </header>
+              <div className='flex justify-center col-span-2 lg:col-span-1'>
+                <div data-artist-page className='aspect-video max-w-full' />
               </div>
             </div>
-          </header>
-          <div className='flex justify-center col-span-2 lg:col-span-1'>
-            <div data-artist-page className='aspect-video max-w-full' />
-          </div>
-        </div>
-        <div className='grid lg:grid-cols-3'>
-          <div className='md:pl-8 lg:col-span-2 lg:-mt-11'>
-            <Tab.Group>
-              <Tab.List>
-                <Tab
-                  className={({ selected }) =>
-                    twMerge(
-                      `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-['']`,
-                      selected ? `before:bg-primary-500` : ''
-                    )
-                  }
-                >
-                  Songs
-                </Tab>
-                <Tab
-                  className={({ selected }) =>
-                    twMerge(
-                      `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-['']`,
-                      selected ? `before:bg-primary-500` : ''
-                    )
-                  }
-                >
-                  Albums
-                </Tab>
-                <Tab
-                  className={({ selected }) =>
-                    twMerge(
-                      `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-[''] `,
-                      selected ? `before:bg-primary-500` : ''
-                    )
-                  }
-                >
-                  Biography
-                </Tab>
-              </Tab.List>
-              <Tab.Panels>
-                <Tab.Panel>
-                  <div className='md:pr-4'>
-                    <ArtistSongs artist={artist} />
-                  </div>
-                </Tab.Panel>
-                <Tab.Panel>
-                  <ArtistAlbums
-                    selectedAlbum={selectedAlbum}
-                    onAlbumSelect={onAlbumSelect}
-                    artist={artist}
-                  />
-                </Tab.Panel>
-                <Tab.Panel>
-                  <div className='p-4 pt-6'>
-                    <h3 className='text-xl font-semibold mb-3'>Biography</h3>
+            <div className='grid lg:grid-cols-3'>
+              <div className='md:pl-8 lg:col-span-2 lg:-mt-11'>
+                <Tab.Group>
+                  <Tab.List>
+                    <Tab
+                      className={({ selected }) =>
+                        twMerge(
+                          `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-['']`,
+                          selected ? `before:bg-primary-500` : ''
+                        )
+                      }
+                    >
+                      Songs
+                    </Tab>
+                    <Tab
+                      className={({ selected }) =>
+                        twMerge(
+                          `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-['']`,
+                          selected ? `before:bg-primary-500` : ''
+                        )
+                      }
+                    >
+                      Albums
+                    </Tab>
+                    <Tab
+                      className={({ selected }) =>
+                        twMerge(
+                          `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-[''] `,
+                          selected ? `before:bg-primary-500` : ''
+                        )
+                      }
+                    >
+                      Biography
+                    </Tab>
+                  </Tab.List>
+                  <Tab.Panels>
+                    <Tab.Panel>
+                      <div className='md:pr-4'>
+                        <ArtistSongs artist={artist} />
+                      </div>
+                    </Tab.Panel>
+                    <Tab.Panel>
+                      <ArtistAlbums
+                        selectedAlbum={selectedAlbum}
+                        onAlbumSelect={onAlbumSelect}
+                        artist={artist}
+                      />
+                    </Tab.Panel>
+                    <Tab.Panel>
+                      <div className='p-4 pt-6'>
+                        <h3 className='text-xl font-semibold mb-3'>
+                          Biography
+                        </h3>
 
-                    <ul>
-                      {data?.artist.formedYear && (
-                        <li className='mb-2'>
-                          <span className='font-semibold'>Year formed:</span>{' '}
-                          {data?.artist.formedYear || ''}
-                        </li>
-                      )}
-                      {data?.artist.location && (
-                        <li className='mb-2'>
-                          <span className='font-semibold'>Location:</span>{' '}
-                          {data?.artist.location || ''}
-                        </li>
-                      )}
-                      {data?.artist.disbanded && (
-                        <li className='mb-2'>
-                          <span className='font-semibold'>Disbanded:</span>{' '}
-                          {data?.artist.disbanded ? 'Yes' : 'No'}
-                        </li>
-                      )}
-                    </ul>
-                    <article className='text-sm leading-relaxed'>
-                      <p>{data?.artist.biography || ''}</p>
-                    </article>
-                  </div>
-                </Tab.Panel>
-              </Tab.Panels>
-            </Tab.Group>
-          </div>
-          <div className='mt-5 px-4 md:pl-12 lg:px-0'>
-            <h3 className='text-xl font-semibold mb-4'>Similar artists</h3>
-            <SimilarArtists artist={artist} />
-          </div>
-        </div>
+                        <ul>
+                          {data?.artist.formedYear && (
+                            <li className='mb-2'>
+                              <span className='font-semibold'>
+                                Year formed:
+                              </span>{' '}
+                              {data?.artist.formedYear || ''}
+                            </li>
+                          )}
+                          {data?.artist.location && (
+                            <li className='mb-2'>
+                              <span className='font-semibold'>Location:</span>{' '}
+                              {data?.artist.location || ''}
+                            </li>
+                          )}
+                          {data?.artist.disbanded && (
+                            <li className='mb-2'>
+                              <span className='font-semibold'>Disbanded:</span>{' '}
+                              {data?.artist.disbanded ? 'Yes' : 'No'}
+                            </li>
+                          )}
+                        </ul>
+                        <article className='text-sm leading-relaxed'>
+                          <p>{data?.artist.biography || ''}</p>
+                        </article>
+                      </div>
+                    </Tab.Panel>
+                  </Tab.Panels>
+                </Tab.Group>
+              </div>
+              <div className='mt-5 px-4 md:pl-12 lg:px-0'>
+                <h3 className='text-xl font-semibold mb-4'>Similar artists</h3>
+                <SimilarArtists artist={artist} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   )
