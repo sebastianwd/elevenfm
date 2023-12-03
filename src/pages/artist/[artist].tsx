@@ -52,7 +52,7 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
         queryKey: ['getVideoInfo', `${artist} - ${song}`],
         queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
         staleTime: Infinity,
-        cacheTime: Infinity,
+        gcTime: Infinity,
       })
 
       const sample = head(data?.getVideoInfo)
@@ -163,7 +163,7 @@ const ArtistSongs = (props: ArtistSongsProps) => {
     queryKey: ['topsongsByArtist', artist],
     queryFn: () => topsongsByArtistQuery({ artist }),
     staleTime: Infinity,
-    cacheTime: Infinity,
+    gcTime: Infinity,
   })
 
   const [listSearchValue, setListSearchValue] = React.useState('')
@@ -177,7 +177,7 @@ const ArtistSongs = (props: ArtistSongsProps) => {
         queryKey: ['getVideoInfo', `${artist} - ${song}`],
         queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
         staleTime: Infinity,
-        cacheTime: Infinity,
+        gcTime: Infinity,
       })
 
       const sample = head(data?.getVideoInfo)
@@ -588,14 +588,12 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  await queryClient.prefetchQuery(
-    ['artist', String(params?.artist)],
-    () => artistQuery({ name: String(params?.artist) }),
-    {
-      staleTime: 1000 * 60 * 60 * 24,
-      cacheTime: 1000 * 60 * 60 * 24,
-    }
-  )
+  await queryClient.prefetchQuery({
+    queryKey: ['artist', String(params?.artist)],
+    queryFn: () => artistQuery({ name: String(params?.artist) }),
+    staleTime: 1000 * 60 * 60 * 24,
+    gcTime: 1000 * 60 * 60 * 24,
+  })
 
   return {
     props: {

@@ -49,21 +49,25 @@ const getAlbum = async (song: Song) => {
     return
   }
 
-  const data = await queryClient.fetchQuery(
-    ['album', `${song.artist} - ${song.title}`],
-    () => getAlbumBySongQuery({ artist: song.artist, song: song.title }),
-    { cacheTime: Infinity, staleTime: Infinity }
-  )
+  const data = await queryClient.fetchQuery({
+    queryKey: ['album', `${song.artist} - ${song.title}`],
+    queryFn: () =>
+      getAlbumBySongQuery({ artist: song.artist, song: song.title }),
+    gcTime: Infinity,
+    staleTime: Infinity,
+  })
 
   return data.getAlbumBySong
 }
 
 const getVideoInfo = async (song: Song) => {
-  const data = await queryClient.fetchQuery(
-    ['getVideoInfo', `${song.artist} - ${song.title}`],
-    () => getVideoInfoQuery({ query: `${song.artist} - ${song.title}` }),
-    { cacheTime: Infinity, staleTime: Infinity }
-  )
+  const data = await queryClient.fetchQuery({
+    queryKey: ['videoInfo', `${song.artist} - ${song.title}`],
+    queryFn: () =>
+      getVideoInfoQuery({ query: `${song.artist} - ${song.title}` }),
+    gcTime: Infinity,
+    staleTime: Infinity,
+  })
 
   return data.getVideoInfo
 }

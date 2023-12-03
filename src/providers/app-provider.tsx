@@ -1,4 +1,7 @@
-import { Hydrate, QueryClientProvider } from '@tanstack/react-query'
+import {
+  HydrationBoundary as Hydrate,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 import { AppProps } from 'next/app'
 import * as React from 'react'
 

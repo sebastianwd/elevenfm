@@ -113,7 +113,7 @@ interface LyricsProps {
 export const Lyrics = (props: LyricsProps) => {
   const { artist, song } = props
 
-  const { data, isInitialLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['getLyricsQuery', song, artist],
     queryFn: () =>
       getLyricsQuery({
@@ -121,14 +121,14 @@ export const Lyrics = (props: LyricsProps) => {
         artist: artist || '',
       }),
     staleTime: Infinity,
-    cacheTime: Infinity,
+    gcTime: Infinity,
     enabled: Boolean(song && artist),
   })
 
   const lyrics = data?.getLyrics?.lyrics
 
   const renderContent = () => {
-    if (isInitialLoading) {
+    if (isLoading) {
       return (
         <div className='flex justify-center items-center h-[36rem]'>
           <WavesLoader />
@@ -211,7 +211,7 @@ export const FooterPlayer = () => {
       queryKey: ['getVideoInfo', `${artist} - ${song}`],
       queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
       staleTime: Infinity,
-      cacheTime: Infinity,
+      gcTime: Infinity,
     })
 
     const sample = head(data?.getVideoInfo)
