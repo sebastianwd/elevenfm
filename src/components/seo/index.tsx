@@ -16,12 +16,12 @@ export const Seo = (props: SeoProps) => {
       titleTemplate={title ? '%s | ElevenFM' : 'ElevenFM'}
       canonical={`${process.env.NEXT_PUBLIC_DOMAIN}${path}`}
       description={description}
-      openGraph={
-        image
+      openGraph={{
+        url: `${process.env.NEXT_PUBLIC_DOMAIN}${path}`,
+        title: title || 'ElevenFM - Enjoy unlimited free music!',
+        description,
+        ...(image
           ? {
-              url: `${process.env.NEXT_PUBLIC_DOMAIN}${path}`,
-              title,
-              description,
               images: [
                 {
                   url: image,
@@ -29,10 +29,10 @@ export const Seo = (props: SeoProps) => {
                   type: 'image/jpeg',
                 },
               ],
-              siteName: 'ElevenFM',
             }
-          : undefined
-      }
+          : {}),
+        siteName: 'ElevenFM',
+      }}
     />
   )
 }

@@ -28,13 +28,14 @@
   },
   "include": [
     "next-env.d.ts",
-    "tailwind.config.js",
+    "tailwind.config.ts",
     "postcss.config.js",
     "src",
     "next.config.mjs",
     "codegen.yml",
     ".eslintrc.cjs",
-    "apollo.config.js"
+    "apollo.config.js",
+    "prettier.config.mjs"
   ],
   "exclude": ["node_modules", ".next"]
 }

@@ -1,4 +1,4 @@
-import { head, random, sortBy } from 'lodash'
+import { random, sortBy } from 'lodash'
 import { createRef } from 'react'
 import type ReactPlayer from 'react-player'
 import { create } from 'zustand'
@@ -12,7 +12,7 @@ export type Song = {
   artist: string
   albumCoverUrl?: string
   duration?: number
-  url?: string
+  urls?: string[]
 }
 
 interface PlayerProgressState {
@@ -155,12 +155,12 @@ export const usePlayerState = create<PlayerState>()(
         if (nextSong) {
           const data = await getVideoInfo(nextSong)
 
-          const sample = head(data)
+          const urls = data.map((item) => item?.videoId)
 
           await state.setCurrentSong({
             artist: nextSong.artist,
             title: nextSong.title,
-            url: `https://www.youtube.com/watch?v=${sample?.videoId}`,
+            urls,
           })
         }
       },
@@ -182,12 +182,12 @@ export const usePlayerState = create<PlayerState>()(
         if (previousSong) {
           const data = await getVideoInfo(previousSong)
 
-          const sample = head(data)
+          const urls = data.map((item) => item?.videoId)
 
           await state.setCurrentSong({
             artist: previousSong.artist,
             title: previousSong.title,
-            url: `https://www.youtube.com/watch?v=${sample?.videoId}`,
+            urls,
           })
         }
       },
@@ -197,6 +197,7 @@ export const usePlayerState = create<PlayerState>()(
         }),
       setCurrentSong: async (song: Song) => {
         set((state) => {
+          state.duration = 0
           state.currentSong = song
         })
 
@@ -207,7 +208,7 @@ export const usePlayerState = create<PlayerState>()(
             artist: song.artist,
             title: song.title,
             duration: song.duration,
-            url: song.url,
+            urls: song.urls,
             albumCoverUrl: coverUrl,
           }
         })

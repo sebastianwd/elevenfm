@@ -1,12 +1,5 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const colors = require('tailwindcss/colors')
-const plugin = require('tailwindcss/plugin')
-
-delete colors['lightBlue']
-delete colors['warmGray']
-delete colors['trueGray']
-delete colors['coolGray']
-delete colors['blueGray']
+import typography from '@tailwindcss/typography'
+import plugin from 'tailwindcss/plugin'
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -44,7 +37,7 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
+    typography,
     plugin(({ matchUtilities, theme }) => {
       matchUtilities(
         {

@@ -6,7 +6,6 @@ import {
   PlayIcon,
 } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
-import { head } from 'lodash'
 import type { GetServerSideProps, NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -55,14 +54,14 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
         gcTime: Infinity,
       })
 
-      const sample = head(data?.getVideoInfo)
+      const urls = data?.getVideoInfo.map((video) => video.videoId)
 
       const album = albums?.find((album) => album.name === selectedAlbum)
 
       setCurrentSong({
         artist,
         title: song,
-        url: `https://www.youtube.com/watch?v=${sample?.videoId}`,
+        urls,
         albumCoverUrl: album?.coverImage || '',
       })
 
@@ -75,7 +74,7 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
 
       setIsPlaying(true)
     },
-    [albums, selectedAlbum]
+    [albums, selectedAlbum, setCurrentSong, setIsPlaying, setQueue]
   )
 
   const renderContent = () => {
@@ -180,14 +179,12 @@ const ArtistSongs = (props: ArtistSongsProps) => {
         gcTime: Infinity,
       })
 
-      const sample = head(data?.getVideoInfo)
-
-      console.log('sample', sample)
+      const urls = data?.getVideoInfo.map((video) => video.videoId)
 
       setCurrentSong({
         artist,
         title: song,
-        url: `https://www.youtube.com/watch?v=${sample?.videoId}`,
+        urls,
       })
 
       setQueue(
@@ -199,7 +196,7 @@ const ArtistSongs = (props: ArtistSongsProps) => {
 
       setIsPlaying(true)
     },
-    [topsongsByArtist?.topsongsByArtist]
+    [setCurrentSong, setIsPlaying, setQueue, topsongsByArtist?.topsongsByArtist]
   )
 
   const onInputChange = (value: string) => {
@@ -439,7 +436,7 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
       <Seo
         title={data?.artist.name}
         description={`Listen to ${data?.artist.name} on ElevenFM`}
-        image={data?.artist.bannerImage || undefined}
+        image={data?.artist.image || undefined}
       />
       <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
         {theaterMode ? (

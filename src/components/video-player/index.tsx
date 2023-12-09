@@ -1,5 +1,6 @@
+import { isEmpty } from 'lodash'
 import dynamic from 'next/dynamic'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type ReactPlayer from 'react-player'
 
 import { useLayoutState } from '~/store/use-layout-state'
@@ -62,13 +63,32 @@ const VideoPlayer = memo(() => {
     [playedProgress]
   )
 
+  const [videoChoice, setVideoChoice] = useState(0)
+
+  const url = useMemo(() => {
+    if (isEmpty(currentSong?.urls)) return undefined
+
+    const videoId = currentSong?.urls?.[videoChoice]
+    const url = `https://www.youtube.com/watch?v=${videoId}`
+
+    if (!videoId) {
+      return `${process.env.NEXT_PUBLIC_INVIDIOUS_URL2}/latest_version?id=${currentSong?.urls?.[0]}`
+    }
+
+    return url
+  }, [currentSong?.urls, videoChoice])
+
+  useEffect(() => {
+    setVideoChoice(0)
+  }, [currentSong?.title, currentSong?.artist])
+
   return (
     <DynamicReactPlayer
       width='100%'
       height='100%'
       style={{ minHeight: 48 }}
       playing={isPlaying}
-      url={currentSong?.url}
+      url={url}
       controls
       onPlay={onPlayerPlay}
       onPause={onPlayerPause}
@@ -77,11 +97,15 @@ const VideoPlayer = memo(() => {
       progressInterval={500}
       onProgress={onPlayerProgress}
       position={videoPosition}
+      onError={(error) => {
+        if (error) {
+          setVideoChoice((prev) => prev + 1)
+        }
+      }}
       onDuration={(duration) => {
         if (!currentSong) {
           return
         }
-
         setDuration(duration)
       }}
       onReady={(node: Omit<ReactPlayer, 'refs'>) => {

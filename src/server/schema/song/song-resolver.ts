@@ -26,7 +26,7 @@ export class SongResolver {
       throw new Error(`Video not found for query: ${query}`)
     }
 
-    return video.slice(0, 3)
+    return video.slice(0, 5)
   }
 
   @Query(() => SongAlbum)

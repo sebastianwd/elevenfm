@@ -2,7 +2,6 @@ import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
-import { head } from 'lodash'
 import Image from 'next/image'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -206,24 +205,27 @@ export const FooterPlayer = () => {
   const [showQueue, setShowQueue] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
 
-  const onPlaySong = useCallback(async (song: string, artist: string) => {
-    const data = await queryClient.fetchQuery({
-      queryKey: ['getVideoInfo', `${artist} - ${song}`],
-      queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
-      staleTime: Infinity,
-      gcTime: Infinity,
-    })
+  const onPlaySong = useCallback(
+    async (song: string, artist: string) => {
+      const data = await queryClient.fetchQuery({
+        queryKey: ['getVideoInfo', `${artist} - ${song}`],
+        queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
+        staleTime: Infinity,
+        gcTime: Infinity,
+      })
 
-    const sample = head(data?.getVideoInfo)
+      const urls = data.getVideoInfo?.map((video) => video.videoId)
 
-    setCurrentSong({
-      artist,
-      title: song,
-      url: `https://www.youtube.com/watch?v=${sample?.videoId}`,
-    })
+      setCurrentSong({
+        artist,
+        title: song,
+        urls,
+      })
 
-    setIsPlaying(true)
-  }, [])
+      setIsPlaying(true)
+    },
+    [setCurrentSong, setIsPlaying]
+  )
 
   return (
     <>
