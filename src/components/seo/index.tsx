@@ -14,10 +14,10 @@ export const Seo = (props: SeoProps) => {
     <NextSeo
       title={title || 'ElevenFM - Enjoy unlimited free music!'}
       titleTemplate={title ? '%s | ElevenFM' : 'ElevenFM'}
-      canonical={`${process.env.NEXT_PUBLIC_DOMAIN}${path}`}
+      canonical={`${process.env.NEXT_PUBLIC_SITE_URL}${path}`}
       description={description}
       openGraph={{
-        url: `${process.env.NEXT_PUBLIC_DOMAIN}${path}`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}${path}`,
         title: title || 'ElevenFM - Enjoy unlimited free music!',
         description,
         ...(image

@@ -437,6 +437,7 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
         title={data?.artist.name}
         description={`Listen to ${data?.artist.name} on ElevenFM`}
         image={data?.artist.image || undefined}
+        path={`/artist/${data?.artist.name}`}
       />
       <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
         {theaterMode ? (
