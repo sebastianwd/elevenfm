@@ -38,7 +38,7 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
 
   const getAlbums = useQuery({
     queryKey: ['getAlbums', artist],
-    queryFn: () => getAlbumsQuery({ artist }),
+    queryFn: () => getAlbumsQuery({ artist, limit: 12 }),
   })
 
   const albums = getAlbums.data?.getAlbums
@@ -137,7 +137,12 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
                         <PlayIcon className='group-hover:text-primary-500 w-10 h-10 text-transparent transition-colors' />
                       </div>
                     </div>
-                    <span className='text-center text-sm'>{album.name}</span>
+                    <span className='text-center text-sm'>
+                      {album.name}{' '}
+                      <span className='text-xs text-gray-300'>
+                        {album.year ? `(${album.year})` : ''}
+                      </span>
+                    </span>
                   </button>
                 </div>
               )
@@ -544,14 +549,15 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
                         </h3>
 
                         <ul>
-                          {data?.artist.formedYear && (
-                            <li className='mb-2'>
-                              <span className='font-semibold'>
-                                Year formed:
-                              </span>{' '}
-                              {data?.artist.formedYear || ''}
-                            </li>
-                          )}
+                          {!!Number(data?.artist.formedYear) &&
+                            !Number.isNaN(Number(data?.artist.formedYear)) && (
+                              <li className='mb-2'>
+                                <span className='font-semibold'>
+                                  Year formed:
+                                </span>{' '}
+                                {data?.artist.formedYear || ''}
+                              </li>
+                            )}
                           {data?.artist.location && (
                             <li className='mb-2'>
                               <span className='font-semibold'>Location:</span>{' '}

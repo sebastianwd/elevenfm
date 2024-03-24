@@ -169,7 +169,7 @@ export class ArtistResolver {
   @CacheControl({ maxAge: 60 * 60 * 24 * 7 })
   async getAlbums(
     @Arg('artist') artist: string,
-    @Arg('limit', () => Int, { nullable: true, defaultValue: 8 })
+    @Arg('limit', () => Int, { nullable: true, defaultValue: 10 })
     limit: number,
     @Arg('page', () => Int, { nullable: true }) page?: number
   ): Promise<Album[]> {
@@ -197,9 +197,9 @@ export class ArtistResolver {
             artist: albumArtistName,
           })
 
-          const tracks = albumInfo?.tracks.track
+          const tracks = albumInfo?.tracks?.track ?? { name: albumInfo?.name }
 
-          if (isEmpty(tracks)) {
+          if (isEmpty(albumInfo?.tracks?.track) && !albumInfo?.name) {
             return undefined
           }
 

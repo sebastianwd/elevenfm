@@ -1,5 +1,4 @@
-import { GraphQLClient } from 'graphql-request'
-import { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types'
+import { GraphQLClient, RequestOptions } from 'graphql-request'
 import gql from 'graphql-tag'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
@@ -21,6 +20,7 @@ export type Incremental<T> =
   | {
       [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never
     }
+type GraphQLClientRequestHeaders = RequestOptions['requestHeaders']
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string }
@@ -28,36 +28,6 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
-}
-
-export type Album = {
-  __typename?: 'Album'
-  artist: Scalars['String']['output']
-  coverImage: Maybe<Scalars['String']['output']>
-  description: Maybe<Scalars['String']['output']>
-  genre: Maybe<Scalars['String']['output']>
-  name: Scalars['String']['output']
-  tracks: Maybe<Array<Scalars['String']['output']>>
-  year: Maybe<Scalars['String']['output']>
-}
-
-export type Artist = {
-  __typename?: 'Artist'
-  bannerImage: Maybe<Scalars['String']['output']>
-  biography: Maybe<Scalars['String']['output']>
-  disbanded: Maybe<Scalars['Boolean']['output']>
-  disbandedYear: Maybe<Scalars['String']['output']>
-  facebook: Maybe<Scalars['String']['output']>
-  formedYear: Maybe<Scalars['String']['output']>
-  genre: Maybe<Scalars['String']['output']>
-  image: Maybe<Scalars['String']['output']>
-  location: Maybe<Scalars['String']['output']>
-  logo: Maybe<Scalars['String']['output']>
-  memberQuantity: Maybe<Scalars['Float']['output']>
-  name: Scalars['String']['output']
-  style: Maybe<Scalars['String']['output']>
-  twitter: Maybe<Scalars['String']['output']>
-  website: Maybe<Scalars['String']['output']>
 }
 
 export type Query = {
@@ -113,8 +83,38 @@ export type QueryTopsongsByArtistArgs = {
   page: InputMaybe<Scalars['Int']['input']>
 }
 
+export type Album = {
+  __typename?: 'album'
+  artist: Scalars['String']['output']
+  coverImage: Maybe<Scalars['String']['output']>
+  description: Maybe<Scalars['String']['output']>
+  genre: Maybe<Scalars['String']['output']>
+  name: Scalars['String']['output']
+  tracks: Maybe<Array<Scalars['String']['output']>>
+  year: Maybe<Scalars['String']['output']>
+}
+
+export type Artist = {
+  __typename?: 'artist'
+  bannerImage: Maybe<Scalars['String']['output']>
+  biography: Maybe<Scalars['String']['output']>
+  disbanded: Maybe<Scalars['Boolean']['output']>
+  disbandedYear: Maybe<Scalars['String']['output']>
+  facebook: Maybe<Scalars['String']['output']>
+  formedYear: Maybe<Scalars['String']['output']>
+  genre: Maybe<Scalars['String']['output']>
+  image: Maybe<Scalars['String']['output']>
+  location: Maybe<Scalars['String']['output']>
+  logo: Maybe<Scalars['String']['output']>
+  memberQuantity: Maybe<Scalars['Float']['output']>
+  name: Scalars['String']['output']
+  style: Maybe<Scalars['String']['output']>
+  twitter: Maybe<Scalars['String']['output']>
+  website: Maybe<Scalars['String']['output']>
+}
+
 export type Song = {
-  __typename?: 'Song'
+  __typename?: 'song'
   album: Maybe<Scalars['String']['output']>
   artist: Scalars['String']['output']
   duration: Maybe<Scalars['String']['output']>
@@ -126,21 +126,21 @@ export type Song = {
 }
 
 export type SongAlbum = {
-  __typename?: 'SongAlbum'
+  __typename?: 'songAlbum'
   artist: Scalars['String']['output']
   coverUrl: Scalars['String']['output']
   title: Scalars['String']['output']
 }
 
 export type SongLyrics = {
-  __typename?: 'SongLyrics'
+  __typename?: 'songLyrics'
   artist: Scalars['String']['output']
   lyrics: Scalars['String']['output']
   title: Scalars['String']['output']
 }
 
 export type SongVideo = {
-  __typename?: 'SongVideo'
+  __typename?: 'songVideo'
   artist: Scalars['String']['output']
   title: Scalars['String']['output']
   videoId: Scalars['String']['output']
@@ -153,7 +153,7 @@ export type ArtistQueryQueryVariables = Exact<{
 export type ArtistQueryQuery = {
   __typename?: 'Query'
   artist: {
-    __typename: 'Artist'
+    __typename: 'artist'
     name: string
     biography: string | null
     bannerImage: string | null
@@ -178,7 +178,7 @@ export type GetAlbumBySongQueryQueryVariables = Exact<{
 export type GetAlbumBySongQueryQuery = {
   __typename?: 'Query'
   getAlbumBySong: {
-    __typename: 'SongAlbum'
+    __typename: 'songAlbum'
     artist: string
     coverUrl: string
     title: string
@@ -187,12 +187,13 @@ export type GetAlbumBySongQueryQuery = {
 
 export type GetAlbumsQueryQueryVariables = Exact<{
   artist: Scalars['String']['input']
+  limit: Scalars['Int']['input']
 }>
 
 export type GetAlbumsQueryQuery = {
   __typename?: 'Query'
   getAlbums: Array<{
-    __typename?: 'Album'
+    __typename?: 'album'
     artist: string
     coverImage: string | null
     description: string | null
@@ -211,7 +212,7 @@ export type GetLyricsQueryQueryVariables = Exact<{
 export type GetLyricsQueryQuery = {
   __typename?: 'Query'
   getLyrics: {
-    __typename: 'SongLyrics'
+    __typename: 'songLyrics'
     artist: string
     lyrics: string
     title: string
@@ -225,7 +226,7 @@ export type GetVideoInfoQueryQueryVariables = Exact<{
 export type GetVideoInfoQueryQuery = {
   __typename?: 'Query'
   getVideoInfo: Array<{
-    __typename: 'SongVideo'
+    __typename: 'songVideo'
     artist: string
     title: string
     videoId: string
@@ -250,7 +251,7 @@ export type SimilarArtistsQueryQueryVariables = Exact<{
 export type SimilarArtistsQueryQuery = {
   __typename?: 'Query'
   similarArtists: Array<{
-    __typename: 'Artist'
+    __typename: 'artist'
     name: string
     image: string | null
     bannerImage: string | null
@@ -264,7 +265,7 @@ export type TopsongsByArtistQueryQueryVariables = Exact<{
 export type TopsongsByArtistQueryQuery = {
   __typename?: 'Query'
   topsongsByArtist: Array<{
-    __typename: 'Song'
+    __typename: 'song'
     artist: string
     title: string
     playcount: string | null
@@ -303,8 +304,8 @@ export const GetAlbumBySongQueryDocument = gql`
   }
 `
 export const GetAlbumsQueryDocument = gql`
-  query getAlbumsQuery($artist: String!) {
-    getAlbums(artist: $artist, limit: 10, page: 1) {
+  query getAlbumsQuery($artist: String!, $limit: Int!) {
+    getAlbums(artist: $artist, limit: $limit, page: 1) {
       artist
       coverImage
       description
@@ -368,13 +369,15 @@ export const TopsongsByArtistQueryDocument = gql`
 export type SdkFunctionWrapper = <T>(
   action: (requestHeaders?: Record<string, string>) => Promise<T>,
   operationName: string,
-  operationType?: string
+  operationType?: string,
+  variables?: any
 ) => Promise<T>
 
 const defaultWrapper: SdkFunctionWrapper = (
   action,
   _operationName,
-  _operationType
+  _operationType,
+  _variables
 ) => action()
 
 export function getSdk(
@@ -393,7 +396,8 @@ export function getSdk(
             ...wrappedRequestHeaders,
           }),
         'artistQuery',
-        'query'
+        'query',
+        variables
       )
     },
     getAlbumBySongQuery(
@@ -408,7 +412,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'getAlbumBySongQuery',
-        'query'
+        'query',
+        variables
       )
     },
     getAlbumsQuery(
@@ -423,7 +428,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'getAlbumsQuery',
-        'query'
+        'query',
+        variables
       )
     },
     getLyricsQuery(
@@ -438,7 +444,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'getLyricsQuery',
-        'query'
+        'query',
+        variables
       )
     },
     getVideoInfoQuery(
@@ -453,7 +460,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'getVideoInfoQuery',
-        'query'
+        'query',
+        variables
       )
     },
     searchArtistQuery(
@@ -468,7 +476,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'searchArtistQuery',
-        'query'
+        'query',
+        variables
       )
     },
     similarArtistsQuery(
@@ -483,7 +492,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'similarArtistsQuery',
-        'query'
+        'query',
+        variables
       )
     },
     topsongsByArtistQuery(
@@ -498,7 +508,8 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'topsongsByArtistQuery',
-        'query'
+        'query',
+        variables
       )
     },
   }

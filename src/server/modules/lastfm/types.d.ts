@@ -179,7 +179,7 @@ export type AlbumGetInfo = {
       size: string
       '#text': string
     }>
-    tracks: {
+    tracks?: {
       track:
         | Array<{
             streamable: {

@@ -1,16 +1,28 @@
-import Axios from 'axios'
+import Axios, { AxiosResponse } from 'axios'
 
 import { GetVideoById, GetVideoSearch } from './types'
 
-const getEndpoint = (method: string) =>
-  `${process.env.NEXT_PUBLIC_INVIDIOUS_URL}/api/v1/${method}`
+const getEndpoint = (baseUrl: string, method: string) =>
+  `${baseUrl}/api/v1/${method}`
+
+const invidiousUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS?.split(',') ?? []
 
 type InvidiousMethods = `videos/${string}` | `search?q=${string}`
 
 const invidious = async <T>(method: InvidiousMethods) => {
-  const url = getEndpoint(method)
+  let response = {} as AxiosResponse<T>
 
-  return Axios.get<T>(url)
+  for (const invidiousUrl of invidiousUrls) {
+    try {
+      response = await Axios.get<T>(getEndpoint(invidiousUrl, method))
+
+      if (response.status === 200) break
+    } catch (e) {
+      throw new Error(e as string)
+    }
+  }
+
+  return response
 }
 
 invidious.getVideoInfo = (args: { videoId: string }) =>

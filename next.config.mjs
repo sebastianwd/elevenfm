@@ -1,7 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['www.theaudiodb.com', 'lastfm.freetls.fastly.net'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.theaudiodb.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lastfm.freetls.fastly.net',
+      },
+    ],
   },
   reactStrictMode: true,
   typescript: {
