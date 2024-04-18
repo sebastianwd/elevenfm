@@ -1,0 +1,15 @@
+query playlistQuery($playlistId: ID!) {
+  playlist(playlistId: $playlistId) {
+    id
+    name
+    songs {
+      id
+      title
+      artist
+    }
+    user {
+      id
+      name
+    }
+  }
+}

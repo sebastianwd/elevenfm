@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Toaster } from 'sonner'
 
 import { Menu } from '~/components/menu'
 import { Modal } from '~/components/modal'
@@ -7,7 +8,7 @@ import { FooterPlayer } from '~/components/player'
 import { VideoPlayer } from '~/components/video-player'
 import { useLayoutState } from '~/store/use-layout-state'
 
-const VideoPlayerContainer = () => {
+const VideoPlayerPortal = () => {
   const videoPosition = useLayoutState((state) => state.videoPosition)
 
   const [domReady, setDomReady] = useState(false)
@@ -34,8 +35,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
       <div className='h-28' />
       <FooterPlayer />
+      <Toaster />
       <Modal />
-      <VideoPlayerContainer />
+      <VideoPlayerPortal />
     </>
   )
 }

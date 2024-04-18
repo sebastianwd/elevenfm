@@ -197,11 +197,14 @@ export class ArtistResolver {
             artist: albumArtistName,
           })
 
-          const tracks = albumInfo?.tracks?.track ?? { name: albumInfo?.name }
-
-          if (isEmpty(albumInfo?.tracks?.track) && !albumInfo?.name) {
+          if (
+            (isEmpty(albumInfo?.tracks?.track) && !albumInfo?.name) ||
+            albumInfo.name === '(null)'
+          ) {
             return undefined
           }
+
+          const tracks = albumInfo?.tracks?.track ?? { name: albumInfo?.name }
 
           const trackNames = Array.isArray(tracks)
             ? map(tracks, (track) => track.name)

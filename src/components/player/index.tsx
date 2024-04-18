@@ -2,6 +2,7 @@ import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
+import { head } from 'lodash'
 import Image from 'next/image'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
@@ -117,7 +118,7 @@ export const Lyrics = (props: LyricsProps) => {
     queryFn: () =>
       getLyricsQuery({
         song: song || '',
-        artist: artist || '',
+        artist: head(artist.split(',')) || '',
       }),
     staleTime: Infinity,
     gcTime: Infinity,
@@ -246,7 +247,7 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-dark-800 bg-opacity-20 backdrop-blur-lg'>
+      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-dark-800 bg-opacity-20 backdrop-blur-lg z-40'>
         <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid md:grid-cols-3 grid-cols-2 relative'>
           <div className='flex gap-2 md:gap-4'>
             <div className='flex items-center'>

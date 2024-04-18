@@ -26,6 +26,11 @@ export class Song {
   @Field(() => Int, { nullable: true })
   playlistId?: number | null
 }
+@ObjectType('userSong')
+export class UserSong extends Song {
+  @Field()
+  id: string
+}
 
 @ObjectType('songVideo')
 export class SongVideo {

@@ -1,10 +1,5 @@
 import { Tab } from '@headlessui/react'
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import {
-  ArrowLeftIcon,
-  GlobeAltIcon,
-  PlayIcon,
-} from '@heroicons/react/24/solid'
+import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
 import type { GetServerSideProps, NextPage } from 'next'
 import Image from 'next/image'
@@ -20,10 +15,13 @@ import {
   similarArtistsQuery,
   topsongsByArtistQuery,
 } from '~/api'
+import { ArtistHeader } from '~/components/artist-header'
 import { WavesLoader } from '~/components/loader'
 import { Lyrics } from '~/components/player'
 import { Seo } from '~/components/seo'
 import { Song } from '~/components/song'
+import { SongList } from '~/components/song-list'
+import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
 
@@ -170,83 +168,7 @@ const ArtistSongs = (props: ArtistSongsProps) => {
     gcTime: Infinity,
   })
 
-  const [listSearchValue, setListSearchValue] = React.useState('')
-
-  const { setIsPlaying, currentSong, setCurrentSong, setQueue } =
-    usePlayerState()
-
-  const onPlaySong = React.useCallback(
-    async (song: string, artist: string) => {
-      const data = await queryClient.fetchQuery({
-        queryKey: ['getVideoInfo', `${artist} - ${song}`],
-        queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
-        staleTime: Infinity,
-        gcTime: Infinity,
-      })
-
-      const urls = data?.getVideoInfo.map((video) => video.videoId)
-
-      setCurrentSong({
-        artist,
-        title: song,
-        urls,
-      })
-
-      setQueue(
-        topsongsByArtist?.topsongsByArtist.map((song) => ({
-          artist: song.artist,
-          title: song.title,
-        })) || []
-      )
-
-      setIsPlaying(true)
-    },
-    [setCurrentSong, setIsPlaying, setQueue, topsongsByArtist?.topsongsByArtist]
-  )
-
-  const onInputChange = (value: string) => {
-    setListSearchValue(value)
-  }
-
-  const filteredSongs = React.useMemo(() => {
-    if (!listSearchValue) {
-      return topsongsByArtist?.topsongsByArtist
-    }
-
-    return topsongsByArtist?.topsongsByArtist.filter((song) =>
-      song.title.toLowerCase().includes(listSearchValue.toLowerCase())
-    )
-  }, [listSearchValue, topsongsByArtist])
-
-  return (
-    <>
-      <div className='grid grid-cols-3 px-4 py-2'>
-        <div className='flex items-center rounded-3xl bg-dark-500 px-4 shadow-2xl ring-dark-500/70 focus-within:ring-2 col-span-full lg:col-start-2 lg:col-span-1'>
-          <input
-            onChange={(e) => onInputChange(e.target.value)}
-            className='text-md border-0 bg-transparent w-full h-9 py-2 outline-none ring-0'
-            value={listSearchValue}
-          />
-          <MagnifyingGlassIcon className='h-4 w-4' />
-        </div>
-      </div>
-      {filteredSongs?.map((song, index) => (
-        <Song
-          key={index}
-          position={index + 1}
-          isPlaying={
-            currentSong?.title === song.title &&
-            currentSong?.artist === song.artist
-          }
-          onClick={() => onPlaySong(song.title, song.artist)}
-          song={song.title}
-          playcount={song.playcount ? Number(song.playcount) : undefined}
-          artist={song.artist}
-          showArtist={false}
-        />
-      ))}
-    </>
-  )
+  return <SongList songs={topsongsByArtist?.topsongsByArtist || []} />
 }
 
 interface ArtistAlbumProps {
@@ -389,9 +311,9 @@ const TheaterMode = () => {
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-3 lg:grow'>
-      <div
-        data-theater-mode
+      <VideoPlayerPortalContainer
         className='aspect-video max-w-full lg:h-full lg:col-span-2'
+        position='theater-mode'
       />
       <div className='lg:col-span-1'>
         <Lyrics
@@ -430,11 +352,7 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
     }
   }, [data?.artist.website])
 
-  const { setVideoPosition, theaterMode } = useLayoutState()
-
-  React.useEffect(() => {
-    setVideoPosition(theaterMode ? 'theater-mode' : 'artist-page')
-  }, [setVideoPosition, theaterMode])
+  const { theaterMode } = useLayoutState()
 
   return (
     <>
@@ -469,29 +387,20 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
                       className='h-40 w-40 rounded-md object-cover'
                     />
                   )}
-                  <div>
-                    <div className='flex items-center gap-4 justify-center md:justify-start'>
-                      <h1 className='text-2xl md:text-3xl lg:text-5xl text-gray-50'>
-                        {data?.artist.name}
-                      </h1>
-                      {artistWebsite && (
-                        <a
-                          href={artistWebsite}
-                          target='_blank'
-                          rel='noreferrer noopener'
-                        >
-                          <GlobeAltIcon className='h-6' />
-                        </a>
-                      )}
-                    </div>
-                    <h5 className='text-sm font-thin md:text-left text-center text-gray-300'>
-                      {data?.artist.genre}
-                    </h5>
-                  </div>
+                  <ArtistHeader
+                    externalUrls={{
+                      website: artistWebsite || '',
+                    }}
+                    title={data?.artist.name || ''}
+                    subtitle={data?.artist.genre || ''}
+                  />
                 </div>
               </header>
               <div className='flex justify-center col-span-2 lg:col-span-1'>
-                <div data-artist-page className='aspect-video max-w-full' />
+                <VideoPlayerPortalContainer
+                  position='artist-page'
+                  className='aspect-video max-w-full'
+                />
               </div>
             </div>
             <div className='grid lg:grid-cols-3'>

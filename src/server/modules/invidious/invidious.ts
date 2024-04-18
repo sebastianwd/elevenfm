@@ -5,7 +5,8 @@ import { GetVideoById, GetVideoSearch } from './types'
 const getEndpoint = (baseUrl: string, method: string) =>
   `${baseUrl}/api/v1/${method}`
 
-const invidiousUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS?.split(',') ?? []
+export const invidiousUrls =
+  process.env.NEXT_PUBLIC_INVIDIOUS_URLS?.split(',') ?? []
 
 type InvidiousMethods = `videos/${string}` | `search?q=${string}`
 
@@ -18,7 +19,8 @@ const invidious = async <T>(method: InvidiousMethods) => {
 
       if (response.status === 200) break
     } catch (e) {
-      throw new Error(e as string)
+      console.warn(e)
+      continue
     }
   }
 

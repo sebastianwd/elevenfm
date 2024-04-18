@@ -1,0 +1,90 @@
+import { createId } from '@paralleldrive/cuid2'
+import { relations, sql } from 'drizzle-orm'
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const Users = sqliteTable('users', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  name: text('name').notNull(),
+  username: text('username').unique(),
+  email: text('email').unique(),
+  password: text('password'),
+  createdAt: integer('createdAt', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+})
+
+export const UserRelations = relations(Users, ({ many }) => ({
+  playlists: many(Playlists),
+}))
+
+export const Accounts = sqliteTable('accounts', {
+  id: integer('id').primaryKey(),
+  userId: text('userId')
+    .notNull()
+    .references(() => Users.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(),
+  providerAccountId: text('providerAccountId').notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+})
+
+export const Songs = sqliteTable('songs', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  title: text('title').notNull(),
+  artist: text('artist').notNull(),
+  album: text('album'),
+  createdAt: integer('createdAt', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+})
+
+export const Playlists = sqliteTable('playlists', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  name: text('name').notNull(),
+  songsCount: integer('songsCount').default(0),
+  userId: text('userId').notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+})
+
+export const PlaylistRelations = relations(Playlists, ({ one, many }) => ({
+  user: one(Users, {
+    fields: [Playlists.userId],
+    references: [Users.id],
+  }),
+  playlistsToSongs: many(PlaylistsToSongs),
+}))
+
+export const PlaylistsToSongs = sqliteTable('playlistsToSongs', {
+  playlistId: text('playlistId')
+    .notNull()
+    .references(() => Playlists.id, { onDelete: 'cascade' }),
+  songId: text('songId')
+    .notNull()
+    .references(() => Songs.id),
+})
+
+export const PlaylistToSongRelations = relations(
+  PlaylistsToSongs,
+  ({ one }) => ({
+    playlist: one(Playlists, {
+      fields: [PlaylistsToSongs.playlistId],
+      references: [Playlists.id],
+    }),
+    song: one(Songs, {
+      fields: [PlaylistsToSongs.songId],
+      references: [Songs.id],
+    }),
+  })
+)

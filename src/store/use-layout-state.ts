@@ -2,7 +2,11 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
-type VideoPosition = 'artist-page' | 'home-page' | 'theater-mode'
+export type VideoPosition =
+  | 'artist-page'
+  | 'home-page'
+  | 'theater-mode'
+  | 'playlist-page'
 
 interface LayoutState {
   videoPosition: VideoPosition

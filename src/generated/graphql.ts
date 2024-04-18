@@ -30,6 +30,26 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
+export type Mutation = {
+  __typename?: 'Mutation'
+  createPlaylist: Playlist
+  importPlaylist: Playlist
+  removeFromPlaylist: Scalars['Boolean']['output']
+}
+
+export type MutationCreatePlaylistArgs = {
+  name: InputMaybe<Scalars['String']['input']>
+}
+
+export type MutationImportPlaylistArgs = {
+  url: Scalars['String']['input']
+}
+
+export type MutationRemoveFromPlaylistArgs = {
+  playlistId: Scalars['ID']['input']
+  songId: Scalars['ID']['input']
+}
+
 export type Query = {
   __typename?: 'Query'
   artist: Artist
@@ -37,9 +57,11 @@ export type Query = {
   getAlbums: Maybe<Array<Album>>
   getLyrics: SongLyrics
   getVideoInfo: Array<SongVideo>
+  playlist: Playlist
   searchArtists: Array<Scalars['String']['output']>
   similarArtists: Array<Artist>
   topsongsByArtist: Array<Song>
+  userPlaylists: Array<Playlist>
 }
 
 export type QueryArtistArgs = {
@@ -64,6 +86,10 @@ export type QueryGetLyricsArgs = {
 
 export type QueryGetVideoInfoArgs = {
   query: Scalars['String']['input']
+}
+
+export type QueryPlaylistArgs = {
+  playlistId: Scalars['ID']['input']
 }
 
 export type QuerySearchArtistsArgs = {
@@ -113,6 +139,16 @@ export type Artist = {
   website: Maybe<Scalars['String']['output']>
 }
 
+export type Playlist = {
+  __typename?: 'playlist'
+  createdAt: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  songs: Maybe<Array<UserSong>>
+  songsCount: Maybe<Scalars['Float']['output']>
+  user: Maybe<User>
+}
+
 export type Song = {
   __typename?: 'song'
   album: Maybe<Scalars['String']['output']>
@@ -146,6 +182,26 @@ export type SongVideo = {
   videoId: Scalars['String']['output']
 }
 
+export type User = {
+  __typename?: 'user'
+  email: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+}
+
+export type UserSong = {
+  __typename?: 'userSong'
+  album: Maybe<Scalars['String']['output']>
+  artist: Scalars['String']['output']
+  duration: Maybe<Scalars['String']['output']>
+  genre: Maybe<Scalars['String']['output']>
+  id: Scalars['String']['output']
+  playcount: Maybe<Scalars['String']['output']>
+  playlistId: Maybe<Scalars['Int']['output']>
+  title: Scalars['String']['output']
+  year: Maybe<Scalars['String']['output']>
+}
+
 export type ArtistQueryQueryVariables = Exact<{
   name: Scalars['String']['input']
 }>
@@ -168,6 +224,15 @@ export type ArtistQueryQuery = {
     image: string | null
     website: string | null
   }
+}
+
+export type CreatePlaylistMutationMutationVariables = Exact<{
+  name: InputMaybe<Scalars['String']['input']>
+}>
+
+export type CreatePlaylistMutationMutation = {
+  __typename?: 'Mutation'
+  createPlaylist: { __typename?: 'playlist'; id: string; name: string }
 }
 
 export type GetAlbumBySongQueryQueryVariables = Exact<{
@@ -233,6 +298,30 @@ export type GetVideoInfoQueryQuery = {
   }>
 }
 
+export type ImportPlaylistMutationMutationVariables = Exact<{
+  url: Scalars['String']['input']
+}>
+
+export type ImportPlaylistMutationMutation = {
+  __typename?: 'Mutation'
+  importPlaylist: {
+    __typename?: 'playlist'
+    name: string
+    id: string
+    user: { __typename?: 'user'; id: string } | null
+  }
+}
+
+export type RemoveFromPlaylistMutationMutationVariables = Exact<{
+  playlistId: Scalars['ID']['input']
+  songId: Scalars['ID']['input']
+}>
+
+export type RemoveFromPlaylistMutationMutation = {
+  __typename?: 'Mutation'
+  removeFromPlaylist: boolean
+}
+
 export type SearchArtistQueryQueryVariables = Exact<{
   artist: Scalars['String']['input']
 }>
@@ -272,6 +361,39 @@ export type TopsongsByArtistQueryQuery = {
   }>
 }
 
+export type PlaylistQueryQueryVariables = Exact<{
+  playlistId: Scalars['ID']['input']
+}>
+
+export type PlaylistQueryQuery = {
+  __typename?: 'Query'
+  playlist: {
+    __typename?: 'playlist'
+    id: string
+    name: string
+    songs: Array<{
+      __typename?: 'userSong'
+      id: string
+      title: string
+      artist: string
+    }> | null
+    user: { __typename?: 'user'; id: string; name: string } | null
+  }
+}
+
+export type UserPlaylistsQueryQueryVariables = Exact<{ [key: string]: never }>
+
+export type UserPlaylistsQueryQuery = {
+  __typename?: 'Query'
+  userPlaylists: Array<{
+    __typename?: 'playlist'
+    id: string
+    name: string
+    songsCount: number | null
+    createdAt: string | null
+  }>
+}
+
 export const ArtistQueryDocument = gql`
   query artistQuery($name: String!) {
     artist(name: $name) {
@@ -290,6 +412,14 @@ export const ArtistQueryDocument = gql`
       image
       website
       __typename
+    }
+  }
+`
+export const CreatePlaylistMutationDocument = gql`
+  mutation createPlaylistMutation($name: String) {
+    createPlaylist(name: $name) {
+      id
+      name
     }
   }
 `
@@ -336,6 +466,22 @@ export const GetVideoInfoQueryDocument = gql`
     }
   }
 `
+export const ImportPlaylistMutationDocument = gql`
+  mutation importPlaylistMutation($url: String!) {
+    importPlaylist(url: $url) {
+      name
+      id
+      user {
+        id
+      }
+    }
+  }
+`
+export const RemoveFromPlaylistMutationDocument = gql`
+  mutation removeFromPlaylistMutation($playlistId: ID!, $songId: ID!) {
+    removeFromPlaylist(playlistId: $playlistId, songId: $songId)
+  }
+`
 export const SearchArtistQueryDocument = gql`
   query searchArtistQuery($artist: String!) {
     searchArtists(artist: $artist)
@@ -362,6 +508,33 @@ export const TopsongsByArtistQueryDocument = gql`
       title
       playcount
       __typename
+    }
+  }
+`
+export const PlaylistQueryDocument = gql`
+  query playlistQuery($playlistId: ID!) {
+    playlist(playlistId: $playlistId) {
+      id
+      name
+      songs {
+        id
+        title
+        artist
+      }
+      user {
+        id
+        name
+      }
+    }
+  }
+`
+export const UserPlaylistsQueryDocument = gql`
+  query userPlaylistsQuery {
+    userPlaylists {
+      id
+      name
+      songsCount
+      createdAt
     }
   }
 `
@@ -397,6 +570,22 @@ export function getSdk(
           }),
         'artistQuery',
         'query',
+        variables
+      )
+    },
+    createPlaylistMutation(
+      variables?: CreatePlaylistMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<CreatePlaylistMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CreatePlaylistMutationMutation>(
+            CreatePlaylistMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'createPlaylistMutation',
+        'mutation',
         variables
       )
     },
@@ -464,6 +653,38 @@ export function getSdk(
         variables
       )
     },
+    importPlaylistMutation(
+      variables: ImportPlaylistMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<ImportPlaylistMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<ImportPlaylistMutationMutation>(
+            ImportPlaylistMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'importPlaylistMutation',
+        'mutation',
+        variables
+      )
+    },
+    removeFromPlaylistMutation(
+      variables: RemoveFromPlaylistMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<RemoveFromPlaylistMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<RemoveFromPlaylistMutationMutation>(
+            RemoveFromPlaylistMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'removeFromPlaylistMutation',
+        'mutation',
+        variables
+      )
+    },
     searchArtistQuery(
       variables: SearchArtistQueryQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders
@@ -508,6 +729,37 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'topsongsByArtistQuery',
+        'query',
+        variables
+      )
+    },
+    playlistQuery(
+      variables: PlaylistQueryQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<PlaylistQueryQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<PlaylistQueryQuery>(PlaylistQueryDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        'playlistQuery',
+        'query',
+        variables
+      )
+    },
+    userPlaylistsQuery(
+      variables?: UserPlaylistsQueryQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<UserPlaylistsQueryQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UserPlaylistsQueryQuery>(
+            UserPlaylistsQueryDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'userPlaylistsQuery',
         'query',
         variables
       )

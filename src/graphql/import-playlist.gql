@@ -1,0 +1,9 @@
+mutation importPlaylistMutation($url: String!) {
+  importPlaylist(url: $url) {
+    name
+    id
+    user {
+      id
+    }
+  }
+}

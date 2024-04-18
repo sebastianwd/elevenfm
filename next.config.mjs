@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // https://github.com/nextauthjs/next-auth/discussions/9385
+  transpilePackages: ['next-auth'],
   images: {
     remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'www.theaudiodb.com',
+      },
       {
         protocol: 'https',
         hostname: 'www.theaudiodb.com',

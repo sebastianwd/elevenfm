@@ -13,16 +13,22 @@ const delayClasses = {
   10: 'animation-delay-[0.9s]',
 } as const
 
-export const WavesLoader = () => {
+interface WavesLoaderProps {
+  className?: string
+}
+
+export const WavesLoader = (props: WavesLoaderProps) => {
   return (
-    <div className='flex justify-center items-center'>
+    <div
+      className={twMerge('flex justify-center items-center', props.className)}
+    >
       {Array(10)
         .fill(null)
         .map((_, index) => (
           <div
             key={index}
             className={twMerge(
-              `w-0.5 h-10 bg-gradient-to-br from-primary-500 to-primary-500 mx-2 animate-waves rounded-xl grow shrink-0 opacity-0`,
+              `w-0.5 h-10 max-h-full bg-gradient-to-br from-primary-500 to-primary-500 mx-2 animate-waves rounded-xl grow shrink-0 opacity-0`,
               delayClasses[(index + 1) as keyof typeof delayClasses]
             )}
           ></div>

@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react'
-import { XCircleIcon } from '@heroicons/react/24/solid'
+import { XCircleIcon } from '@heroicons/react/24/outline'
 import { Fragment } from 'react'
 
 import { useModalStore } from '~/store/use-modal'
@@ -35,17 +35,21 @@ export function Modal() {
                 leaveFrom='opacity-100 scale-100'
                 leaveTo='opacity-0 scale-95'
               >
-                <Dialog.Panel className='w-fit transform overflow-y-auto rounded-2xl text-left align-middle shadow-xl transition-all max-h-[80svh] bg-dark-700'>
+                <Dialog.Panel className='w-fit transform overflow-y-auto overflow-x-clip rounded-2xl text-left align-middle shadow-xl transition-all max-h-[80svh] bg-dark-700'>
                   <Dialog.Title
                     as='h3'
                     className='text-lg font-medium leading-6 sticky top-0 bg-dark-500 p-4 rounded-t-2xl flex justify-between items-center'
                   >
                     <span>{content.title}</span>
-                    <button type='button' className='inline-flex'>
+                    <button
+                      type='button'
+                      className='inline-flex text-gray-300'
+                      onClick={closeModal}
+                    >
                       <XCircleIcon className='h-6 w-6' />
                     </button>
                   </Dialog.Title>
-                  <div className='mt-2'>{content.content}</div>
+                  {content.content}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

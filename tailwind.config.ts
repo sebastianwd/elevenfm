@@ -1,3 +1,4 @@
+import containerQueries from '@tailwindcss/container-queries'
 import typography from '@tailwindcss/typography'
 import plugin from 'tailwindcss/plugin'
 
@@ -21,6 +22,7 @@ module.exports = {
           500: '#FC3967',
         },
         dark: {
+          200: '#E6E6E6',
           300: '#CBCCCC',
           400: '#AAAAAA',
           500: '#202020',
@@ -38,6 +40,7 @@ module.exports = {
   },
   plugins: [
     typography,
+    containerQueries,
     plugin(({ matchUtilities, theme }) => {
       matchUtilities(
         {

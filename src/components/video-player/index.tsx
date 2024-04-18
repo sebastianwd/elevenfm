@@ -1,14 +1,39 @@
-import { isEmpty } from 'lodash'
+import { isEmpty, sample } from 'lodash'
 import dynamic from 'next/dynamic'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type ReactPlayer from 'react-player'
 
-import { useLayoutState } from '~/store/use-layout-state'
+import { invidiousUrls } from '~/server/modules/invidious/invidious'
+import { useLayoutState, type VideoPosition } from '~/store/use-layout-state'
 import {
   usePlayerInstance,
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+
+interface VideoPlayerPortalContainerProps {
+  position: VideoPosition
+  className?: string
+}
+
+export const VideoPlayerPortalContainer = (
+  props: VideoPlayerPortalContainerProps
+) => {
+  const { position, className } = props
+
+  const setVideoPosition = useLayoutState((state) => state.setVideoPosition)
+  const theaterMode = useLayoutState((state) => state.theaterMode)
+
+  const dynamicData = useMemo(() => {
+    return { [`data-${theaterMode ? 'theater-mode' : position}`]: '' }
+  }, [position, theaterMode])
+
+  useEffect(() => {
+    setVideoPosition(theaterMode ? 'theater-mode' : position)
+  }, [setVideoPosition, theaterMode, position])
+
+  return <div className={className} {...dynamicData} />
+}
 
 const DynamicReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
@@ -72,7 +97,7 @@ const VideoPlayer = memo(() => {
     const url = `https://www.youtube.com/watch?v=${videoId}`
 
     if (!videoId) {
-      return `${process.env.NEXT_PUBLIC_INVIDIOUS_URL2}/latest_version?id=${currentSong?.urls?.[0]}`
+      return `${sample(invidiousUrls)}/latest_version?id=${currentSong?.urls?.[0]}`
     }
 
     return url

@@ -1,7 +1,8 @@
 import { Menu, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
+import { twMerge } from 'tailwind-merge'
 
-interface MenuItem {
+export interface MenuItem {
   label: string
   icon?: JSX.Element
   onClick: () => void
@@ -10,13 +11,18 @@ interface MenuItem {
 interface DropdownProps {
   menuLabel: JSX.Element
   menuItems: MenuItem[]
+  direction?: 'left' | 'right'
+  className?: string
 }
 
 export default function Dropdown(props: DropdownProps) {
-  const { menuLabel, menuItems = [] } = props
+  const { menuLabel, menuItems = [], direction = 'left', className } = props
 
   return (
-    <Menu as='div' className='relative inline-block text-left'>
+    <Menu
+      as='div'
+      className={twMerge('relative inline-block text-left', className)}
+    >
       <Menu.Button>{menuLabel}</Menu.Button>
       <Transition
         as={Fragment}
@@ -27,7 +33,12 @@ export default function Dropdown(props: DropdownProps) {
         leaveFrom='transform opacity-100 scale-100'
         leaveTo='transform opacity-0 scale-95'
       >
-        <Menu.Items className='absolute right-0 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-dark-500 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20'>
+        <Menu.Items
+          className={twMerge(
+            'absolute w-56 origin-top-right divide-y divide-dark-700 rounded-md bg-dark-500 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20',
+            direction === 'right' ? 'left-0' : 'right-0'
+          )}
+        >
           {menuItems.map((item, index) => {
             return (
               <Menu.Item key={index}>
