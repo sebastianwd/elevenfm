@@ -7,10 +7,12 @@ import { toast } from 'sonner'
 
 import { playlistQuery, removeFromPlaylistMutation } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
+import { ImportPlaylistModal } from '~/components/import-playlist-modal'
 import { WavesLoader } from '~/components/loader'
 import { SongList } from '~/components/song-list'
 import { Toast } from '~/components/toast'
 import { VideoPlayerPortalContainer } from '~/components/video-player'
+import { useModalStore } from '~/store/use-modal'
 
 const PlaylistPage: NextPage = () => {
   const params = useParams<{ playlistId: string }>()
@@ -36,6 +38,9 @@ const PlaylistPage: NextPage = () => {
         songId: songId,
       }),
   })
+
+  const openModal = useModalStore((state) => state.openModal)
+  const closeModal = useModalStore((state) => state.closeModal)
 
   const renderSongList = () => {
     if (playlist.isPending) {
@@ -64,6 +69,23 @@ const PlaylistPage: NextPage = () => {
 
     return (
       <SongList
+        onImportFromUrl={() => {
+          openModal({
+            content: (
+              <ImportPlaylistModal
+                playlistId={params?.playlistId ?? ''}
+                onImportEnd={() => {
+                  toast.custom(() => <Toast message='✔ Playlist imported' />, {
+                    duration: 3000,
+                  })
+                  closeModal()
+                }}
+              />
+            ),
+            title: `Import playlist to ${playlist.data?.playlist.name}`,
+          })
+        }}
+        identifier={params?.playlistId ?? ''}
         menuOptions={(song) => [
           {
             label: 'Remove from playlist',
@@ -89,8 +111,8 @@ const PlaylistPage: NextPage = () => {
 
   return (
     <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
-      <div className='grid lg:grid-cols-3'>
-        <header className='bg-gradient-blend-primary relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top'>
+      <div className='grid lg:grid-cols-3 relative bg-gradient-blend-primary bg-no-repeat bg-top'>
+        <header className='col-span-2 flex h-72'>
           <div className='z-10 mt-auto flex w-full items-center gap-7 px-8 mb-16 flex-col md:flex-row'>
             <ArtistHeader
               subtitle={playlist.data?.playlist?.user?.name ?? ''}
@@ -99,15 +121,15 @@ const PlaylistPage: NextPage = () => {
             />
           </div>
         </header>
-        <div className='flex justify-center col-span-2 lg:col-span-1'>
+        <div className='flex justify-end col-span-2 lg:col-span-1 z-10'>
           <VideoPlayerPortalContainer
             position='playlist-page'
-            className='aspect-video max-w-full'
+            className='aspect-video max-w-full [&_iframe]:rounded-2xl'
           />
         </div>
       </div>
-      <div className='grid lg:grid-cols-3'>
-        <div className='md:pl-8 lg:col-span-2'>{renderSongList()}</div>
+      <div className='grid'>
+        <div className='md:px-8'>{renderSongList()}</div>
       </div>
     </div>
   )

@@ -21,6 +21,7 @@ export const {
   playlistQuery,
   importPlaylistMutation,
   removeFromPlaylistMutation,
+  deletePlaylistMutation,
 } = getSdk(gqlClient)
 
 export const queryClient = new QueryClient({

@@ -13,17 +13,24 @@ interface DropdownProps {
   menuItems: MenuItem[]
   direction?: 'left' | 'right'
   className?: string
+  triggerClassName?: string
 }
 
 export default function Dropdown(props: DropdownProps) {
-  const { menuLabel, menuItems = [], direction = 'left', className } = props
+  const {
+    menuLabel,
+    menuItems = [],
+    direction = 'left',
+    triggerClassName,
+    className,
+  } = props
 
   return (
     <Menu
       as='div'
       className={twMerge('relative inline-block text-left', className)}
     >
-      <Menu.Button>{menuLabel}</Menu.Button>
+      <Menu.Button className={triggerClassName}>{menuLabel}</Menu.Button>
       <Transition
         as={Fragment}
         enter='transition ease-out duration-100'

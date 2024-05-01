@@ -33,6 +33,7 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation'
   createPlaylist: Playlist
+  deletePlaylist: Scalars['Boolean']['output']
   importPlaylist: Playlist
   removeFromPlaylist: Scalars['Boolean']['output']
 }
@@ -41,7 +42,12 @@ export type MutationCreatePlaylistArgs = {
   name: InputMaybe<Scalars['String']['input']>
 }
 
+export type MutationDeletePlaylistArgs = {
+  playlistId: Scalars['ID']['input']
+}
+
 export type MutationImportPlaylistArgs = {
+  playlistId: InputMaybe<Scalars['ID']['input']>
   url: Scalars['String']['input']
 }
 
@@ -178,6 +184,7 @@ export type SongLyrics = {
 export type SongVideo = {
   __typename?: 'songVideo'
   artist: Scalars['String']['output']
+  thumbnailUrl: Scalars['String']['output']
   title: Scalars['String']['output']
   videoId: Scalars['String']['output']
 }
@@ -233,6 +240,15 @@ export type CreatePlaylistMutationMutationVariables = Exact<{
 export type CreatePlaylistMutationMutation = {
   __typename?: 'Mutation'
   createPlaylist: { __typename?: 'playlist'; id: string; name: string }
+}
+
+export type DeletePlaylistMutationMutationVariables = Exact<{
+  playlistId: Scalars['ID']['input']
+}>
+
+export type DeletePlaylistMutationMutation = {
+  __typename?: 'Mutation'
+  deletePlaylist: boolean
 }
 
 export type GetAlbumBySongQueryQueryVariables = Exact<{
@@ -295,11 +311,13 @@ export type GetVideoInfoQueryQuery = {
     artist: string
     title: string
     videoId: string
+    thumbnailUrl: string
   }>
 }
 
 export type ImportPlaylistMutationMutationVariables = Exact<{
   url: Scalars['String']['input']
+  playlistId: InputMaybe<Scalars['ID']['input']>
 }>
 
 export type ImportPlaylistMutationMutation = {
@@ -423,6 +441,11 @@ export const CreatePlaylistMutationDocument = gql`
     }
   }
 `
+export const DeletePlaylistMutationDocument = gql`
+  mutation deletePlaylistMutation($playlistId: ID!) {
+    deletePlaylist(playlistId: $playlistId)
+  }
+`
 export const GetAlbumBySongQueryDocument = gql`
   query getAlbumBySongQuery($artist: String!, $song: String!) {
     getAlbumBySong(artist: $artist, song: $song) {
@@ -462,13 +485,14 @@ export const GetVideoInfoQueryDocument = gql`
       artist
       title
       videoId
+      thumbnailUrl
       __typename
     }
   }
 `
 export const ImportPlaylistMutationDocument = gql`
-  mutation importPlaylistMutation($url: String!) {
-    importPlaylist(url: $url) {
+  mutation importPlaylistMutation($url: String!, $playlistId: ID) {
+    importPlaylist(url: $url, playlistId: $playlistId) {
       name
       id
       user {
@@ -585,6 +609,22 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders }
           ),
         'createPlaylistMutation',
+        'mutation',
+        variables
+      )
+    },
+    deletePlaylistMutation(
+      variables: DeletePlaylistMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<DeletePlaylistMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeletePlaylistMutationMutation>(
+            DeletePlaylistMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'deletePlaylistMutation',
         'mutation',
         variables
       )

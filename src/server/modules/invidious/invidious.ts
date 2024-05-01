@@ -1,6 +1,11 @@
 import Axios, { AxiosResponse } from 'axios'
 
-import { GetVideoById, GetVideoSearch } from './types'
+import {
+  GetMixesResponse,
+  GetPlaylistById,
+  GetVideoById,
+  GetVideoSearch,
+} from './types'
 
 const getEndpoint = (baseUrl: string, method: string) =>
   `${baseUrl}/api/v1/${method}`
@@ -8,7 +13,11 @@ const getEndpoint = (baseUrl: string, method: string) =>
 export const invidiousUrls =
   process.env.NEXT_PUBLIC_INVIDIOUS_URLS?.split(',') ?? []
 
-type InvidiousMethods = `videos/${string}` | `search?q=${string}`
+type InvidiousMethods =
+  | `videos/${string}`
+  | `search?q=${string}`
+  | `mixes/RD${string}`
+  | `playlists/${string}`
 
 const invidious = async <T>(method: InvidiousMethods) => {
   let response = {} as AxiosResponse<T>
@@ -34,5 +43,11 @@ invidious.getVideos = (args: { query: string }) =>
   invidious<GetVideoSearch>(
     `search?q=${args.query}&sortBy=relevance&page=1&type=video`
   )
+
+invidious.getPlaylist = (args: { playlistId: string }) =>
+  invidious<GetPlaylistById>(`playlists/${args.playlistId}`)
+
+invidious.getMix = (args: { videoId: string }) =>
+  invidious<GetMixesResponse>(`mixes/RD${args.videoId}`)
 
 export { invidious }

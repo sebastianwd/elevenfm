@@ -8,12 +8,22 @@ import { twMerge } from 'tailwind-merge'
 import { importPlaylistMutation, queryClient } from '~/api'
 import { getError } from '~/utils/get-error'
 
-export const ImportPlaylistModal = () => {
+interface ImportPlaylistModalProps {
+  playlistId?: string
+  onImportEnd?: () => void
+}
+
+export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
+  const { playlistId, onImportEnd } = props
   const [importUrl, setImportUrl] = useState('')
 
   const importPlaylist = useMutation({
-    mutationKey: ['importPlaylist', importUrl],
-    mutationFn: () => importPlaylistMutation({ url: importUrl }),
+    mutationKey: ['importPlaylist'],
+    mutationFn: () =>
+      importPlaylistMutation({
+        url: importUrl,
+        playlistId: playlistId || null,
+      }),
     onError: (err: ClientError) => err,
   })
 
@@ -29,6 +39,14 @@ export const ImportPlaylistModal = () => {
       await queryClient.invalidateQueries({
         queryKey: ['userPlaylists', session.data?.user?.id],
       })
+
+      if (playlistId) {
+        await queryClient.invalidateQueries({
+          queryKey: ['userPlaylist', playlistId],
+        })
+      }
+
+      onImportEnd?.()
     } catch {
       void 0
     }
@@ -36,7 +54,9 @@ export const ImportPlaylistModal = () => {
 
   return (
     <div className='w-96 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] max-w-full p-8 pb-12'>
-      <span className='text-sm mb-2 block'>Playlist url</span>
+      <span className='text-sm mb-2 block'>
+        Spotify/YouTube playlist or single track URL
+      </span>
       <div className='flex gap-2'>
         <div className='flex items-center rounded-3xl bg-dark-500 px-4 shadow-2xl ring-dark-500/70 focus-within:ring-2 grow'>
           <input

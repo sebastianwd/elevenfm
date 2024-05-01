@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash'
+import { head, isEmpty } from 'lodash'
 import { Arg, Query, Resolver } from 'type-graphql'
 
 import { invidious } from '~/server/modules/invidious/invidious'
@@ -16,10 +16,20 @@ export class SongResolver {
       query,
     })
 
+    console.log('head(data)?.videoId', head(data)?.videoId)
+
+    /* const ytmusicMix = await ytmusic.getMix(head(data)?.videoId ?? '')
+
+    const invidiousMix = await invidious.getMix({
+      videoId: head(data)?.videoId ?? '',
+    })*/
+
     const video = data.map((video) => ({
       title: video.title,
       artist: video.author,
       videoId: video.videoId,
+      thumbnailUrl:
+        video.videoThumbnails.find((vt) => vt.quality === 'default')?.url ?? '',
     }))
 
     if (isEmpty(video)) {

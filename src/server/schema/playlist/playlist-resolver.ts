@@ -1,12 +1,15 @@
 import { init } from '@paralleldrive/cuid2'
 import { and, desc, eq, getTableColumns } from 'drizzle-orm'
-import { chunk } from 'lodash'
+import getArtistTitle from 'get-artist-title'
+import { chunk, map } from 'lodash'
 import spotifyFetch from 'spotify-url-info'
 import { Arg, Ctx, ID, Mutation, Query, Resolver } from 'type-graphql'
 
 import { db } from '~/db/db'
 import { Playlists, PlaylistsToSongs, Songs, Users } from '~/db/schema'
+import { invidious } from '~/server/modules/invidious/invidious'
 import { type Context } from '~/types'
+import { ytGetId } from '~/utils/get-yt-url-id'
 
 import { Playlist } from './playlist'
 
@@ -18,22 +21,73 @@ const createId = init({
 
 const isValidUrl = (
   url: string
-): url is `https://open.spotify.com/playlist/${string}` => {
-  return url.startsWith('https://open.spotify.com/playlist/')
+): url is `https://open.spotify.com/${string}` => {
+  return (
+    url.startsWith('https://open.spotify.com/playlist/') ||
+    url.startsWith('https://open.spotify.com/track/')
+  )
+}
+
+const getExternalPlaylistTracks = async (
+  url: string,
+  source: 'spotify' | 'youtube'
+) => {
+  if (source === 'spotify') {
+    return (await getTracks(url)).map((track) => ({
+      title: track.name,
+      artist: track.artist,
+    }))
+  }
+
+  const ytId = ytGetId(url)
+  if (!ytId) return []
+
+  if (ytId.type === 'video') {
+    const videoInfo = await invidious.getVideoInfo({ videoId: ytId.id })
+
+    const [artist, title] = getArtistTitle(videoInfo.data.title, {
+      defaultArtist: videoInfo.data.author,
+      defaultTitle: videoInfo.data.title,
+    }) || ['Unknown', 'Unknown']
+
+    return [
+      {
+        title,
+        artist,
+      },
+    ]
+  }
+
+  return map(
+    (await invidious.getPlaylist({ playlistId: ytId.id })).data.videos,
+    (video) => {
+      const [artist, title] = getArtistTitle(video.title, {
+        defaultArtist: video.author,
+        defaultTitle: video.title,
+      }) || ['Unknown', 'Unknown']
+
+      return {
+        title,
+        artist,
+      }
+    }
+  )
 }
 
 @Resolver(Playlist)
 export class PlaylistResolver {
   @Mutation(() => Playlist)
   async importPlaylist(
+    @Ctx() ctx: Context,
     @Arg('url') url: string,
-    @Ctx() ctx: Context
+    @Arg('playlistId', () => ID, { nullable: true }) playlistId?: string
   ): Promise<Playlist> {
-    if (!isValidUrl(url)) {
+    const isValidSpotifyUrl = isValidUrl(url)
+    const isValidYoutubeUrl = !isValidSpotifyUrl && ytGetId(url)
+
+    if (!isValidSpotifyUrl && !isValidYoutubeUrl) {
       throw new Error('Invalid URL')
     }
-
-    const tracks = await getTracks(url)
 
     const session = ctx.session
 
@@ -41,38 +95,70 @@ export class PlaylistResolver {
       throw new Error('Unauthorized')
     }
 
+    const [existingPlaylist] = playlistId
+      ? await db
+          .select({
+            id: Playlists.id,
+          })
+          .from(Playlists)
+          .where(
+            and(
+              eq(Playlists.id, playlistId),
+              eq(Playlists.userId, session.user.id)
+            )
+          )
+      : [null]
+
+    if (playlistId && !existingPlaylist) {
+      throw new Error('Playlist not found')
+    }
+
+    const tracks = await getExternalPlaylistTracks(
+      url,
+      isValidSpotifyUrl ? 'spotify' : 'youtube'
+    )
+
     const playlistName = `playlist-${createId()}`
 
     const createdPlaylistId = await db.transaction(async (tx) => {
-      const [createdPlaylist] = await tx
-        .insert(Playlists)
-        .values({
-          name: playlistName,
-          userId: session?.user.id,
-          updatedAt: new Date(),
-        })
-        .returning({ insertedId: Playlists.id })
+      const [createdPlaylist] = existingPlaylist
+        ? [{ insertedId: existingPlaylist.id }]
+        : await tx
+            .insert(Playlists)
+            .values({
+              name: playlistName,
+              userId: session?.user.id,
+              updatedAt: new Date(),
+            })
+            .returning({ insertedId: Playlists.id })
 
-      await Promise.all(
-        chunk(tracks, 50).map(async (chunk) => {
-          const createdSongs = await tx
-            .insert(Songs)
-            .values(
+      try {
+        await Promise.all(
+          chunk(tracks, 50).map(async (chunk) => {
+            console.log(
+              'tracks',
               chunk.map((track) => ({
-                title: track.name,
+                title: track.title,
                 artist: track.artist,
               }))
             )
-            .returning({ insertedId: Songs.id })
+            const createdSongs = await tx
+              .insert(Songs)
+              .values(chunk)
+              .onConflictDoNothing()
+              .returning({ insertedId: Songs.id })
 
-          await tx.insert(PlaylistsToSongs).values(
-            createdSongs.map((song) => ({
-              playlistId: createdPlaylist.insertedId,
-              songId: song.insertedId,
-            }))
-          )
-        })
-      )
+            await tx.insert(PlaylistsToSongs).values(
+              createdSongs.map((song) => ({
+                playlistId: createdPlaylist.insertedId,
+                songId: song.insertedId,
+              }))
+            )
+          })
+        )
+      } catch (error) {
+        throw new Error('Error importing playlist or all songs already exist')
+      }
 
       return createdPlaylist.insertedId
     })
@@ -207,6 +293,31 @@ export class PlaylistResolver {
           eq(PlaylistsToSongs.songId, songId)
         )
       )
+
+    return true
+  }
+
+  @Mutation(() => Boolean)
+  async deletePlaylist(
+    @Arg('playlistId', () => ID) playlistId: string,
+    @Ctx() ctx: Context
+  ): Promise<boolean> {
+    const session = ctx.session
+
+    const { userId } = getTableColumns(Playlists)
+
+    const [playlist] = await db
+      .select({
+        userId,
+      })
+      .from(Playlists)
+      .where(eq(Playlists.id, playlistId))
+
+    if (!session?.user || playlist.userId !== session.user.id) {
+      throw new Error('Unauthorized')
+    }
+
+    await db.delete(Playlists).where(eq(Playlists.id, playlistId))
 
     return true
   }

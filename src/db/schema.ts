@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2'
 import { relations, sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 export const Users = sqliteTable('users', {
   id: text('id')
@@ -33,17 +33,23 @@ export const Accounts = sqliteTable('accounts', {
   updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
 })
 
-export const Songs = sqliteTable('songs', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  title: text('title').notNull(),
-  artist: text('artist').notNull(),
-  album: text('album'),
-  createdAt: integer('createdAt', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-})
+export const Songs = sqliteTable(
+  'songs',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    title: text('title').notNull(),
+    artist: text('artist').notNull(),
+    album: text('album').default(''),
+    createdAt: integer('createdAt', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (s) => ({
+    unq: unique().on(s.title, s.artist, s.album),
+  })
+)
 
 export const Playlists = sqliteTable('playlists', {
   id: text('id')

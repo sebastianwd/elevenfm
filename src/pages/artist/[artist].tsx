@@ -1,6 +1,7 @@
 import { Tab } from '@headlessui/react'
 import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
+import { head } from 'lodash'
 import type { GetServerSideProps, NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -60,7 +61,8 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
         artist,
         title: song,
         urls,
-        albumCoverUrl: album?.coverImage || '',
+        albumCoverUrl:
+          album?.coverImage || head(data.getVideoInfo)?.thumbnailUrl,
       })
 
       setQueue(
@@ -168,7 +170,12 @@ const ArtistSongs = (props: ArtistSongsProps) => {
     gcTime: Infinity,
   })
 
-  return <SongList songs={topsongsByArtist?.topsongsByArtist || []} />
+  return (
+    <SongList
+      identifier={artist}
+      songs={topsongsByArtist?.topsongsByArtist || []}
+    />
+  )
 }
 
 interface ArtistAlbumProps {

@@ -3,7 +3,6 @@ import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { head } from 'lodash'
-import Image from 'next/image'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
@@ -16,6 +15,7 @@ import {
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+import { useLocalSettings } from '~/store/user-local-settings'
 
 import {
   LyricsIcon,
@@ -118,7 +118,7 @@ export const Lyrics = (props: LyricsProps) => {
     queryFn: () =>
       getLyricsQuery({
         song: song || '',
-        artist: head(artist.split(',')) || '',
+        artist: head(artist.split(','))?.trim() || '',
       }),
     staleTime: Infinity,
     gcTime: Infinity,
@@ -199,9 +199,14 @@ export const FooterPlayer = () => {
     [instance]
   )
 
-  const currentQueue = usePlayerState((state) =>
-    state.isShuffled ? state.shuffledQueue : state.queue
-  )
+  const { queueIdentifier, currentQueue } = usePlayerState((state) => ({
+    queueIdentifier: state.queueIdentifier,
+    currentQueue: state.isShuffled ? state.shuffledQueue : state.queue,
+  }))
+
+  const { toggleShuffledPlaylist } = useLocalSettings((state) => ({
+    toggleShuffledPlaylist: state.toggleShuffledPlaylist,
+  }))
 
   const [showQueue, setShowQueue] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
@@ -221,12 +226,21 @@ export const FooterPlayer = () => {
         artist,
         title: song,
         urls,
+        videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
       })
 
       setIsPlaying(true)
     },
     [setCurrentSong, setIsPlaying]
   )
+
+  const onShuffleToggle = useCallback(() => {
+    if (queueIdentifier) {
+      toggleShuffledPlaylist(queueIdentifier)
+    }
+
+    setShuffle(!isShuffled)
+  }, [isShuffled, queueIdentifier, setShuffle, toggleShuffledPlaylist])
 
   return (
     <>
@@ -252,12 +266,13 @@ export const FooterPlayer = () => {
           <div className='flex gap-2 md:gap-4'>
             <div className='flex items-center'>
               {currentSong ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={currentSong?.albumCoverUrl || '/cover-placeholder.png'}
                   width={56}
                   height={56}
                   alt='album cover'
-                  className='object-cover rounded-md w-9 md:w-14 grow'
+                  className='object-cover rounded-md w-9 md:w-14 md:h-14 grow'
                 />
               ) : null}
             </div>
@@ -270,13 +285,9 @@ export const FooterPlayer = () => {
               </div>
             </div>
           </div>
-          <div className=''>
+          <div>
             <div className='flex items-center justify-end md:justify-center gap-1 md:gap-4 mb-3'>
-              <button
-                onClick={() => {
-                  setShuffle(!isShuffled)
-                }}
-              >
+              <button onClick={onShuffleToggle}>
                 <RandomIcon
                   className={`h-6 w-6 ${isShuffled ? 'text-primary-500' : ''}`}
                 />

@@ -42,6 +42,9 @@ export class SongVideo {
 
   @Field()
   videoId!: string
+
+  @Field()
+  thumbnailUrl?: string
 }
 
 @ObjectType('songAlbum')

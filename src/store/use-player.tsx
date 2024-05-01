@@ -1,4 +1,4 @@
-import { random, sortBy } from 'lodash'
+import { head, random, sortBy } from 'lodash'
 import { createRef } from 'react'
 import type ReactPlayer from 'react-player'
 import { create } from 'zustand'
@@ -11,6 +11,7 @@ export type Song = {
   title: string
   artist: string
   albumCoverUrl?: string
+  videoThumbnailUrl?: string
   duration?: number
   urls?: string[]
 }
@@ -31,6 +32,8 @@ interface PlayerState {
   duration: number
   setDuration: (duration: number) => void
   queue: Song[]
+  queueIdentifier: string
+  setQueueIdentifier: (identifier: string) => void
   shuffledQueue: Song[]
   setQueue: (queue: Song[]) => void
   playNext: () => void
@@ -161,6 +164,7 @@ export const usePlayerState = create<PlayerState>()(
             artist: nextSong.artist,
             title: nextSong.title,
             urls,
+            videoThumbnailUrl: head(data)?.thumbnailUrl,
           })
         }
       },
@@ -188,6 +192,7 @@ export const usePlayerState = create<PlayerState>()(
             artist: previousSong.artist,
             title: previousSong.title,
             urls,
+            videoThumbnailUrl: head(data)?.thumbnailUrl,
           })
         }
       },
@@ -203,13 +208,15 @@ export const usePlayerState = create<PlayerState>()(
 
         const coverUrl = song.albumCoverUrl || (await getAlbum(song))?.coverUrl
 
+        console.log(coverUrl, 'dsfd', song.videoThumbnailUrl)
+
         set((state) => {
           state.currentSong = {
             artist: song.artist,
             title: song.title,
             duration: song.duration,
             urls: song.urls,
-            albumCoverUrl: coverUrl,
+            albumCoverUrl: coverUrl || song.videoThumbnailUrl,
           }
         })
       },
@@ -240,6 +247,12 @@ export const usePlayerState = create<PlayerState>()(
           state.shuffledQueue = shuffledQueue
         })
       },
+
+      queueIdentifier: '',
+      setQueueIdentifier: (identifier: string) =>
+        set((state) => {
+          state.queueIdentifier = identifier
+        }),
     }))
   )
 )

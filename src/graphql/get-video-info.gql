@@ -3,6 +3,7 @@ query getVideoInfoQuery($query: String!) {
     artist
     title
     videoId
+    thumbnailUrl
     __typename
   }
 }

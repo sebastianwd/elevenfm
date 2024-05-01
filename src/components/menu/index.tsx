@@ -1,22 +1,29 @@
 import {
+  EllipsisHorizontalIcon,
   LinkIcon,
   MusicalNoteIcon,
   PlusIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
 import { HomeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { AnimatePresence, motion, Variants } from 'framer-motion'
+import { ClientError } from 'graphql-request'
 import { isEmpty } from 'lodash'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { signOut, useSession } from 'next-auth/react'
 import React from 'react'
+import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
-import { createPlaylistMutation, userPlaylistsQuery } from '~/api'
+import {
+  createPlaylistMutation,
+  deletePlaylistMutation,
+  userPlaylistsQuery,
+} from '~/api'
 import { useGlobalSearchStore } from '~/store/use-global-search'
 import { useLayoutState } from '~/store/use-layout-state'
 import { useModalStore } from '~/store/use-modal'
@@ -24,6 +31,7 @@ import { useModalStore } from '~/store/use-modal'
 import { AuthModal } from '../auth/auth-modal'
 import { ImportPlaylistModal } from '../import-playlist-modal'
 import { WavesLoader } from '../loader'
+import { Toast } from '../toast'
 
 interface MenuItemProps {
   children: React.ReactNode
@@ -91,7 +99,14 @@ const UserPlaylists = () => {
     staleTime: Infinity,
   })
 
+  const deletePlaylist = useMutation({
+    mutationKey: ['deletePlaylist'],
+    mutationFn: (playlistId: string) => deletePlaylistMutation({ playlistId }),
+    onError: (err: ClientError) => err,
+  })
+
   const openModal = useModalStore((state) => state.openModal)
+  const closeModal = useModalStore((state) => state.closeModal)
 
   const hasPlaylists = !isEmpty(userPlaylists.data?.userPlaylists)
 
@@ -118,16 +133,35 @@ const UserPlaylists = () => {
       return (
         <div className='mt-12 flex flex-col gap-2'>
           {userPlaylists.data?.userPlaylists.map((playlist) => (
-            <Link
+            <div
               key={playlist.id}
-              className='bg-dark-500 px-3 py-1 rounded-xl text-left'
-              href={`/playlist/${playlist.id}`}
+              className='bg-dark-500 rounded-xl text-left flex items-center'
             >
-              <p>{playlist.name}</p>
-              <p className='text-xs text-gray-400 mt-0.5'>
-                {format(new Date(Number(playlist.createdAt!)), 'MM/dd/yyyy')}
-              </p>
-            </Link>
+              <Link
+                className='py-1 px-3 grow'
+                href={`/playlist/${playlist.id}`}
+              >
+                <p>{playlist.name}</p>
+                <p className='text-xs text-gray-400 mt-0.5'>
+                  {format(new Date(Number(playlist.createdAt!)), 'MM/dd/yyyy')}
+                </p>
+              </Link>
+              <DynamicDropdown
+                direction='right'
+                className='ml-auto self-stretch'
+                triggerClassName='hover:text-primary-500 h-full transition-colors px-3'
+                menuLabel={<EllipsisHorizontalIcon className='h-5 shrink-0' />}
+                menuItems={[
+                  {
+                    label: 'Delete',
+                    onClick: async () => {
+                      await deletePlaylist.mutateAsync(playlist.id)
+                      userPlaylists.refetch()
+                    },
+                  },
+                ]}
+              />
+            </div>
           ))}
         </div>
       )
@@ -165,7 +199,17 @@ const UserPlaylists = () => {
               icon: <LinkIcon className='h-5 mr-2 shrink-0' />,
               onClick: () => {
                 openModal({
-                  content: <ImportPlaylistModal />,
+                  content: (
+                    <ImportPlaylistModal
+                      onImportEnd={() => {
+                        toast.custom(
+                          () => <Toast message='✔ Playlist imported' />,
+                          { duration: 3000 }
+                        )
+                        closeModal()
+                      }}
+                    />
+                  ),
                   title: 'Import playlist',
                 })
               },

@@ -29,7 +29,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "types": ["vitest/globals"]
   },
   "include": [
     "next-env.d.ts",
@@ -43,7 +44,8 @@
     "apollo.config.js",
     "prettier.config.mjs",
     ".next/types/**/*.ts",
-    "drizzle.config.ts"
+    "drizzle.config.ts",
+    "vitest.config.ts"
   ],
   "exclude": ["node_modules", ".next"]
 }
