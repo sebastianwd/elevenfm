@@ -6,6 +6,7 @@ query playlistQuery($playlistId: ID!) {
       id
       title
       artist
+      createdAt
     }
     user {
       id

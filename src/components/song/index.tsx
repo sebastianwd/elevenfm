@@ -22,6 +22,7 @@ interface SongProps {
   showArtist?: boolean
   onShowLyrics?: () => void
   menuOptions?: MenuItem[]
+  dateAdded?: string
 }
 
 const DynamicDropdown = dynamic(() => import('../dropdown'), {
@@ -103,7 +104,11 @@ export const Song = (props: SongProps) => {
               ))}
             </div>
           )}
-
+          {props.dateAdded && (
+            <div className='mr-8 @2xl/songs:block hidden'>
+              {props.dateAdded}
+            </div>
+          )}
           {/* 
         {props.isFavorited ? (
           <HeartIconSolid className='cursor-pointer h-5 ml-5 text-primary-500 grow' />

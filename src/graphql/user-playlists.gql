@@ -2,7 +2,6 @@ query userPlaylistsQuery {
   userPlaylists {
     id
     name
-    songsCount
     createdAt
   }
 }

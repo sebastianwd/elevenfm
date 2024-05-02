@@ -186,11 +186,10 @@ export class PlaylistResolver {
       .where(eq(Playlists.userId, session.user.id))
       .orderBy(desc(Playlists.createdAt))
 
-    return playlists.map((playlist) => ({
+    return map(playlists, (playlist) => ({
       id: playlist.id,
       name: playlist.name,
       userId: playlist.userId,
-      songsCount: playlist.songsCount ?? 0,
       createdAt: playlist.createdAt,
     }))
   }
@@ -218,6 +217,10 @@ export class PlaylistResolver {
       .innerJoin(Users, eq(Playlists.userId, Users.id))
       .where(eq(Playlists.id, playlistId))
 
+    if (!userPlaylist) {
+      throw new Error('Playlist not found')
+    }
+
     return {
       id: playlistId,
       name: userPlaylist.playlists.name,
@@ -229,6 +232,7 @@ export class PlaylistResolver {
         id: song.songs.id,
         title: song.songs.title,
         artist: song.songs.artist,
+        createdAt: song.playlistsToSongs.createdAt,
       })),
     }
   }
@@ -320,5 +324,46 @@ export class PlaylistResolver {
     await db.delete(Playlists).where(eq(Playlists.id, playlistId))
 
     return true
+  }
+
+  @Mutation(() => Playlist)
+  async updatePlaylist(
+    @Arg('playlistId', () => ID) playlistId: string,
+    @Arg('name') name: string,
+    @Ctx() ctx: Context
+  ): Promise<Playlist> {
+    const session = ctx.session
+
+    const { userId } = getTableColumns(Playlists)
+
+    if (!session?.user) {
+      throw new Error('Unauthorized')
+    }
+
+    const [playlist] = await db
+      .select({
+        userId,
+      })
+      .from(Playlists)
+      .where(eq(Playlists.id, playlistId))
+
+    if (playlist.userId !== session.user.id) {
+      throw new Error('Unauthorized')
+    }
+
+    await db
+      .update(Playlists)
+      .set({
+        name,
+      })
+      .where(eq(Playlists.id, playlistId))
+
+    return {
+      id: playlistId,
+      name,
+      user: {
+        id: session.user.id,
+      },
+    }
   }
 }

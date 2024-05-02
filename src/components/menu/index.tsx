@@ -10,9 +10,10 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { AnimatePresence, motion, Variants } from 'framer-motion'
 import { ClientError } from 'graphql-request'
-import { isEmpty } from 'lodash'
+import { head, isEmpty } from 'lodash'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { signOut, useSession } from 'next-auth/react'
 import React from 'react'
@@ -29,6 +30,7 @@ import { useLayoutState } from '~/store/use-layout-state'
 import { useModalStore } from '~/store/use-modal'
 
 import { AuthModal } from '../auth/auth-modal'
+import { EditPlaylistDetailsModal } from '../edit-playlist-details-modal'
 import { ImportPlaylistModal } from '../import-playlist-modal'
 import { WavesLoader } from '../loader'
 import { Toast } from '../toast'
@@ -99,6 +101,9 @@ const UserPlaylists = () => {
     staleTime: Infinity,
   })
 
+  const pathname = usePathname()
+  const router = useRouter()
+
   const deletePlaylist = useMutation({
     mutationKey: ['deletePlaylist'],
     mutationFn: (playlistId: string) => deletePlaylistMutation({ playlistId }),
@@ -153,10 +158,68 @@ const UserPlaylists = () => {
                 menuLabel={<EllipsisHorizontalIcon className='h-5 shrink-0' />}
                 menuItems={[
                   {
+                    label: 'Edit details',
+                    onClick: () => {
+                      openModal({
+                        content: (
+                          <EditPlaylistDetailsModal
+                            playlistId={playlist.id}
+                            playlistName={playlist.name}
+                            onActionEnd={async () => {
+                              toast.custom(
+                                () => <Toast message='✔ Playlist updated' />,
+                                { duration: 3000 }
+                              )
+                              closeModal()
+                            }}
+                          />
+                        ),
+                        title: 'Edit playlist',
+                      })
+                    },
+                  },
+                  {
+                    label: 'Import into playlist',
+                    onClick: async () => {
+                      openModal({
+                        content: (
+                          <ImportPlaylistModal
+                            playlistId={playlist.id}
+                            onImportEnd={() => {
+                              toast.custom(
+                                () => <Toast message='✔ Playlist imported' />,
+                                { duration: 3000 }
+                              )
+                              closeModal()
+                            }}
+                          />
+                        ),
+                        title: `Import into ${playlist.name}`,
+                      })
+                    },
+                  },
+                  {
                     label: 'Delete',
                     onClick: async () => {
                       await deletePlaylist.mutateAsync(playlist.id)
-                      userPlaylists.refetch()
+                      const updatedPlaylists = await userPlaylists.refetch()
+
+                      if (pathname === `/playlist/${playlist.id}`) {
+                        if (!isEmpty(updatedPlaylists.data?.userPlaylists)) {
+                          router.replace(
+                            `/playlist/${head(updatedPlaylists.data?.userPlaylists)?.id}`,
+                            undefined,
+                            { shallow: true }
+                          )
+                        } else {
+                          router.replace('/', undefined, { shallow: true })
+                        }
+                      }
+
+                      toast.custom(
+                        () => <Toast message='✔ Playlist deleted' />,
+                        { duration: 3000 }
+                      )
                     },
                   },
                 ]}

@@ -1,4 +1,4 @@
-import { head, isEmpty } from 'lodash'
+import { isEmpty } from 'lodash'
 import { Arg, Query, Resolver } from 'type-graphql'
 
 import { invidious } from '~/server/modules/invidious/invidious'
@@ -15,8 +15,6 @@ export class SongResolver {
     const { data } = await invidious.getVideos({
       query,
     })
-
-    console.log('head(data)?.videoId', head(data)?.videoId)
 
     /* const ytmusicMix = await ytmusic.getMix(head(data)?.videoId ?? '')
 

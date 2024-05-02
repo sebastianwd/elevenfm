@@ -1,0 +1,6 @@
+mutation updatePlaylistMutation($playlistId: ID!, $name: String!) {
+  updatePlaylist(name: $name, playlistId: $playlistId) {
+    id
+    name
+  }
+}

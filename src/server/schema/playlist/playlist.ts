@@ -14,9 +14,6 @@ export class Playlist {
   @Field(() => [UserSong], { nullable: true })
   songs?: UserSong[]
 
-  @Field(() => Number, { nullable: true })
-  songsCount?: number
-
   @Field(() => String, { nullable: true })
   createdAt?: Date
 

@@ -1,11 +1,13 @@
 import { head, random, sortBy } from 'lodash'
 import { createRef } from 'react'
 import type ReactPlayer from 'react-player'
+import { toast } from 'sonner'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
 import { getAlbumBySongQuery, getVideoInfoQuery, queryClient } from '~/api'
+import { Toast } from '~/components/toast'
 
 export type Song = {
   title: string
@@ -36,11 +38,13 @@ interface PlayerState {
   setQueueIdentifier: (identifier: string) => void
   shuffledQueue: Song[]
   setQueue: (queue: Song[]) => void
-  playNext: () => void
+  playNext: (options?: { isUserAction: boolean }) => void
   playPrevious: () => void
   isShuffled: boolean
   setShuffle: (random: boolean) => void
   addToQueue: (song: Song) => void
+  repeatMode: 'none' | 'one' | 'all'
+  setRepeatMode: (mode: 'none' | 'one' | 'all') => void
 }
 
 interface PlayerInstanceState {
@@ -140,7 +144,7 @@ export const usePlayerState = create<PlayerState>()(
             state.shuffledQueue = [currentSong, ...shuffledSongs]
           }
         }),
-      playNext: async () => {
+      playNext: async (options = { isUserAction: true }) => {
         const state = get()
 
         const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
@@ -151,11 +155,29 @@ export const usePlayerState = create<PlayerState>()(
             song.artist === state.currentSong?.artist
         )
 
-        const nextSong = state.isShuffled
-          ? state.shuffledQueue[currentSongIndex + 1]
-          : state.queue[currentSongIndex + 1]
+        const getNextSong = () => {
+          if (!options.isUserAction) {
+            if (state.repeatMode === 'one') return activeQueue[currentSongIndex]
+          }
+
+          if (state.repeatMode === 'all')
+            return activeQueue[currentSongIndex + 1] || activeQueue[0]
+
+          return activeQueue[currentSongIndex + 1]
+        }
+
+        const nextSong = getNextSong()
+
+        const isSameAsCurrent =
+          nextSong?.title === state.currentSong?.title &&
+          nextSong?.artist === state.currentSong?.artist
 
         if (nextSong) {
+          if (isSameAsCurrent) {
+            instanceRef.current?.seekTo(0)
+            return
+          }
+
           const data = await getVideoInfo(nextSong)
 
           const urls = data.map((item) => item?.videoId)
@@ -208,8 +230,6 @@ export const usePlayerState = create<PlayerState>()(
 
         const coverUrl = song.albumCoverUrl || (await getAlbum(song))?.coverUrl
 
-        console.log(coverUrl, 'dsfd', song.videoThumbnailUrl)
-
         set((state) => {
           state.currentSong = {
             artist: song.artist,
@@ -230,6 +250,17 @@ export const usePlayerState = create<PlayerState>()(
             song.title === state.currentSong?.title &&
             song.artist === state.currentSong?.artist
         )
+
+        const isSameAsCurrentSong =
+          song.title === state.currentSong?.title &&
+          song.artist === state.currentSong?.artist
+
+        if (isSameAsCurrentSong) {
+          toast.custom(() => <Toast message='❌ Song is already playing' />, {
+            duration: 2500,
+          })
+          return
+        }
 
         const newQueue = [...activeQueue]
 
@@ -252,6 +283,11 @@ export const usePlayerState = create<PlayerState>()(
       setQueueIdentifier: (identifier: string) =>
         set((state) => {
           state.queueIdentifier = identifier
+        }),
+      repeatMode: 'none',
+      setRepeatMode: (mode: 'none' | 'one' | 'all') =>
+        set((state) => {
+          state.repeatMode = mode
         }),
     }))
   )

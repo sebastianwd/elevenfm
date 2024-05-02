@@ -17,11 +17,14 @@ import {
 } from '~/store/use-player'
 import { useLocalSettings } from '~/store/user-local-settings'
 
+import { Button } from '../button'
 import {
   LyricsIcon,
   NextIcon,
   PreviousIcon,
   RandomIcon,
+  RepeatIcon,
+  RepeatOneIcon,
   TheaterModeIcon,
 } from '../icons'
 import { WavesLoader } from '../loader'
@@ -199,10 +202,13 @@ export const FooterPlayer = () => {
     [instance]
   )
 
-  const { queueIdentifier, currentQueue } = usePlayerState((state) => ({
-    queueIdentifier: state.queueIdentifier,
-    currentQueue: state.isShuffled ? state.shuffledQueue : state.queue,
-  }))
+  const { queueIdentifier, currentQueue, repeatMode, setRepeatMode } =
+    usePlayerState((state) => ({
+      queueIdentifier: state.queueIdentifier,
+      currentQueue: state.isShuffled ? state.shuffledQueue : state.queue,
+      repeatMode: state.repeatMode,
+      setRepeatMode: state.setRepeatMode,
+    }))
 
   const { toggleShuffledPlaylist } = useLocalSettings((state) => ({
     toggleShuffledPlaylist: state.toggleShuffledPlaylist,
@@ -287,12 +293,21 @@ export const FooterPlayer = () => {
           </div>
           <div>
             <div className='flex items-center justify-end md:justify-center gap-1 md:gap-4 mb-3'>
-              <button onClick={onShuffleToggle}>
+              <Button
+                variant='ghost'
+                className='p-0'
+                title='Shuffle'
+                onClick={onShuffleToggle}
+              >
                 <RandomIcon
                   className={`h-6 w-6 ${isShuffled ? 'text-primary-500' : ''}`}
                 />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='ghost'
+                className='p-0'
+                disabled={!currentSong}
+                title='Previous'
                 onClick={() => {
                   if (!currentSong) {
                     return
@@ -301,8 +316,12 @@ export const FooterPlayer = () => {
                 }}
               >
                 <PreviousIcon className='h-8 w-8' />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='ghost'
+                className='p-0'
+                disabled={!currentSong}
+                title='Play/Pause'
                 onClick={() => {
                   if (!currentSong) {
                     return
@@ -316,8 +335,12 @@ export const FooterPlayer = () => {
                 ) : (
                   <PlayCircleIcon className='h-12 w-12' />
                 )}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='ghost'
+                title='Next'
+                disabled={!currentSong}
+                className='p-0'
                 onClick={() => {
                   if (!currentSong) {
                     return
@@ -326,7 +349,29 @@ export const FooterPlayer = () => {
                 }}
               >
                 <NextIcon className='h-8 w-8' />
-              </button>
+              </Button>
+              <Button
+                onClick={() => {
+                  setRepeatMode(
+                    repeatMode === 'none'
+                      ? 'all'
+                      : repeatMode === 'all'
+                        ? 'one'
+                        : 'none'
+                  )
+                }}
+                variant='ghost'
+                title='Repeat'
+                className='p-0'
+              >
+                {repeatMode === 'none' ? (
+                  <RepeatIcon className='h-6 w-6' />
+                ) : repeatMode === 'all' ? (
+                  <RepeatIcon className='h-6 w-6 text-primary-500' />
+                ) : (
+                  <RepeatOneIcon className='h-6 w-6 text-primary-500' />
+                )}
+              </Button>
               <div className='w-2' />
               <button
                 onClick={() => {

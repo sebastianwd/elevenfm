@@ -30,6 +30,9 @@ export class Song {
 export class UserSong extends Song {
   @Field()
   id: string
+
+  @Field(() => String, { nullable: true })
+  createdAt?: Date
 }
 
 @ObjectType('songVideo')

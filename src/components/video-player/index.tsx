@@ -62,7 +62,7 @@ const VideoPlayer = memo(() => {
   }, [currentSong, setIsPlaying])
 
   const onPlayerEnd = useCallback(() => {
-    playNext()
+    playNext({ isUserAction: false })
   }, [playNext])
 
   const onPlayerPause = useCallback(() => {

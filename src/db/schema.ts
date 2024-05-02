@@ -56,7 +56,6 @@ export const Playlists = sqliteTable('playlists', {
     .primaryKey()
     .$defaultFn(() => createId()),
   name: text('name').notNull(),
-  songsCount: integer('songsCount').default(0),
   userId: text('userId').notNull(),
   createdAt: integer('createdAt', { mode: 'timestamp' })
     .notNull()
@@ -79,6 +78,9 @@ export const PlaylistsToSongs = sqliteTable('playlistsToSongs', {
   songId: text('songId')
     .notNull()
     .references(() => Songs.id),
+  createdAt: integer('createdAt', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
 })
 
 export const PlaylistToSongRelations = relations(

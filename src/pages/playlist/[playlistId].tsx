@@ -1,5 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { ClientError } from 'graphql-request'
 import { isEmpty } from 'lodash'
 import { NextPage } from 'next'
 import { useParams } from 'next/navigation'
@@ -13,6 +14,7 @@ import { SongList } from '~/components/song-list'
 import { Toast } from '~/components/toast'
 import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { useModalStore } from '~/store/use-modal'
+import { getError } from '~/utils/get-error'
 
 const PlaylistPage: NextPage = () => {
   const params = useParams<{ playlistId: string }>()
@@ -54,7 +56,9 @@ const PlaylistPage: NextPage = () => {
     if (playlist.isError) {
       return (
         <div className='flex justify-center mt-[10%]'>
-          <p>Something went wrong</p>
+          <p>
+            {getError(playlist.error as ClientError) || 'Something went wrong'}{' '}
+          </p>
         </div>
       )
     }

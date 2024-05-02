@@ -36,6 +36,7 @@ export type Mutation = {
   deletePlaylist: Scalars['Boolean']['output']
   importPlaylist: Playlist
   removeFromPlaylist: Scalars['Boolean']['output']
+  updatePlaylist: Playlist
 }
 
 export type MutationCreatePlaylistArgs = {
@@ -54,6 +55,11 @@ export type MutationImportPlaylistArgs = {
 export type MutationRemoveFromPlaylistArgs = {
   playlistId: Scalars['ID']['input']
   songId: Scalars['ID']['input']
+}
+
+export type MutationUpdatePlaylistArgs = {
+  name: Scalars['String']['input']
+  playlistId: Scalars['ID']['input']
 }
 
 export type Query = {
@@ -151,7 +157,6 @@ export type Playlist = {
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
   songs: Maybe<Array<UserSong>>
-  songsCount: Maybe<Scalars['Float']['output']>
   user: Maybe<User>
 }
 
@@ -200,6 +205,7 @@ export type UserSong = {
   __typename?: 'userSong'
   album: Maybe<Scalars['String']['output']>
   artist: Scalars['String']['output']
+  createdAt: Maybe<Scalars['String']['output']>
   duration: Maybe<Scalars['String']['output']>
   genre: Maybe<Scalars['String']['output']>
   id: Scalars['String']['output']
@@ -379,6 +385,16 @@ export type TopsongsByArtistQueryQuery = {
   }>
 }
 
+export type UpdatePlaylistMutationMutationVariables = Exact<{
+  playlistId: Scalars['ID']['input']
+  name: Scalars['String']['input']
+}>
+
+export type UpdatePlaylistMutationMutation = {
+  __typename?: 'Mutation'
+  updatePlaylist: { __typename?: 'playlist'; id: string; name: string }
+}
+
 export type PlaylistQueryQueryVariables = Exact<{
   playlistId: Scalars['ID']['input']
 }>
@@ -394,6 +410,7 @@ export type PlaylistQueryQuery = {
       id: string
       title: string
       artist: string
+      createdAt: string | null
     }> | null
     user: { __typename?: 'user'; id: string; name: string } | null
   }
@@ -407,7 +424,6 @@ export type UserPlaylistsQueryQuery = {
     __typename?: 'playlist'
     id: string
     name: string
-    songsCount: number | null
     createdAt: string | null
   }>
 }
@@ -535,6 +551,14 @@ export const TopsongsByArtistQueryDocument = gql`
     }
   }
 `
+export const UpdatePlaylistMutationDocument = gql`
+  mutation updatePlaylistMutation($playlistId: ID!, $name: String!) {
+    updatePlaylist(name: $name, playlistId: $playlistId) {
+      id
+      name
+    }
+  }
+`
 export const PlaylistQueryDocument = gql`
   query playlistQuery($playlistId: ID!) {
     playlist(playlistId: $playlistId) {
@@ -544,6 +568,7 @@ export const PlaylistQueryDocument = gql`
         id
         title
         artist
+        createdAt
       }
       user {
         id
@@ -557,7 +582,6 @@ export const UserPlaylistsQueryDocument = gql`
     userPlaylists {
       id
       name
-      songsCount
       createdAt
     }
   }
@@ -770,6 +794,22 @@ export function getSdk(
           ),
         'topsongsByArtistQuery',
         'query',
+        variables
+      )
+    },
+    updatePlaylistMutation(
+      variables: UpdatePlaylistMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<UpdatePlaylistMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdatePlaylistMutationMutation>(
+            UpdatePlaylistMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'updatePlaylistMutation',
+        'mutation',
         variables
       )
     },
