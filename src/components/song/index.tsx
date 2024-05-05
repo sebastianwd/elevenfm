@@ -18,7 +18,7 @@ interface SongProps {
   position?: number
   playcount?: number
   isFavorited?: boolean
-  onClick: () => void
+  onClick: React.ComponentProps<'button'>['onClick']
   showArtist?: boolean
   onShowLyrics?: () => void
   menuOptions?: MenuItem[]

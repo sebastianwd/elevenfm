@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge'
 export interface MenuItem {
   label: string
   icon?: JSX.Element
-  onClick: () => void
+  onClick: React.ComponentProps<'button'>['onClick']
 }
 
 interface DropdownProps {

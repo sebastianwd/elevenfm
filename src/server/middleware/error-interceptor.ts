@@ -1,20 +1,8 @@
-import pino from 'pino'
 import { MiddlewareFn } from 'type-graphql'
 
 import { Context } from '~/types'
 
-const logger = pino(
-  process.env.NODE_ENV === 'production'
-    ? {}
-    : {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-          },
-        },
-      }
-)
+import { logger } from '../logger'
 
 export const ErrorInterceptor: MiddlewareFn<Context> = async (_, next) => {
   try {

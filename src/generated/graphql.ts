@@ -32,11 +32,18 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  addToPlaylist: Scalars['Boolean']['output']
   createPlaylist: Playlist
   deletePlaylist: Scalars['Boolean']['output']
   importPlaylist: Playlist
   removeFromPlaylist: Scalars['Boolean']['output']
   updatePlaylist: Playlist
+}
+
+export type MutationAddToPlaylistArgs = {
+  playlistId: Scalars['ID']['input']
+  songIds: InputMaybe<Array<Scalars['ID']['input']>>
+  songs: InputMaybe<Array<SongInput>>
 }
 
 export type MutationCreatePlaylistArgs = {
@@ -179,6 +186,12 @@ export type SongAlbum = {
   title: Scalars['String']['output']
 }
 
+export type SongInput = {
+  album: InputMaybe<Scalars['String']['input']>
+  artist: Scalars['String']['input']
+  title: Scalars['String']['input']
+}
+
 export type SongLyrics = {
   __typename?: 'songLyrics'
   artist: Scalars['String']['output']
@@ -213,6 +226,17 @@ export type UserSong = {
   playlistId: Maybe<Scalars['Int']['output']>
   title: Scalars['String']['output']
   year: Maybe<Scalars['String']['output']>
+}
+
+export type AddToPlaylistMutationMutationVariables = Exact<{
+  playlistId: Scalars['ID']['input']
+  songIds: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>
+  songs: InputMaybe<Array<SongInput> | SongInput>
+}>
+
+export type AddToPlaylistMutationMutation = {
+  __typename?: 'Mutation'
+  addToPlaylist: boolean
 }
 
 export type ArtistQueryQueryVariables = Exact<{
@@ -428,6 +452,15 @@ export type UserPlaylistsQueryQuery = {
   }>
 }
 
+export const AddToPlaylistMutationDocument = gql`
+  mutation addToPlaylistMutation(
+    $playlistId: ID!
+    $songIds: [ID!]
+    $songs: [songInput!]
+  ) {
+    addToPlaylist(playlistId: $playlistId, songIds: $songIds, songs: $songs)
+  }
+`
 export const ArtistQueryDocument = gql`
   query artistQuery($name: String!) {
     artist(name: $name) {
@@ -606,6 +639,22 @@ export function getSdk(
   withWrapper: SdkFunctionWrapper = defaultWrapper
 ) {
   return {
+    addToPlaylistMutation(
+      variables: AddToPlaylistMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<AddToPlaylistMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<AddToPlaylistMutationMutation>(
+            AddToPlaylistMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'addToPlaylistMutation',
+        'mutation',
+        variables
+      )
+    },
     artistQuery(
       variables: ArtistQueryQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders

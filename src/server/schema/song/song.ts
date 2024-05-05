@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from 'type-graphql'
+import { Field, InputType, Int, ObjectType } from 'type-graphql'
 
 @ObjectType('song')
 export class Song {
@@ -72,4 +72,16 @@ export class SongLyrics {
 
   @Field()
   lyrics?: string
+}
+
+@InputType('songInput')
+export class SongInput {
+  @Field()
+  title: string
+
+  @Field()
+  artist: string
+
+  @Field({ nullable: true })
+  album?: string
 }

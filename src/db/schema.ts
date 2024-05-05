@@ -45,6 +45,7 @@ export const Songs = sqliteTable(
     createdAt: integer('createdAt', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
+    updatedAt: integer('updatedAt', { mode: 'timestamp' }),
   },
   (s) => ({
     unq: unique().on(s.title, s.artist, s.album),
@@ -71,17 +72,23 @@ export const PlaylistRelations = relations(Playlists, ({ one, many }) => ({
   playlistsToSongs: many(PlaylistsToSongs),
 }))
 
-export const PlaylistsToSongs = sqliteTable('playlistsToSongs', {
-  playlistId: text('playlistId')
-    .notNull()
-    .references(() => Playlists.id, { onDelete: 'cascade' }),
-  songId: text('songId')
-    .notNull()
-    .references(() => Songs.id),
-  createdAt: integer('createdAt', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-})
+export const PlaylistsToSongs = sqliteTable(
+  'playlistsToSongs',
+  {
+    playlistId: text('playlistId')
+      .notNull()
+      .references(() => Playlists.id, { onDelete: 'cascade' }),
+    songId: text('songId')
+      .notNull()
+      .references(() => Songs.id),
+    createdAt: integer('createdAt', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (s) => ({
+    unq: unique().on(s.playlistId, s.songId),
+  })
+)
 
 export const PlaylistToSongRelations = relations(
   PlaylistsToSongs,

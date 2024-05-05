@@ -1,3 +1,5 @@
+import { DragOverlay } from '@dnd-kit/core'
+import {} from '@dnd-kit/modifiers'
 import { LinkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { PlayIcon } from '@heroicons/react/24/solid'
 import { head, isNil } from 'lodash'
@@ -5,10 +7,12 @@ import React, { useCallback } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { getVideoInfoQuery, queryClient } from '~/api'
+import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
 import { useLocalSettings } from '~/store/user-local-settings'
 
 import { Button } from '../button'
+import { Draggable } from '../draggable'
 import { MenuItem } from '../dropdown'
 import { RandomIcon } from '../icons'
 import { Input } from '../input'
@@ -139,6 +143,12 @@ export const SongList = (props: SongListProps) => {
     isShuffled,
   ])
 
+  const { draggingToPlaylistData } = useLayoutState((state) => ({
+    draggingToPlaylistData: state.draggingToPlaylistData,
+  }))
+
+  console.log('draggingToPlaylistEl', draggingToPlaylistData)
+
   return (
     <>
       <div className='grid grid-cols-5 lg:grid-cols-3 px-4 py-2 gap-2'>
@@ -185,21 +195,45 @@ export const SongList = (props: SongListProps) => {
         </div>
       </div>
       {filteredSongs?.map((song, index) => (
-        <Song
-          key={index}
-          position={index + 1}
-          isPlaying={
-            currentSong?.title === song.title &&
-            currentSong?.artist === song.artist
-          }
-          onClick={() => onPlaySong(song.title, song.artist)}
-          song={song.title}
-          playcount={song.playcount ? Number(song.playcount) : undefined}
-          artist={song.artist}
-          showArtist={showArtist}
-          menuOptions={menuOptions?.(song, song.artist)}
-        />
+        <Draggable
+          key={song.id || `${song.title}-${song.artist}`}
+          id={song.id || `${song.title}-${song.artist}`}
+          data={{ title: song.title, artist: song.artist, id: song.id }}
+        >
+          <Song
+            position={index + 1}
+            isPlaying={
+              currentSong?.title === song.title &&
+              currentSong?.artist === song.artist
+            }
+            onClick={() => onPlaySong(song.title, song.artist)}
+            song={song.title}
+            playcount={song.playcount ? Number(song.playcount) : undefined}
+            artist={song.artist}
+            showArtist={showArtist}
+            menuOptions={menuOptions?.(song, song.artist)}
+          />
+        </Draggable>
       ))}
+      <DragOverlay
+        dropAnimation={null}
+        className='w-fit min-w-96 select-none cursor-grabbing'
+      >
+        {draggingToPlaylistData ? (
+          <div className='px-4 py-2 bg-dark-600 w-fit min-w-96 flex gap-4 opacity-80 border-solid border border-dark-300 rounded'>
+            <p
+              className={`text-sm font-medium text-gray-300 line-clamp-1 text-left`}
+            >
+              {draggingToPlaylistData.title}
+            </p>
+            {draggingToPlaylistData.artist && (
+              <p className='text-sm text-gray-400 text-left @2xl/songs:hidden block'>
+                {draggingToPlaylistData.artist}
+              </p>
+            )}
+          </div>
+        ) : null}
+      </DragOverlay>
     </>
   )
 }
