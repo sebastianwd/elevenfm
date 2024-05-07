@@ -54,17 +54,20 @@ export const Song = (props: SongProps) => {
     : defaultOptions
 
   return (
-    <div className='flex cursor-default items-center justify-between rounded px-4 py-3 transition-colors hover:bg-dark-500'>
-      <div className='@container/songs flex grow'>
-        <div className='flex items-center @2xl/songs:basis-1/2'>
+    <div className='flex cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700 h-[3.25rem]'>
+      <div className='@container/songs flex grow h-full'>
+        <div className='flex items-center @2xl/songs:basis-1/2 h-full'>
           {props.position && (
             <div className='text-sm font-medium text-gray-400 w-3 shrink-0'>
               <span>{props.position}</span>
             </div>
           )}
-          <button onClick={props.onClick} className='flex items-center'>
+          <button
+            onClick={props.onClick}
+            className='flex items-center h-full hover:text-primary-500'
+          >
             <PlayIcon
-              className={`h-4 ml-5  hover:text-primary-500 transition-colors shrink-0 ${
+              className={`h-4 ml-5 transition-colors shrink-0 ${
                 props.isPlaying ? 'text-primary-500' : ''
               } `}
             />
@@ -122,9 +125,10 @@ export const Song = (props: SongProps) => {
         </div>
       </div>
       <DynamicDropdown
-        className='ml-auto'
+        className='ml-auto h-full'
+        triggerClassName='h-full hover:text-primary-500 px-3'
         menuLabel={
-          <EllipsisHorizontalIcon className='h-5 ml-5 shrink-0 hover:text-primary-500 transition-colors' />
+          <EllipsisHorizontalIcon className='h-5 shrink-0 transition-colors' />
         }
         menuItems={options}
       />

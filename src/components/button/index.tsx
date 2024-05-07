@@ -12,8 +12,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: ['bg-dark-200 text-dark-600'],
-        secondary: ['bg-dark-500 text-dark-200'],
+        primary: ['bg-neutral-200 text-surface-900'],
+        secondary: ['bg-surface-800 text-neutral-200'],
         ghost: ['bg-transparent'],
       },
     },

@@ -43,8 +43,8 @@ const MenuItem = ({
   return (
     <li
       className={twMerge(
-        `group py-2 hover:bg-dark-700 rounded-3xl transition-colors duration-300`,
-        (active ?? router.pathname === href) && 'bg-dark-600',
+        `group py-2 hover:bg-surface-900 rounded-3xl transition-colors duration-300`,
+        (active ?? router.pathname === href) && 'bg-surface-900',
         className
       )}
     >
@@ -55,9 +55,11 @@ const MenuItem = ({
       >
         <span className='flex md:flex-col md:items-center'>
           {React.cloneElement<HTMLElement>(icon, {
-            className: `w-7 md:mx-2 mx-4 inline ${activeClassname}`,
+            className: `w-7 md:mx-2 mx-4 inline transition-colors ${activeClassname}`,
           })}
-          <span className={`hidden text-sm md:inline ${activeClassname}`}>
+          <span
+            className={`hidden text-sm md:inline transition-colors ${activeClassname}`}
+          >
             {children}
           </span>
         </span>
@@ -121,9 +123,9 @@ export const Menu = () => {
         )}
       </AnimatePresence>
       <div className='sticky top-0 h-full w-full px-4 md:fixed md:w-36 md:px-0 z-40 md:z-20'>
-        <div className='sticky top-0 flex h-full flex-grow rounded-[40px] bg-dark-800 p-4 md:px-0 md:pb-24'>
+        <div className='sticky top-0 flex h-full flex-grow md:rounded-none rounded-[40px] bg-surface-950 p-4 md:p-0 md:px-0 md:pb-28'>
           <div className='flex relative w-full'>
-            <ul className='flex overflow-hidden md:flex-col md:py-10 md:gap-4 w-full items-center z-10 bg-dark-800'>
+            <ul className='flex overflow-hidden md:flex-col md:py-10 md:gap-4 w-full items-center z-10 bg-surface-950 justify-between'>
               <MenuItem href='/' icon={<HomeIcon />}>
                 Home
               </MenuItem>
@@ -161,7 +163,7 @@ export const Menu = () => {
             <AnimatePresence>
               {isPlaylistMenuOpen && (
                 <motion.div
-                  className='bg-dark-800 absolute -right-64 -top-4 w-64 h-full'
+                  className='bg-surface-950 absolute -left-8 md:left-auto md:-right-64 top-16 md:-top-0 w-64 md:h-full rounded-r-3xl h-[calc(100svh-12.25rem)] md:max-h-full'
                   initial='hidden'
                   exit='hidden'
                   animate='show'

@@ -1,8 +1,8 @@
 import { DragOverlay } from '@dnd-kit/core'
 import {} from '@dnd-kit/modifiers'
 import { LinkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import { PlayIcon } from '@heroicons/react/24/solid'
-import { head, isNil } from 'lodash'
+import { PauseIcon, PlayIcon } from '@heroicons/react/24/solid'
+import { find, head, isNil, sample } from 'lodash'
 import React, { useCallback } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -17,6 +17,52 @@ import { MenuItem } from '../dropdown'
 import { RandomIcon } from '../icons'
 import { Input } from '../input'
 import { Song } from '../song'
+
+interface SongListHeaderProps {
+  columns: {
+    title: boolean
+    playcount?: boolean
+    artist?: boolean
+  }
+}
+
+const SongListHeader = (props: SongListHeaderProps) => {
+  const { columns } = props
+
+  return (
+    <div className='flex cursor-default items-center justify-between rounded pl-4 transition-colors h-10'>
+      <div className='@container/songs flex grow h-full'>
+        <div className='flex items-center @2xl/songs:basis-1/2 h-full'>
+          <div className='text-sm font-medium text-gray-400 w-3 shrink-0'>
+            <span>#</span>
+          </div>
+          <button className='flex items-center h-full'>
+            <div className='ml-4'>
+              <p
+                className={`text-sm font-medium text-gray-400 line-clamp-1 text-left`}
+              >
+                Title
+              </p>
+            </div>
+          </button>
+        </div>
+        <div className='flex items-center grow'>
+          {columns.playcount && (
+            <div className='text-sm text-gray-400 mr-8 hidden md:inline-block'>
+              Scrobbles
+            </div>
+          )}
+          {columns.artist && (
+            <div className='mr-8 @2xl/songs:block hidden text-sm text-gray-400'>
+              Artist
+            </div>
+          )}
+        </div>
+      </div>
+      <div className='w-12' />
+    </div>
+  )
+}
 
 interface SongListProps {
   songs: {
@@ -50,8 +96,14 @@ export const SongList = (props: SongListProps) => {
 
   const [listSearchValue, setListSearchValue] = React.useState('')
 
-  const { setIsPlaying, currentSong, setCurrentSong, setQueue } =
-    usePlayerState()
+  const {
+    setIsPlaying,
+    currentSong,
+    setCurrentSong,
+    setQueue,
+    toggleIsPlaying,
+    isPlaying,
+  } = usePlayerState()
 
   const { toggleShuffledPlaylist, isShuffled } = useLocalSettings((state) => ({
     toggleShuffledPlaylist: state.toggleShuffledPlaylist,
@@ -81,11 +133,6 @@ export const SongList = (props: SongListProps) => {
       })
 
       const urls = data?.getVideoInfo.map((video) => video.videoId)
-
-      console.log(
-        ' head(data.getVideoInfo)?.thumbnailUrl',
-        head(data.getVideoInfo)?.thumbnailUrl
-      )
 
       setCurrentSong({
         artist,
@@ -147,22 +194,37 @@ export const SongList = (props: SongListProps) => {
     draggingToPlaylistData: state.draggingToPlaylistData,
   }))
 
-  console.log('draggingToPlaylistEl', draggingToPlaylistData)
-
   return (
     <>
       <div className='grid grid-cols-5 lg:grid-cols-3 px-4 py-2 gap-2'>
         <div className='col-span-1 flex gap-2'>
           <Button
-            onClick={() =>
+            onClick={() => {
+              if (queueIdentifier === identifier) {
+                toggleIsPlaying()
+                return
+              }
+
+              if (isShuffled) {
+                const randomSong = sample(filteredSongs)
+                if (randomSong) {
+                  onPlaySong(randomSong.title, randomSong.artist)
+                  return
+                }
+              }
+
               onPlaySong(filteredSongs[0].title, filteredSongs[0].artist)
-            }
+            }}
             title='Play all'
             variant='primary'
             className='p-2  ml-auto'
             disabled={!filteredSongs.length}
           >
-            <PlayIcon className='h-5 w-5' />
+            {queueIdentifier === identifier && isPlaying ? (
+              <PauseIcon className='h-5 w-5' />
+            ) : (
+              <PlayIcon className='h-5 w-5' />
+            )}
           </Button>
         </div>
         <Input
@@ -194,6 +256,13 @@ export const SongList = (props: SongListProps) => {
           )}
         </div>
       </div>
+      <SongListHeader
+        columns={{
+          title: true,
+          playcount: !!find(songs, (song) => song.playcount),
+          artist: showArtist,
+        }}
+      />
       {filteredSongs?.map((song, index) => (
         <Draggable
           key={song.id || `${song.title}-${song.artist}`}
@@ -220,7 +289,7 @@ export const SongList = (props: SongListProps) => {
         className='w-fit min-w-96 select-none cursor-grabbing'
       >
         {draggingToPlaylistData ? (
-          <div className='px-4 py-2 bg-dark-600 w-fit min-w-96 flex gap-4 opacity-80 border-solid border border-dark-300 rounded'>
+          <div className='px-4 py-2 bg-surface-900 w-fit min-w-96 flex gap-4 opacity-85 border-solid border border-surface-300 rounded'>
             <p
               className={`text-sm font-medium text-gray-300 line-clamp-1 text-left`}
             >

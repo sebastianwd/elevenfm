@@ -45,6 +45,7 @@ interface PlayerState {
   addToQueue: (song: Song) => void
   repeatMode: 'none' | 'one' | 'all'
   setRepeatMode: (mode: 'none' | 'one' | 'all') => void
+  toggleIsPlaying: () => void
 }
 
 interface PlayerInstanceState {
@@ -288,6 +289,10 @@ export const usePlayerState = create<PlayerState>()(
       setRepeatMode: (mode: 'none' | 'one' | 'all') =>
         set((state) => {
           state.repeatMode = mode
+        }),
+      toggleIsPlaying: () =>
+        set((state) => {
+          state.isPlaying = !state.isPlaying
         }),
     }))
   )

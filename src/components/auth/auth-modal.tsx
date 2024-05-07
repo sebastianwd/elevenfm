@@ -124,7 +124,7 @@ export const AuthModal = (props: AuthModalProps) => {
             id='password'
             {...register('password', { required: 'Password is required' })}
           />
-          <span className='text-dark-300 text-sm'>
+          <span className='text-neutral-300 text-sm'>
             {authType === 'login' ? 'No account?' : 'Already registered?'}
           </span>{' '}
           <button
@@ -140,7 +140,7 @@ export const AuthModal = (props: AuthModalProps) => {
           <button
             type='submit'
             className={twMerge(
-              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-dark-200 font-medium h-12 text-dark-600 mt-7 disabled:opacity-80'
+              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-neutral-200 font-medium h-12 text-surface-900 mt-7 disabled:opacity-80'
             )}
             disabled={!isDirty || !isValid || isSubmitting}
           >
@@ -174,7 +174,7 @@ export const AuthModal = (props: AuthModalProps) => {
               })
             }
             className={twMerge(
-              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-dark-500 font-medium h-12'
+              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-surface-800 font-medium h-12'
             )}
           >
             <GithubIcon className='w-6' />

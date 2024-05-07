@@ -2,6 +2,24 @@ import containerQueries from '@tailwindcss/container-queries'
 import typography from '@tailwindcss/typography'
 import plugin from 'tailwindcss/plugin'
 
+/*type TailwindShade<T extends readonly number[], S extends string> = {
+  [key in T[number]]: `var(--${S}-${key}) / <alpha-value>`
+}
+
+const twLevels = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const
+
+const getShades = <T extends string>(color: T) => {
+  return twLevels.reduce(
+    (acc, level) => {
+      Object.assign(acc, {
+        [level]: `rbg(var(--${color}-${level}) / <alpha-value>)`,
+      })
+      return acc
+    },
+    {} as TailwindShade<typeof twLevels, typeof color>
+  )
+}*/
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
@@ -21,15 +39,18 @@ module.exports = {
         primary: {
           500: '#FC3967',
         },
-        dark: {
-          200: '#E6E6E6',
-          300: '#CBCCCC',
-          400: '#AAAAAA',
-          500: '#202020',
-          600: '#121212',
-          700: '#110F10',
-          800: '#0E0C0D',
-          900: '#0C0C0C',
+        surface: {
+          50: '#A3A3A3',
+          100: '#999999',
+          200: '#8A8A8A',
+          300: '#7A7A7A',
+          400: '#696969',
+          500: '#474747',
+          600: '#383838',
+          700: '#292929',
+          800: '#202020',
+          900: '#0F0F0F',
+          950: '#0A0A0A',
         },
       },
       fontFamily: {

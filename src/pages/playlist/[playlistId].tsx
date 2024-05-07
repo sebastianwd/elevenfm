@@ -66,7 +66,7 @@ const PlaylistPage: NextPage = () => {
     if (isEmpty(playlist.data?.playlist.songs)) {
       return (
         <div className='flex justify-center mt-[10%]'>
-          <p className='text-gray-300'>This playlist is empty</p>
+          <p className='text-neutral-300'>This playlist is empty</p>
         </div>
       )
     }

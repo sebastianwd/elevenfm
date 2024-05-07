@@ -42,7 +42,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         <Menu.Items
           className={twMerge(
-            'absolute w-56 origin-top-right divide-y divide-dark-700 rounded-md bg-dark-500 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20',
+            'absolute w-56 origin-top-right divide-y divide-surface-900 rounded-md bg-surface-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20',
             direction === 'right' ? 'left-0' : 'right-0'
           )}
         >
@@ -52,7 +52,7 @@ export default function Dropdown(props: DropdownProps) {
                 {({ active }) => (
                   <button
                     className={`${
-                      active ? 'bg-dark-800' : ''
+                      active ? 'bg-surface-950' : ''
                     } group flex w-full items-center rounded-md px-4 py-4 text-sm transition-colors`}
                     onClick={item.onClick}
                   >

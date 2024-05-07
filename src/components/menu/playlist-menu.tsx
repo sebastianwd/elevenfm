@@ -2,8 +2,10 @@ import { useDroppable } from '@dnd-kit/core'
 import {
   EllipsisHorizontalIcon,
   LinkIcon,
-  PlusIcon,
+  PencilIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline'
+import { PlusIcon } from '@heroicons/react/24/solid'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { ClientError } from 'graphql-request'
@@ -77,8 +79,8 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
     <div
       key={playlist.id}
       className={twMerge(
-        `bg-dark-500 rounded-xl text-left flex items-center transition-colors`,
-        isOver && 'text-primary-500 bg-dark-600'
+        `bg-surface-800 rounded-lg text-left flex items-center transition-colors`,
+        isOver && 'text-primary-500 bg-surface-900'
       )}
       ref={setNodeRef}
     >
@@ -96,6 +98,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
         menuItems={[
           {
             label: 'Edit details',
+            icon: <PencilIcon className='h-3.5 mr-2 shrink-0' />,
             onClick: () => {
               openModal({
                 content: (
@@ -117,6 +120,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
           },
           {
             label: 'Import into playlist',
+            icon: <LinkIcon className='h-3.5 mr-2 shrink-0' />,
             onClick: async () => {
               openModal({
                 content: (
@@ -137,6 +141,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
           },
           {
             label: 'Delete',
+            icon: <TrashIcon className='h-3.5 mr-2 shrink-0' />,
             onClick: async () => {
               await deletePlaylist.mutateAsync(playlist.id)
               const updatedPlaylists = await userPlaylists.refetch()
@@ -229,7 +234,7 @@ export const PlaylistMenu = () => {
           menuItems={[
             {
               label: 'Create playlist',
-              icon: <PlusIcon className='h-5 mr-2 shrink-0' />,
+              icon: <PlusIcon className='h-3.5 mr-2 shrink-0' />,
               onClick: async () => {
                 await createPlaylistMutation()
                 await userPlaylists.refetch()
@@ -237,7 +242,7 @@ export const PlaylistMenu = () => {
             },
             {
               label: 'Import from URL',
-              icon: <LinkIcon className='h-5 mr-2 shrink-0' />,
+              icon: <LinkIcon className='h-3.5 mr-2 shrink-0' />,
               onClick: () => {
                 openModal({
                   content: (

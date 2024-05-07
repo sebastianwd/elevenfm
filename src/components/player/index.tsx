@@ -88,7 +88,7 @@ const QueueList = (props: QueueListProps) => {
 
   return (
     <motion.div
-      className='bg-dark-800 rounded-lg'
+      className='bg-surface-950 rounded-lg'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -120,7 +120,7 @@ export const Lyrics = (props: LyricsProps) => {
     queryKey: ['getLyricsQuery', song, artist],
     queryFn: () =>
       getLyricsQuery({
-        song: song || '',
+        song: song.replace(/\(|\)/g, ''),
         artist: head(artist.split(','))?.trim() || '',
       }),
     staleTime: Infinity,
@@ -161,7 +161,7 @@ export const Lyrics = (props: LyricsProps) => {
 
   return (
     <motion.div
-      className='bg-dark-800 rounded-lg h-full'
+      className='bg-surface-950 rounded-lg h-full'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -267,7 +267,7 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-dark-800 bg-opacity-20 backdrop-blur-lg z-40'>
+      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-surface-900 bg-opacity-20 backdrop-blur-lg z-40'>
         <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid md:grid-cols-3 grid-cols-2 relative'>
           <div className='flex gap-2 md:gap-4'>
             <div className='flex items-center'>

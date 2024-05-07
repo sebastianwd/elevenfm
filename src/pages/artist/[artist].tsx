@@ -376,7 +376,12 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
           <>
             <div className='grid lg:grid-cols-3'>
               <header
-                className='bg-gradient-blend relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top'
+                className={twMerge(
+                  `relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top`,
+                  data?.artist.bannerImage
+                    ? 'bg-gradient-blend'
+                    : 'bg-gradient-blend-primary'
+                )}
                 style={{
                   backgroundImage: data?.artist.bannerImage
                     ? `url("${data.artist.bannerImage}")`
