@@ -5,6 +5,7 @@ import { chunk, isEmpty, map } from 'lodash'
 import spotifyFetch from 'spotify-url-info'
 import { Arg, Ctx, ID, Mutation, Query, Resolver } from 'type-graphql'
 
+import { playlistType } from '~/constants'
 import { db } from '~/db/db'
 import { Playlists, PlaylistsToSongs, Songs, Users } from '~/db/schema'
 import { logger } from '~/server/logger'
@@ -181,7 +182,7 @@ export class PlaylistResolver {
       .where(
         and(
           eq(Playlists.userId, session.user.id),
-          eq(Playlists.type, 'playlist')
+          eq(Playlists.type, playlistType.PLAYLIST)
         )
       )
       .orderBy(desc(Playlists.createdAt))
@@ -224,6 +225,7 @@ export class PlaylistResolver {
     return {
       id: playlistId,
       name: userPlaylist.playlists.name,
+      type: userPlaylist.playlists.type,
       user: {
         id: userPlaylist.users.id,
         name: userPlaylist.users.name,
@@ -539,6 +541,7 @@ export class PlaylistResolver {
           name: radioPlaylistName,
           userId: session.user.id,
           radioSongId: createdRadioSong.insertedId,
+          type: playlistType.RADIO,
           updatedAt: new Date(),
         })
         .returning({ insertedId: Playlists.id })
@@ -554,12 +557,15 @@ export class PlaylistResolver {
             })
             .returning({ insertedId: Songs.id })
 
-          await tx.insert(PlaylistsToSongs).values(
-            createdSongs.map((song) => ({
-              playlistId: createdPlaylist.insertedId,
-              songId: song.insertedId,
-            }))
-          )
+          await tx
+            .insert(PlaylistsToSongs)
+            .values(
+              createdSongs.map((song) => ({
+                playlistId: createdPlaylist.insertedId,
+                songId: song.insertedId,
+              }))
+            )
+            .onConflictDoNothing()
         })
       )
 

@@ -75,11 +75,12 @@ interface SongListProps {
     title: string
     playcount?: string | null
     artist: string
-    createdAt?: string
+    createdAt?: string | null
     id?: string
   }[]
   showArtist?: boolean
   identifier?: string
+  isRadio?: boolean
   onImportFromUrl?: () => void
   menuOptions?: (
     song: {
@@ -99,6 +100,7 @@ export const SongList = (props: SongListProps) => {
     menuOptions,
     identifier,
     onImportFromUrl,
+    isRadio,
   } = props
 
   const [listSearchValue, setListSearchValue] = React.useState('')
@@ -241,7 +243,7 @@ export const SongList = (props: SongListProps) => {
           value={listSearchValue}
         />
         <div className='col-span-1 flex gap-2'>
-          {onImportFromUrl && (
+          {onImportFromUrl && !isRadio && (
             <Button
               onClick={onImportFromUrl}
               title='Import from URL'

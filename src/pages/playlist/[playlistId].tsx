@@ -13,6 +13,7 @@ import { WavesLoader } from '~/components/loader'
 import { SongList } from '~/components/song-list'
 import { Toast } from '~/components/toast'
 import { VideoPlayerPortalContainer } from '~/components/video-player'
+import { playlistType } from '~/constants'
 import { useModalStore } from '~/store/use-modal'
 import { getError } from '~/utils/get-error'
 
@@ -73,6 +74,7 @@ const PlaylistPage: NextPage = () => {
 
     return (
       <SongList
+        isRadio={playlist.data.playlist.type === playlistType.RADIO}
         onImportFromUrl={() => {
           openModal({
             content: (
@@ -90,23 +92,27 @@ const PlaylistPage: NextPage = () => {
           })
         }}
         identifier={params?.playlistId ?? ''}
-        menuOptions={(song) => [
-          {
-            label: 'Remove from playlist',
-            icon: <XMarkIcon className='h-5 mr-2 shrink-0' />,
-            onClick: async () => {
-              await removeFromPlaylist.mutateAsync({
-                playlistId: params?.playlistId ?? '',
-                songId: song.id ?? '',
-              })
-              toast.custom(
-                () => <Toast message='✔ Song removed from playlist' />,
-                { duration: 2000 }
-              )
-              await playlist.refetch()
-            },
-          },
-        ]}
+        menuOptions={
+          playlist.data.playlist.type === playlistType.RADIO
+            ? undefined
+            : (song) => [
+                {
+                  label: 'Remove from playlist',
+                  icon: <XMarkIcon className='h-5 mr-2 shrink-0' />,
+                  onClick: async () => {
+                    await removeFromPlaylist.mutateAsync({
+                      playlistId: params?.playlistId ?? '',
+                      songId: song.id ?? '',
+                    })
+                    toast.custom(
+                      () => <Toast message='✔ Song removed from playlist' />,
+                      { duration: 2000 }
+                    )
+                    await playlist.refetch()
+                  },
+                },
+              ]
+        }
         songs={playlist.data?.playlist.songs || []}
         showArtist
       />

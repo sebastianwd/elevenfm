@@ -27,7 +27,7 @@ interface SongProps {
   showArtist?: boolean
   onShowLyrics?: () => void
   menuOptions?: MenuItem[]
-  dateAdded?: string
+  dateAdded?: string | null
   songId?: string
 }
 

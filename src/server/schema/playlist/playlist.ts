@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from 'type-graphql'
+import { Field, ID, Int, ObjectType } from 'type-graphql'
 
 import { UserSong } from '../song/song'
 import { User } from '../user/user'
@@ -16,6 +16,9 @@ export class Playlist {
 
   @Field(() => String, { nullable: true })
   createdAt?: Date
+
+  @Field(() => Int, { nullable: true })
+  type?: number
 
   @Field(() => User, { nullable: true })
   user?: Partial<User>

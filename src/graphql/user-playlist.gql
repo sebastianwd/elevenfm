@@ -2,6 +2,7 @@ query playlistQuery($playlistId: ID!) {
   playlist(playlistId: $playlistId) {
     id
     name
+    type
     songs {
       id
       title

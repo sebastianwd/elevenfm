@@ -171,6 +171,7 @@ export type Playlist = {
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
   songs: Maybe<Array<UserSong>>
+  type: Maybe<Scalars['Int']['output']>
   user: Maybe<User>
 }
 
@@ -447,6 +448,7 @@ export type PlaylistQueryQuery = {
     __typename?: 'playlist'
     id: string
     name: string
+    type: number | null
     songs: Array<{
       __typename?: 'userSong'
       id: string
@@ -631,6 +633,7 @@ export const PlaylistQueryDocument = gql`
     playlist(playlistId: $playlistId) {
       id
       name
+      type
       songs {
         id
         title
