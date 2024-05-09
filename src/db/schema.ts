@@ -58,10 +58,12 @@ export const Playlists = sqliteTable('playlists', {
     .$defaultFn(() => createId()),
   name: text('name').notNull(),
   userId: text('userId').notNull(),
+  type: text('type').default('playlist'), // playlist, radio
+  radioSongId: text('songId').references(() => Songs.id),
   createdAt: integer('createdAt', { mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }),
 })
 
 export const PlaylistRelations = relations(Playlists, ({ one, many }) => ({

@@ -3,7 +3,8 @@ import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { head } from 'lodash'
-import { type ChangeEvent, useCallback, useState } from 'react'
+import { type ChangeEvent, useCallback, useRef, useState } from 'react'
+import type SimpleBarCore from 'simplebar-core'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 
@@ -130,6 +131,29 @@ export const Lyrics = (props: LyricsProps) => {
 
   const lyrics = data?.getLyrics?.lyrics
 
+  const scrollableNodeRef = useRef<SimpleBarCore>(null)
+
+  /*const { playerProgress } = usePlayerProgressState((state) => ({
+    playerProgress: state.progress,
+  }))
+
+  useEffect(() => {
+    const el = scrollableNodeRef.current?.getScrollElement()
+    if (el && playerProgress.played) {
+      const scrollAmount =
+        playerProgress.played < 0.1
+          ? 0
+          : playerProgress.played > 0.8
+            ? 1
+            : playerProgress.played
+
+      el.scroll({
+        top: (el.scrollHeight - el.clientHeight) * round(scrollAmount, 1),
+        behavior: 'smooth',
+      })
+    }
+  }, [playerProgress])*/
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -149,6 +173,7 @@ export const Lyrics = (props: LyricsProps) => {
 
     return (
       <SimpleBar
+        ref={scrollableNodeRef}
         className={twMerge(`h-[36rem] overflow-auto pr-4`, props.className)}
         classNames={{
           scrollbar: 'bg-primary-500 w-1 rounded',

@@ -30,6 +30,19 @@ const isValidUrl = (
   )
 }
 
+const formatYoutubeTitle = (title: string, author: string) => {
+  const [songArtist, songTitle] = getArtistTitle(title, {
+    defaultArtist: author,
+    defaultTitle: title,
+  }) || ['Unknown', 'Unknown']
+
+  return {
+    // replace " - Topic" with ""
+    artist: songArtist.replace(/ - Topic$/, ''),
+    title: songTitle.replace(/\(.*\)/, ''),
+  }
+}
+
 const getExternalPlaylistTracks = async (
   url: string,
   source: 'spotify' | 'youtube'
@@ -47,32 +60,12 @@ const getExternalPlaylistTracks = async (
   if (ytId.type === 'video') {
     const videoInfo = await invidious.getVideoInfo({ videoId: ytId.id })
 
-    const [artist, title] = getArtistTitle(videoInfo.data.title, {
-      defaultArtist: videoInfo.data.author,
-      defaultTitle: videoInfo.data.title,
-    }) || ['Unknown', 'Unknown']
-
-    return [
-      {
-        title,
-        artist,
-      },
-    ]
+    return [formatYoutubeTitle(videoInfo.data.title, videoInfo.data.author)]
   }
 
   return map(
     (await invidious.getPlaylist({ playlistId: ytId.id })).data.videos,
-    (video) => {
-      const [artist, title] = getArtistTitle(video.title, {
-        defaultArtist: video.author,
-        defaultTitle: video.title,
-      }) || ['Unknown', 'Unknown']
-
-      return {
-        title,
-        artist,
-      }
-    }
+    (video) => formatYoutubeTitle(video.title, video.author)
   )
 }
 
@@ -185,7 +178,12 @@ export class PlaylistResolver {
     const playlists = await db
       .select()
       .from(Playlists)
-      .where(eq(Playlists.userId, session.user.id))
+      .where(
+        and(
+          eq(Playlists.userId, session.user.id),
+          eq(Playlists.type, 'playlist')
+        )
+      )
       .orderBy(desc(Playlists.createdAt))
 
     return map(playlists, (playlist) => ({
@@ -447,5 +445,133 @@ export class PlaylistResolver {
     }
 
     return true
+  }
+
+  @Mutation(() => Playlist)
+  async createSongRadio(
+    @Ctx() ctx: Context,
+    @Arg('songId', () => ID, { nullable: true }) songId?: string,
+    @Arg('songTitle', { nullable: true }) songTitle?: string,
+    @Arg('songArtist', { nullable: true }) songArtist?: string
+  ): Promise<Playlist> {
+    const session = ctx.session
+
+    if (!session?.user) {
+      throw new Error('Unauthorized')
+    }
+    if (!songId && !songTitle) {
+      throw new Error('No song provided')
+    }
+
+    const { id: playlistId, name } = getTableColumns(Playlists)
+    const { id: colSongId } = getTableColumns(Songs)
+
+    const [existingSong] =
+      songTitle && songArtist && !songId
+        ? await db
+            .select({ id: colSongId })
+            .from(Songs)
+            .where(
+              and(eq(Songs.title, songTitle), eq(Songs.artist, songArtist))
+            )
+        : [null]
+
+    const existingSongId = songId || existingSong?.id
+
+    if (existingSongId) {
+      const [radioPlaylist] = await db
+        .select({
+          playlistId,
+          name,
+        })
+        .from(Playlists)
+        .where(
+          and(
+            eq(Playlists.userId, session.user.id),
+            eq(Playlists.radioSongId, existingSongId)
+          )
+        )
+
+      if (radioPlaylist) {
+        return {
+          id: radioPlaylist.playlistId,
+          name: radioPlaylist.name,
+        }
+      }
+    }
+
+    const { data: videoData } = await invidious.getVideos({
+      query: `${songArtist} - ${songTitle}`,
+    })
+
+    const video = videoData[0]
+
+    if (!video) {
+      throw new Error('Video not found')
+    }
+
+    const { data: radioData } = await invidious.getMix({
+      videoId: video.videoId,
+    })
+
+    const songs = radioData.videos.map((video) =>
+      formatYoutubeTitle(video.title, video.author)
+    )
+
+    const radioPlaylistName = `${songArtist} Radio`
+
+    const createdRadioPlaylist = await db.transaction(async (tx) => {
+      const [createdRadioSong] = await tx
+        .insert(Songs)
+        .values({
+          title: songTitle!,
+          artist: songArtist!,
+        })
+        .onConflictDoUpdate({
+          target: [Songs.title, Songs.artist, Songs.album],
+          set: { updatedAt: new Date() },
+        })
+        .returning({ insertedId: Songs.id })
+
+      const [createdPlaylist] = await tx
+        .insert(Playlists)
+        .values({
+          name: radioPlaylistName,
+          userId: session.user.id,
+          radioSongId: createdRadioSong.insertedId,
+          updatedAt: new Date(),
+        })
+        .returning({ insertedId: Playlists.id })
+
+      await Promise.all(
+        chunk(songs, 50).map(async (chunk) => {
+          const createdSongs = await tx
+            .insert(Songs)
+            .values(chunk)
+            .onConflictDoUpdate({
+              target: [Songs.title, Songs.artist, Songs.album],
+              set: { updatedAt: new Date() },
+            })
+            .returning({ insertedId: Songs.id })
+
+          await tx.insert(PlaylistsToSongs).values(
+            createdSongs.map((song) => ({
+              playlistId: createdPlaylist.insertedId,
+              songId: song.insertedId,
+            }))
+          )
+        })
+      )
+
+      return createdPlaylist
+    })
+
+    return {
+      id: createdRadioPlaylist.insertedId,
+      name: radioPlaylistName,
+      user: {
+        id: session.user.id,
+      },
+    }
   }
 }

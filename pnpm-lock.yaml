@@ -159,6 +159,9 @@ importers:
       reflect-metadata:
         specifier: ^0.2.1
         version: 0.2.2
+      simplebar-core:
+        specifier: ^1.2.5
+        version: 1.2.5
       simplebar-react:
         specifier: ^3.2.4
         version: 3.2.4(react@18.3.1)
@@ -5482,8 +5485,8 @@ packages:
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     hasBin: true
 
-  simplebar-core@1.2.4:
-    resolution: {integrity: sha512-P+Sqshef4fq3++gQ82TgNYcgl3qZFSCP5jS2/8NMmw18oagXOijMzs1G+vm6RUY3oMvpwH3wGoqh9u6SyDjHfQ==}
+  simplebar-core@1.2.5:
+    resolution: {integrity: sha512-33AVCYXS8yavWId0GbE4TG1cYELsYybpCKWHJYuWEY/j6nccgz6zQdJ7nCqOpIGo7HgPPbkSSSIlJhi43fHP6A==}
 
   simplebar-react@3.2.4:
     resolution: {integrity: sha512-ogLN79e7JUm82wJChD7NSUB+4EHCFvDkjXpiu8hT1Alk7DnCekUWds61NXcsP9jC97KOgF5To/AVjYFbX0olgg==}
@@ -12101,7 +12104,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  simplebar-core@1.2.4:
+  simplebar-core@1.2.5:
     dependencies:
       '@types/lodash-es': 4.17.12
       can-use-dom: 0.1.0
@@ -12111,7 +12114,7 @@ snapshots:
   simplebar-react@3.2.4(react@18.3.1):
     dependencies:
       react: 18.3.1
-      simplebar-core: 1.2.4
+      simplebar-core: 1.2.5
 
   sisteransi@1.0.5: {}
 

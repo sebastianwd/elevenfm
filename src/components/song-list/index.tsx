@@ -23,6 +23,7 @@ interface SongListHeaderProps {
     title: boolean
     playcount?: boolean
     artist?: boolean
+    dateAdded?: boolean
   }
 }
 
@@ -53,8 +54,13 @@ const SongListHeader = (props: SongListHeaderProps) => {
             </div>
           )}
           {columns.artist && (
-            <div className='mr-8 @2xl/songs:block hidden text-sm text-gray-400'>
+            <div className='mr-8 @2xl/songs:block basis-1/2 hidden text-sm text-gray-400'>
               Artist
+            </div>
+          )}
+          {columns.dateAdded && (
+            <div className='mr-8 @2xl/songs:block hidden text-sm text-gray-400'>
+              Date added
             </div>
           )}
         </div>
@@ -69,6 +75,7 @@ interface SongListProps {
     title: string
     playcount?: string | null
     artist: string
+    createdAt?: string
     id?: string
   }[]
   showArtist?: boolean
@@ -261,6 +268,7 @@ export const SongList = (props: SongListProps) => {
           title: true,
           playcount: !!find(songs, (song) => song.playcount),
           artist: showArtist,
+          dateAdded: !!find(songs, (song) => song.createdAt),
         }}
       />
       {filteredSongs?.map((song, index) => (
@@ -281,6 +289,8 @@ export const SongList = (props: SongListProps) => {
             artist={song.artist}
             showArtist={showArtist}
             menuOptions={menuOptions?.(song, song.artist)}
+            dateAdded={song.createdAt}
+            songId={song.id}
           />
         </Draggable>
       ))}

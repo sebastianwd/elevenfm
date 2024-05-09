@@ -24,6 +24,7 @@ export const {
   deletePlaylistMutation,
   updatePlaylistMutation,
   addToPlaylistMutation,
+  createSongRadioMutation,
 } = getSdk(gqlClient)
 
 export const queryClient = new QueryClient({

@@ -1,12 +1,17 @@
 import {
   EllipsisHorizontalIcon,
+  MusicalNoteIcon,
   PlayIcon,
   PlusIcon,
 } from '@heroicons/react/24/solid'
+import { useMutation } from '@tanstack/react-query'
+import { format } from 'date-fns'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
+import { createSongRadioMutation } from '~/api'
 import { usePlayerState } from '~/store/use-player'
 
 import { MenuItem } from '../dropdown'
@@ -23,6 +28,7 @@ interface SongProps {
   onShowLyrics?: () => void
   menuOptions?: MenuItem[]
   dateAdded?: string
+  songId?: string
 }
 
 const DynamicDropdown = dynamic(() => import('../dropdown'), {
@@ -34,9 +40,16 @@ export const Song = (props: SongProps) => {
 
   const addToQueueAction = usePlayerState((state) => state.addToQueue)
 
+  const router = useRouter()
+
   const addToQueue = useCallback(async () => {
     await addToQueueAction({ artist: props.artist, title: props.song })
   }, [props.artist, props.song, addToQueueAction])
+
+  const createSongRadio = useMutation({
+    mutationFn: createSongRadioMutation,
+    mutationKey: ['createSongRadio'],
+  })
 
   const defaultOptions = useMemo(
     () => [
@@ -45,8 +58,30 @@ export const Song = (props: SongProps) => {
         icon: <PlusIcon className='h-5 mr-2 shrink-0' />,
         onClick: addToQueue,
       },
+      {
+        label: 'Go to song radio',
+        icon: <MusicalNoteIcon className='h-5 mr-2 shrink-0' />,
+        onClick: async () => {
+          const response = await createSongRadio.mutateAsync({
+            songArtist: props.artist,
+            songTitle: props.song,
+            songId: props.songId || null,
+          })
+
+          if (response.createSongRadio) {
+            router.push(`/playlist/${response.createSongRadio.id}`)
+          }
+        },
+      },
     ],
-    [addToQueue]
+    [
+      addToQueue,
+      createSongRadio,
+      props.artist,
+      props.song,
+      props.songId,
+      router,
+    ]
   )
 
   const options = props.menuOptions
@@ -94,12 +129,12 @@ export const Song = (props: SongProps) => {
             </div>
           )}
           {props.artist && showArtist && (
-            <div className='mr-8 @2xl/songs:block hidden'>
+            <div className='mr-8 @2xl/songs:block hidden basis-1/2 text-gray-400 truncate'>
               {props.artist.split(',').map((artist, index, artists) => (
                 <Link
                   key={artist}
                   href={`/artist/${artist.trim()}`}
-                  className='text-sm text-gray-400 hover:underline'
+                  className='text-sm  hover:underline'
                 >
                   {artist}
                   {index < artists.length - 1 ? ', ' : ''}
@@ -109,7 +144,9 @@ export const Song = (props: SongProps) => {
           )}
           {props.dateAdded && (
             <div className='mr-8 @2xl/songs:block hidden'>
-              {props.dateAdded}
+              <p className='text-sm text-gray-400'>
+                {format(new Date(Number(props.dateAdded)), 'MMM d, yyyy')}
+              </p>
             </div>
           )}
           {/* 

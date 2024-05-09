@@ -69,6 +69,7 @@
     "react-hook-form": "^7.51.3",
     "react-player": "^2.16.0",
     "reflect-metadata": "^0.2.1",
+    "simplebar-core": "^1.2.5",
     "simplebar-react": "^3.2.4",
     "sonner": "^1.4.41",
     "spotify-uri": "^4.0.1",
