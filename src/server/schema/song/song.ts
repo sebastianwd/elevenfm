@@ -31,6 +31,9 @@ export class UserSong extends Song {
   @Field()
   id: string
 
+  @Field({ nullable: true })
+  songUrl?: string
+
   @Field(() => String, { nullable: true })
   createdAt?: Date
 }
@@ -45,6 +48,9 @@ export class SongVideo {
 
   @Field()
   videoId!: string
+
+  @Field()
+  videoUrl!: string
 
   @Field()
   thumbnailUrl?: string
@@ -84,4 +90,7 @@ export class SongInput {
 
   @Field({ nullable: true })
   album?: string
+
+  @Field({ nullable: true })
+  songUrl?: string
 }

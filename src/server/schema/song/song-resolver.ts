@@ -18,16 +18,13 @@ export class SongResolver {
       query,
     })
 
-    /* const ytmusicMix = await ytmusic.getMix(head(data)?.videoId ?? '')
-
-    const invidiousMix = await invidious.getMix({
-      videoId: head(data)?.videoId ?? '',
-    })*/
+    /* const ytmusicMix = await ytmusic.getMix(head(data)?.videoId ?? '') */
 
     const video = data.map((video) => ({
       title: video.title,
       artist: video.author,
       videoId: video.videoId,
+      videoUrl: `https://www.youtube.com/watch?v=${video.videoId}`,
       thumbnailUrl:
         video.videoThumbnails.find((vt) => vt.quality === 'default')?.url ?? '',
     }))

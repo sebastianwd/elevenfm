@@ -75,6 +75,7 @@ interface SongListProps {
     title: string
     playcount?: string | null
     artist: string
+    songUrl?: string | null
     createdAt?: string | null
     id?: string
   }[]
@@ -128,32 +129,41 @@ export const SongList = (props: SongListProps) => {
   )
 
   const onPlaySong = React.useCallback(
-    async (song: string, artist: string) => {
+    async (song: string, artist: string, songUrl?: string | null) => {
       if (!isNil(isShuffled)) {
         setShuffle(isShuffled)
       }
       setQueueIdentifier(identifier ?? '')
 
-      const data = await queryClient.fetchQuery({
-        queryKey: ['getVideoInfo', `${artist} - ${song}`],
-        queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
-        staleTime: Infinity,
-        gcTime: Infinity,
-      })
+      if (!songUrl) {
+        const data = await queryClient.fetchQuery({
+          queryKey: ['getVideoInfo', `${artist} - ${song}`],
+          queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
+          staleTime: Infinity,
+          gcTime: Infinity,
+        })
 
-      const urls = data?.getVideoInfo.map((video) => video.videoId)
+        const urls = data?.getVideoInfo.map((video) => video.videoUrl)
 
-      setCurrentSong({
-        artist,
-        title: song,
-        urls,
-        videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
-      })
+        setCurrentSong({
+          artist,
+          title: song,
+          urls,
+          videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
+        })
+      } else {
+        setCurrentSong({
+          artist,
+          title: song,
+          urls: [songUrl],
+        })
+      }
 
       setQueue(
         songs.map((song) => ({
           artist: song.artist,
           title: song.title,
+          urls: song.songUrl ? [song.songUrl] : undefined,
         })) || []
       )
 
@@ -217,12 +227,20 @@ export const SongList = (props: SongListProps) => {
               if (isShuffled) {
                 const randomSong = sample(filteredSongs)
                 if (randomSong) {
-                  onPlaySong(randomSong.title, randomSong.artist)
+                  onPlaySong(
+                    randomSong.title,
+                    randomSong.artist,
+                    randomSong.songUrl
+                  )
                   return
                 }
               }
 
-              onPlaySong(filteredSongs[0].title, filteredSongs[0].artist)
+              onPlaySong(
+                filteredSongs[0].title,
+                filteredSongs[0].artist,
+                filteredSongs[0].songUrl
+              )
             }}
             title='Play all'
             variant='primary'
@@ -277,7 +295,12 @@ export const SongList = (props: SongListProps) => {
         <Draggable
           key={song.id || `${song.title}-${song.artist}`}
           id={song.id || `${song.title}-${song.artist}`}
-          data={{ title: song.title, artist: song.artist, id: song.id }}
+          data={{
+            title: song.title,
+            artist: song.artist,
+            id: song.id,
+            songUrl: song.songUrl,
+          }}
         >
           <Song
             position={index + 1}
@@ -285,7 +308,7 @@ export const SongList = (props: SongListProps) => {
               currentSong?.title === song.title &&
               currentSong?.artist === song.artist
             }
-            onClick={() => onPlaySong(song.title, song.artist)}
+            onClick={() => onPlaySong(song.title, song.artist, song.songUrl)}
             song={song.title}
             playcount={song.playcount ? Number(song.playcount) : undefined}
             artist={song.artist}

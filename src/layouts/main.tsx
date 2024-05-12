@@ -72,6 +72,7 @@ const AddToPlaylistDndContext = ({
       event.active.data as DataRef<{
         artist: string
         title: string
+        songUrl?: string
         id?: string
       }>
     )?.current
@@ -86,6 +87,7 @@ const AddToPlaylistDndContext = ({
                 {
                   title: song.title,
                   artist: song.artist,
+                  songUrl: song.songUrl || null,
                   album: '',
                 },
               ]

@@ -93,14 +93,20 @@ const VideoPlayer = memo(() => {
   const url = useMemo(() => {
     if (isEmpty(currentSong?.urls)) return undefined
 
-    const videoId = currentSong?.urls?.[videoChoice]
-    const url = `https://www.youtube.com/watch?v=${videoId}`
+    if (
+      currentSong?.urls?.length === 1 &&
+      currentSong?.urls[0].includes('soundcloud.com')
+    ) {
+      return currentSong?.urls[0]
+    }
 
-    if (!videoId) {
+    const videoUrl = currentSong?.urls?.[videoChoice]
+
+    if (!videoUrl) {
       return `${sample(invidiousUrls)}/latest_version?id=${currentSong?.urls?.[0]}`
     }
 
-    return url
+    return videoUrl
   }, [currentSong?.urls, videoChoice])
 
   useEffect(() => {

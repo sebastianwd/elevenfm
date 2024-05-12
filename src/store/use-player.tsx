@@ -1,4 +1,4 @@
-import { head, random, sortBy } from 'lodash'
+import { head, isEmpty, random, sortBy } from 'lodash'
 import { createRef } from 'react'
 import type ReactPlayer from 'react-player'
 import { toast } from 'sonner'
@@ -179,15 +179,27 @@ export const usePlayerState = create<PlayerState>()(
             return
           }
 
-          const data = await getVideoInfo(nextSong)
+          const getVideoData = async () => {
+            const data = await getVideoInfo(nextSong)
 
-          const urls = data.map((item) => item?.videoId)
+            return {
+              thumbnailUrl: head(data)?.thumbnailUrl,
+              videoUrls: data.map((item) => item?.videoUrl),
+            }
+          }
+
+          const videoData = isEmpty(nextSong.urls)
+            ? await getVideoData()
+            : {
+                thumbnailUrl: nextSong.videoThumbnailUrl,
+                videoUrls: nextSong.urls,
+              }
 
           await state.setCurrentSong({
             artist: nextSong.artist,
             title: nextSong.title,
-            urls,
-            videoThumbnailUrl: head(data)?.thumbnailUrl,
+            urls: videoData.videoUrls,
+            videoThumbnailUrl: videoData.thumbnailUrl,
           })
         }
       },
@@ -207,15 +219,27 @@ export const usePlayerState = create<PlayerState>()(
           : state.queue[currentSongIndex - 1]
 
         if (previousSong) {
-          const data = await getVideoInfo(previousSong)
+          const getVideoData = async () => {
+            const data = await getVideoInfo(previousSong)
 
-          const urls = data.map((item) => item?.videoId)
+            return {
+              thumbnailUrl: head(data)?.thumbnailUrl,
+              videoUrls: data.map((item) => item?.videoUrl),
+            }
+          }
+
+          const videoData = isEmpty(previousSong.urls)
+            ? await getVideoData()
+            : {
+                thumbnailUrl: previousSong.videoThumbnailUrl,
+                videoUrls: previousSong.urls,
+              }
 
           await state.setCurrentSong({
             artist: previousSong.artist,
             title: previousSong.title,
-            urls,
-            videoThumbnailUrl: head(data)?.thumbnailUrl,
+            urls: videoData.videoUrls,
+            videoThumbnailUrl: videoData.thumbnailUrl,
           })
         }
       },

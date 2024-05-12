@@ -84,6 +84,8 @@ export const PlaylistsToSongs = sqliteTable(
     songId: text('songId')
       .notNull()
       .references(() => Songs.id),
+    // for direct soundcloud urls
+    songUrl: text('songUrl'),
     createdAt: integer('createdAt', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),

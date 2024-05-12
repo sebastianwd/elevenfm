@@ -1,7 +1,7 @@
 import { init } from '@paralleldrive/cuid2'
-import { and, desc, eq, getTableColumns } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, inArray } from 'drizzle-orm'
 import getArtistTitle from 'get-artist-title'
-import { chunk, isEmpty, map } from 'lodash'
+import { chunk, isEmpty, keyBy, map } from 'lodash'
 import spotifyFetch from 'spotify-url-info'
 import { Arg, Ctx, ID, Mutation, Query, Resolver } from 'type-graphql'
 
@@ -10,6 +10,7 @@ import { db } from '~/db/db'
 import { Playlists, PlaylistsToSongs, Songs, Users } from '~/db/schema'
 import { logger } from '~/server/logger'
 import { invidious } from '~/server/modules/invidious/invidious'
+import { soundcloud } from '~/server/modules/soundcloud/soundcloud'
 import { type Context } from '~/types'
 import { ytGetId } from '~/utils/get-yt-url-id'
 
@@ -22,13 +23,25 @@ const createId = init({
   length: 8,
 })
 
-const isValidUrl = (
-  url: string
-): url is `https://open.spotify.com/${string}` => {
-  return (
+const getUrlSourceName = (url: string) => {
+  if (
     url.startsWith('https://open.spotify.com/playlist/') ||
     url.startsWith('https://open.spotify.com/track/')
-  )
+  ) {
+    return 'spotify'
+  }
+
+  if (ytGetId(url)) {
+    return 'youtube'
+  }
+
+  if (
+    url.match(
+      /^https?:\/\/(www\.|m\.)?soundcloud\.com\/[a-z0-9](?!.*?(-|_){2})[\w-]{1,23}[a-z0-9](?:\/.+)?$/
+    )
+  ) {
+    return 'soundcloud'
+  }
 }
 
 const formatYoutubeTitle = (title: string, author: string) => {
@@ -46,8 +59,8 @@ const formatYoutubeTitle = (title: string, author: string) => {
 
 const getExternalPlaylistTracks = async (
   url: string,
-  source: 'spotify' | 'youtube'
-) => {
+  source: 'spotify' | 'youtube' | 'soundcloud'
+): Promise<{ title: string; artist: string; url?: string }[]> => {
   if (source === 'spotify') {
     return (await getTracks(url)).map((track) => ({
       title: track.name,
@@ -55,19 +68,34 @@ const getExternalPlaylistTracks = async (
     }))
   }
 
-  const ytId = ytGetId(url)
-  if (!ytId) return []
+  if (source === 'youtube') {
+    const ytId = ytGetId(url)
+    if (!ytId) return []
 
-  if (ytId.type === 'video') {
-    const videoInfo = await invidious.getVideoInfo({ videoId: ytId.id })
+    if (ytId.type === 'video') {
+      const videoInfo = await invidious.getVideoInfo({ videoId: ytId.id })
 
-    return [formatYoutubeTitle(videoInfo.data.title, videoInfo.data.author)]
+      return [formatYoutubeTitle(videoInfo.data.title, videoInfo.data.author)]
+    }
+
+    return map(
+      (await invidious.getPlaylist({ playlistId: ytId.id })).data.videos,
+      (video) => formatYoutubeTitle(video.title, video.author)
+    )
   }
 
-  return map(
-    (await invidious.getPlaylist({ playlistId: ytId.id })).data.videos,
-    (video) => formatYoutubeTitle(video.title, video.author)
-  )
+  if (source === 'soundcloud') {
+    const data = await soundcloud.getTrack(url)
+
+    return [
+      {
+        ...formatYoutubeTitle(data.title, data.user.username),
+        url,
+      },
+    ]
+  }
+
+  return []
 }
 
 @Resolver(Playlist)
@@ -78,10 +106,9 @@ export class PlaylistResolver {
     @Arg('url') url: string,
     @Arg('playlistId', () => ID, { nullable: true }) playlistId?: string
   ): Promise<Playlist> {
-    const isValidSpotifyUrl = isValidUrl(url)
-    const isValidYoutubeUrl = !isValidSpotifyUrl && ytGetId(url)
+    const urlSourceName = getUrlSourceName(url)
 
-    if (!isValidSpotifyUrl && !isValidYoutubeUrl) {
+    if (!urlSourceName) {
       throw new Error('Invalid URL')
     }
 
@@ -109,10 +136,11 @@ export class PlaylistResolver {
       throw new Error('Playlist not found')
     }
 
-    const tracks = await getExternalPlaylistTracks(
-      url,
-      isValidSpotifyUrl ? 'spotify' : 'youtube'
-    )
+    const tracks = await getExternalPlaylistTracks(url, urlSourceName)
+
+    if (tracks.length === 0) {
+      throw new Error('No tracks found in url')
+    }
 
     const playlistName = `playlist-${createId()}`
 
@@ -131,28 +159,38 @@ export class PlaylistResolver {
       try {
         await Promise.all(
           chunk(tracks, 50).map(async (chunk) => {
-            console.log(
-              'tracks',
-              chunk.map((track) => ({
-                title: track.title,
-                artist: track.artist,
-              }))
-            )
             const createdSongs = await tx
               .insert(Songs)
               .values(chunk)
-              .onConflictDoNothing()
-              .returning({ insertedId: Songs.id })
+              .onConflictDoUpdate({
+                target: [Songs.title, Songs.artist, Songs.album],
+                set: { updatedAt: new Date() },
+              })
+              .returning({
+                insertedId: Songs.id,
+                insertedTitle: Songs.title,
+                insertedArtist: Songs.artist,
+              })
+
+            const songsByTitleArtist = keyBy(
+              chunk,
+              (song) => `${song.artist}${song.title}`
+            )
 
             await tx.insert(PlaylistsToSongs).values(
               createdSongs.map((song) => ({
                 playlistId: createdPlaylist.insertedId,
                 songId: song.insertedId,
+                songUrl:
+                  songsByTitleArtist[
+                    `${song.insertedArtist}${song.insertedTitle}`
+                  ]?.url || null,
               }))
             )
           })
         )
       } catch (error) {
+        logger.error(error)
         throw new Error('Error importing playlist or all songs already exist')
       }
 
@@ -234,6 +272,7 @@ export class PlaylistResolver {
         id: song.songs.id,
         title: song.songs.title,
         artist: song.songs.artist,
+        songUrl: song.playlistsToSongs.songUrl || undefined,
         createdAt: song.playlistsToSongs.createdAt,
       })),
     }
@@ -405,20 +444,31 @@ export class PlaylistResolver {
     const itemsCount = hasExistingSongs ? songIds!.length : songs?.length
 
     try {
-      if (hasExistingSongs) {
+      if (hasExistingSongs && !!songIds) {
+        const songUrls = await db
+          .select({
+            songUrl: PlaylistsToSongs.songUrl,
+            songId: PlaylistsToSongs.songId,
+          })
+          .from(PlaylistsToSongs)
+          .where(inArray(PlaylistsToSongs.songId, songIds))
+
+        const songUrlById = keyBy(songUrls, (song) => song.songId)
+
         const createdSongs = await db
           .insert(PlaylistsToSongs)
           .values(
-            songIds!.map((songId) => ({
+            songIds.map((songId) => ({
               playlistId,
               songId,
+              songUrl: songUrlById[songId]?.songUrl || null,
             }))
           )
           .onConflictDoNothing()
           .returning({ insertedId: PlaylistsToSongs.songId })
 
         if (createdSongs.length === 0) {
-          throw new Error('Existing song already in playlist')
+          throw new Error('Song already in playlist')
         }
       } else if (songs) {
         await Promise.all(
@@ -515,6 +565,10 @@ export class PlaylistResolver {
     const { data: radioData } = await invidious.getMix({
       videoId: video.videoId,
     })
+
+    if (!radioData) {
+      throw new Error('Could not create radio from song :(')
+    }
 
     const songs = radioData.videos.map((video) =>
       formatYoutubeTitle(video.title, video.author)

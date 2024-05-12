@@ -6,15 +6,19 @@ import {
 } from '@heroicons/react/24/solid'
 import { useMutation } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { ClientError } from 'graphql-request'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
+import { toast } from 'sonner'
 
 import { createSongRadioMutation } from '~/api'
 import { usePlayerState } from '~/store/use-player'
+import { getError } from '~/utils/get-error'
 
 import { MenuItem } from '../dropdown'
+import { Toast } from '../toast'
 
 interface SongProps {
   song: string
@@ -62,14 +66,25 @@ export const Song = (props: SongProps) => {
         label: 'Go to song radio',
         icon: <MusicalNoteIcon className='h-5 mr-2 shrink-0' />,
         onClick: async () => {
-          const response = await createSongRadio.mutateAsync({
-            songArtist: props.artist,
-            songTitle: props.song,
-            songId: props.songId || null,
-          })
+          try {
+            const response = await createSongRadio.mutateAsync({
+              songArtist: props.artist,
+              songTitle: props.song,
+              songId: props.songId || null,
+            })
 
-          if (response.createSongRadio) {
-            router.push(`/playlist/${response.createSongRadio.id}`)
+            if (response.createSongRadio) {
+              router.push(`/playlist/${response.createSongRadio.id}`)
+            }
+          } catch (error) {
+            console.error(error)
+            if (error instanceof ClientError) {
+              toast.custom(() => <Toast message={`❌ ${getError(error)}`} />, {
+                duration: 3500,
+              })
+
+              return
+            }
           }
         },
       },

@@ -197,6 +197,7 @@ export type SongAlbum = {
 export type SongInput = {
   album: InputMaybe<Scalars['String']['input']>
   artist: Scalars['String']['input']
+  songUrl: InputMaybe<Scalars['String']['input']>
   title: Scalars['String']['input']
 }
 
@@ -213,6 +214,7 @@ export type SongVideo = {
   thumbnailUrl: Scalars['String']['output']
   title: Scalars['String']['output']
   videoId: Scalars['String']['output']
+  videoUrl: Scalars['String']['output']
 }
 
 export type User = {
@@ -232,6 +234,7 @@ export type UserSong = {
   id: Scalars['String']['output']
   playcount: Maybe<Scalars['String']['output']>
   playlistId: Maybe<Scalars['Int']['output']>
+  songUrl: Maybe<Scalars['String']['output']>
   title: Scalars['String']['output']
   year: Maybe<Scalars['String']['output']>
 }
@@ -360,6 +363,7 @@ export type GetVideoInfoQueryQuery = {
     artist: string
     title: string
     videoId: string
+    videoUrl: string
     thumbnailUrl: string
   }>
 }
@@ -454,6 +458,7 @@ export type PlaylistQueryQuery = {
       id: string
       title: string
       artist: string
+      songUrl: string | null
       createdAt: string | null
     }> | null
     user: { __typename?: 'user'; id: string; name: string } | null
@@ -570,6 +575,7 @@ export const GetVideoInfoQueryDocument = gql`
       artist
       title
       videoId
+      videoUrl
       thumbnailUrl
       __typename
     }
@@ -638,6 +644,7 @@ export const PlaylistQueryDocument = gql`
         id
         title
         artist
+        songUrl
         createdAt
       }
       user {

@@ -45,6 +45,8 @@ const PlaylistPage: NextPage = () => {
   const openModal = useModalStore((state) => state.openModal)
   const closeModal = useModalStore((state) => state.closeModal)
 
+  const isRadio = playlist.data?.playlist.type === playlistType.RADIO
+
   const renderSongList = () => {
     if (playlist.isPending) {
       return (
@@ -125,7 +127,11 @@ const PlaylistPage: NextPage = () => {
         <header className='col-span-2 flex h-72'>
           <div className='z-10 mt-auto flex w-full items-center gap-7 px-8 mb-16 flex-col md:flex-row'>
             <ArtistHeader
-              subtitle={playlist.data?.playlist?.user?.name ?? ''}
+              subtitle={`${
+                isRadio
+                  ? `Made for 👤${playlist.data?.playlist?.user?.name}`
+                  : playlist.data?.playlist?.user?.name
+              } - ${playlist.data?.playlist?.songs?.length} songs`}
               title={playlist.data?.playlist?.name ?? ''}
               externalUrls={{}}
             />

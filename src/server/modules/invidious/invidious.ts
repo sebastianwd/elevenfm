@@ -1,4 +1,6 @@
-import Axios, { AxiosResponse } from 'axios'
+import Axios, { AxiosError, AxiosResponse } from 'axios'
+
+import { logger } from '~/server/logger'
 
 import {
   GetMixesResponse,
@@ -28,7 +30,18 @@ const invidious = async <T>(method: InvidiousMethods) => {
 
       if (response.status === 200) break
     } catch (e) {
-      console.warn(e)
+      if (e instanceof AxiosError) {
+        logger.info(e.response?.data)
+        if (
+          e.response?.data &&
+          'error' in e.response.data &&
+          String(e.response?.data.error).includes('Could not create mix')
+        ) {
+          break
+        }
+        continue
+      }
+      logger.info(e)
       continue
     }
   }

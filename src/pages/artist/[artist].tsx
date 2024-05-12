@@ -53,7 +53,7 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
         gcTime: Infinity,
       })
 
-      const urls = data?.getVideoInfo.map((video) => video.videoId)
+      const urls = data?.getVideoInfo.map((video) => video.videoUrl)
 
       const album = albums?.find((album) => album.name === selectedAlbum)
 
