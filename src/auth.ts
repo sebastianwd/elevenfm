@@ -170,12 +170,6 @@ export const { handlers, auth } = NextAuth({
     },
     async jwt({ token, trigger, account, user }) {
       if (trigger === 'signIn' || trigger === 'signUp') {
-        if (user.id) {
-          return {
-            ...token,
-            id: user.id,
-          }
-        }
         if (account) {
           const [usersByAccount] = await db
             .select()
@@ -191,6 +185,11 @@ export const { handlers, auth } = NextAuth({
           return {
             ...token,
             id: usersByAccount.users.id,
+          }
+        } else if (user.id) {
+          return {
+            ...token,
+            id: user.id,
           }
         }
       }
