@@ -1,6 +1,7 @@
 import { init } from '@paralleldrive/cuid2'
 import { and, desc, eq, getTableColumns, inArray } from 'drizzle-orm'
 import getArtistTitle from 'get-artist-title'
+import { LexoRank } from 'lexorank'
 import { chunk, isEmpty, keyBy, map } from 'lodash'
 import spotifyFetch from 'spotify-url-info'
 import { Arg, Ctx, ID, Mutation, Query, Resolver } from 'type-graphql'
@@ -15,7 +16,7 @@ import { type Context } from '~/types'
 import { ytGetId } from '~/utils/get-yt-url-id'
 
 import { SongInput } from '../song/song'
-import { Playlist } from './playlist'
+import { getLastRankInPlaylist, Playlist } from './playlist'
 
 const { getTracks } = spotifyFetch(fetch)
 
@@ -177,15 +178,31 @@ export class PlaylistResolver {
               (song) => `${song.artist}${song.title}`
             )
 
+            const lastRank = await getLastRankInPlaylist(
+              createdPlaylist.insertedId
+            )
+
+            console.log('lastRank', lastRank)
+
+            let currentRank = lastRank?.rank
+              ? LexoRank.parse(lastRank.rank).genNext()
+              : LexoRank.middle()
+
             await tx.insert(PlaylistsToSongs).values(
-              createdSongs.map((song) => ({
-                playlistId: createdPlaylist.insertedId,
-                songId: song.insertedId,
-                songUrl:
-                  songsByTitleArtist[
-                    `${song.insertedArtist}${song.insertedTitle}`
-                  ]?.url || null,
-              }))
+              createdSongs.map((createdSong) => {
+                const song = {
+                  playlistId: createdPlaylist.insertedId,
+                  songId: createdSong.insertedId,
+                  songUrl:
+                    songsByTitleArtist[
+                      `${createdSong.insertedArtist}${createdSong.insertedTitle}`
+                    ]?.url || null,
+                  rank: currentRank.toString(),
+                }
+                currentRank = currentRank.genNext()
+
+                return song
+              })
             )
           })
         )
@@ -273,6 +290,7 @@ export class PlaylistResolver {
         title: song.songs.title,
         artist: song.songs.artist,
         songUrl: song.playlistsToSongs.songUrl || undefined,
+        rank: song.playlistsToSongs.rank || undefined,
         createdAt: song.playlistsToSongs.createdAt,
       })),
     }
@@ -444,53 +462,79 @@ export class PlaylistResolver {
     const itemsCount = hasExistingSongs ? songIds!.length : songs?.length
 
     try {
-      if (hasExistingSongs && !!songIds) {
-        const songUrls = await db
-          .select({
-            songUrl: PlaylistsToSongs.songUrl,
-            songId: PlaylistsToSongs.songId,
-          })
-          .from(PlaylistsToSongs)
-          .where(inArray(PlaylistsToSongs.songId, songIds))
+      await db.transaction(async (tx) => {
+        if (hasExistingSongs && !!songIds) {
+          const songUrls = await tx
+            .select({
+              songUrl: PlaylistsToSongs.songUrl,
+              songId: PlaylistsToSongs.songId,
+            })
+            .from(PlaylistsToSongs)
+            .where(inArray(PlaylistsToSongs.songId, songIds))
 
-        const songUrlById = keyBy(songUrls, (song) => song.songId)
+          const songUrlById = keyBy(songUrls, (song) => song.songId)
 
-        const createdSongs = await db
-          .insert(PlaylistsToSongs)
-          .values(
-            songIds.map((songId) => ({
-              playlistId,
-              songId,
-              songUrl: songUrlById[songId]?.songUrl || null,
-            }))
-          )
-          .onConflictDoNothing()
-          .returning({ insertedId: PlaylistsToSongs.songId })
+          const lastRank = await getLastRankInPlaylist(playlistId)
 
-        if (createdSongs.length === 0) {
-          throw new Error('Song already in playlist')
-        }
-      } else if (songs) {
-        await Promise.all(
-          chunk(songs, 50).map(async (chunk) => {
-            const createdSongs = await db
-              .insert(Songs)
-              .values(chunk)
-              .onConflictDoUpdate({
-                target: [Songs.title, Songs.artist, Songs.album],
-                set: { updatedAt: new Date() },
+          let currentRank = lastRank?.rank
+            ? LexoRank.parse(lastRank.rank).genNext()
+            : LexoRank.middle()
+
+          const createdSongs = await tx
+            .insert(PlaylistsToSongs)
+            .values(
+              songIds.map((songId) => {
+                const song = {
+                  playlistId,
+                  songId,
+                  songUrl: songUrlById[songId]?.songUrl || null,
+                  rank: currentRank.toString(),
+                }
+                currentRank = currentRank.genNext()
+
+                return song
               })
-              .returning({ insertedId: Songs.id })
-
-            await db.insert(PlaylistsToSongs).values(
-              createdSongs.map((song) => ({
-                playlistId,
-                songId: song.insertedId,
-              }))
             )
-          })
-        )
-      }
+            .onConflictDoNothing()
+            .returning({ insertedId: PlaylistsToSongs.songId })
+
+          if (createdSongs.length === 0) {
+            throw new Error('Song already in playlist')
+          }
+        } else if (songs) {
+          await Promise.all(
+            chunk(songs, 50).map(async (chunk) => {
+              const createdSongs = await tx
+                .insert(Songs)
+                .values(chunk)
+                .onConflictDoUpdate({
+                  target: [Songs.title, Songs.artist, Songs.album],
+                  set: { updatedAt: new Date() },
+                })
+                .returning({ insertedId: Songs.id })
+
+              const lastRank = await getLastRankInPlaylist(playlistId)
+
+              let currentRank = lastRank?.rank
+                ? LexoRank.parse(lastRank.rank).genNext()
+                : LexoRank.middle()
+
+              await tx.insert(PlaylistsToSongs).values(
+                createdSongs.map((createdSong) => {
+                  const song = {
+                    playlistId,
+                    songId: createdSong.insertedId,
+                    rank: currentRank.toString(),
+                  }
+                  currentRank = currentRank.genNext()
+
+                  return song
+                })
+              )
+            })
+          )
+        }
+      })
     } catch (error) {
       logger.error(error)
       throw new Error(`Song${itemsCount === 1 ? '' : 's'} already in playlist`)
@@ -633,5 +677,46 @@ export class PlaylistResolver {
         id: session.user.id,
       },
     }
+  }
+
+  @Mutation(() => Boolean)
+  async updatePlaylistSongRank(
+    @Ctx() ctx: Context,
+    @Arg('playlistId', () => ID) playlistId: string,
+    @Arg('songId', () => ID) songId: string,
+    @Arg('rank') rank: string
+  ): Promise<boolean> {
+    const session = ctx.session
+
+    if (!session?.user) {
+      throw new Error('Unauthorized')
+    }
+
+    const { userId } = getTableColumns(Playlists)
+
+    const [playlist] = await db
+      .select({
+        userId,
+      })
+      .from(Playlists)
+      .where(eq(Playlists.id, playlistId))
+
+    if (playlist.userId !== session.user.id) {
+      throw new Error('Unauthorized')
+    }
+
+    await db
+      .update(PlaylistsToSongs)
+      .set({
+        rank,
+      })
+      .where(
+        and(
+          eq(PlaylistsToSongs.playlistId, playlistId),
+          eq(PlaylistsToSongs.songId, songId)
+        )
+      )
+
+    return true
   }
 }

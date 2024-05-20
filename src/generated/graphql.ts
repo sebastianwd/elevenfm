@@ -39,6 +39,7 @@ export type Mutation = {
   importPlaylist: Playlist
   removeFromPlaylist: Scalars['Boolean']['output']
   updatePlaylist: Playlist
+  updatePlaylistSongRank: Scalars['Boolean']['output']
 }
 
 export type MutationAddToPlaylistArgs = {
@@ -74,6 +75,12 @@ export type MutationRemoveFromPlaylistArgs = {
 export type MutationUpdatePlaylistArgs = {
   name: Scalars['String']['input']
   playlistId: Scalars['ID']['input']
+}
+
+export type MutationUpdatePlaylistSongRankArgs = {
+  playlistId: Scalars['ID']['input']
+  rank: Scalars['String']['input']
+  songId: Scalars['ID']['input']
 }
 
 export type Query = {
@@ -234,6 +241,7 @@ export type UserSong = {
   id: Scalars['String']['output']
   playcount: Maybe<Scalars['String']['output']>
   playlistId: Maybe<Scalars['Int']['output']>
+  rank: Maybe<Scalars['String']['output']>
   songUrl: Maybe<Scalars['String']['output']>
   title: Scalars['String']['output']
   year: Maybe<Scalars['String']['output']>
@@ -432,6 +440,17 @@ export type TopsongsByArtistQueryQuery = {
   }>
 }
 
+export type UpdatePlaylistSongRankMutationMutationVariables = Exact<{
+  playlistId: Scalars['ID']['input']
+  songId: Scalars['ID']['input']
+  rank: Scalars['String']['input']
+}>
+
+export type UpdatePlaylistSongRankMutationMutation = {
+  __typename?: 'Mutation'
+  updatePlaylistSongRank: boolean
+}
+
 export type UpdatePlaylistMutationMutationVariables = Exact<{
   playlistId: Scalars['ID']['input']
   name: Scalars['String']['input']
@@ -459,6 +478,7 @@ export type PlaylistQueryQuery = {
       title: string
       artist: string
       songUrl: string | null
+      rank: string | null
       createdAt: string | null
     }> | null
     user: { __typename?: 'user'; id: string; name: string } | null
@@ -626,6 +646,19 @@ export const TopsongsByArtistQueryDocument = gql`
     }
   }
 `
+export const UpdatePlaylistSongRankMutationDocument = gql`
+  mutation updatePlaylistSongRankMutation(
+    $playlistId: ID!
+    $songId: ID!
+    $rank: String!
+  ) {
+    updatePlaylistSongRank(
+      playlistId: $playlistId
+      songId: $songId
+      rank: $rank
+    )
+  }
+`
 export const UpdatePlaylistMutationDocument = gql`
   mutation updatePlaylistMutation($playlistId: ID!, $name: String!) {
     updatePlaylist(name: $name, playlistId: $playlistId) {
@@ -645,6 +678,7 @@ export const PlaylistQueryDocument = gql`
         title
         artist
         songUrl
+        rank
         createdAt
       }
       user {
@@ -903,6 +937,22 @@ export function getSdk(
           ),
         'topsongsByArtistQuery',
         'query',
+        variables
+      )
+    },
+    updatePlaylistSongRankMutation(
+      variables: UpdatePlaylistSongRankMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders
+    ): Promise<UpdatePlaylistSongRankMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdatePlaylistSongRankMutationMutation>(
+            UpdatePlaylistSongRankMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        'updatePlaylistSongRankMutation',
+        'mutation',
         variables
       )
     },

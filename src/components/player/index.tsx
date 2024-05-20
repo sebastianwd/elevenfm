@@ -71,7 +71,7 @@ const QueueList = (props: QueueListProps) => {
 
     return queue.map((song, index) => {
       return (
-        <li key={index}>
+        <li key={song.title + index}>
           <Song
             artist={song.artist}
             song={song.title}
@@ -166,7 +166,9 @@ export const Lyrics = (props: LyricsProps) => {
     if (!lyrics) {
       return (
         <div className='flex justify-center items-center h-[36rem]'>
-          <p className='text-gray-100'>Lyrics not found</p>
+          <p className='text-gray-300'>
+            {song && artist ? 'Lyrics not found' : 'Play a song to view lyrics'}
+          </p>
         </div>
       )
     }

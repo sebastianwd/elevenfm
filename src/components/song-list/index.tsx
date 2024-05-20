@@ -1,22 +1,22 @@
 import { DragOverlay } from '@dnd-kit/core'
-import {} from '@dnd-kit/modifiers'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { LinkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { PauseIcon, PlayIcon } from '@heroicons/react/24/solid'
-import { find, head, isNil, sample } from 'lodash'
+import { find, sample } from 'lodash'
 import React, { useCallback } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { getVideoInfoQuery, queryClient } from '~/api'
+import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
 import { useLocalSettings } from '~/store/user-local-settings'
+import { PlayableSong } from '~/types'
 
 import { Button } from '../button'
-import { Draggable } from '../draggable'
-import { MenuItem } from '../dropdown'
 import { RandomIcon } from '../icons'
 import { Input } from '../input'
 import { Song } from '../song'
+import { Sortable } from '../sortable'
 
 interface SongListHeaderProps {
   columns: {
@@ -71,115 +71,40 @@ const SongListHeader = (props: SongListHeaderProps) => {
 }
 
 interface SongListProps {
-  songs: {
-    title: string
-    playcount?: string | null
-    artist: string
-    songUrl?: string | null
-    createdAt?: string | null
-    id?: string
-  }[]
+  songs: PlayableSong[]
   showArtist?: boolean
   identifier?: string
-  isRadio?: boolean
+  isEditable?: boolean
   onImportFromUrl?: () => void
-  menuOptions?: (
-    song: {
-      title: string
-      playcount?: string | null
-      artist: string
-      id?: string
-    },
-    artist: string
-  ) => MenuItem[]
 }
 
 export const SongList = (props: SongListProps) => {
   const {
     songs,
     showArtist = false,
-    menuOptions,
     identifier,
+    isEditable = false,
     onImportFromUrl,
-    isRadio,
   } = props
 
   const [listSearchValue, setListSearchValue] = React.useState('')
 
-  const {
-    setIsPlaying,
-    currentSong,
-    setCurrentSong,
-    setQueue,
-    toggleIsPlaying,
-    isPlaying,
-  } = usePlayerState()
+  const { currentSong, toggleIsPlaying, isPlaying } = usePlayerState()
 
   const { toggleShuffledPlaylist, isShuffled } = useLocalSettings((state) => ({
     toggleShuffledPlaylist: state.toggleShuffledPlaylist,
     isShuffled: state.shuffledPlaylists.includes(identifier ?? ''),
   }))
 
-  const { queueIdentifier, setShuffle, setQueueIdentifier } = usePlayerState(
-    (state) => ({
-      queueIdentifier: state.queueIdentifier,
-      setQueueIdentifier: state.setQueueIdentifier,
-      setShuffle: state.setShuffle,
-    })
-  )
+  const { queueIdentifier, setShuffle } = usePlayerState((state) => ({
+    queueIdentifier: state.queueIdentifier,
+    setShuffle: state.setShuffle,
+  }))
 
-  const onPlaySong = React.useCallback(
-    async (song: string, artist: string, songUrl?: string | null) => {
-      if (!isNil(isShuffled)) {
-        setShuffle(isShuffled)
-      }
-      setQueueIdentifier(identifier ?? '')
-
-      if (!songUrl) {
-        const data = await queryClient.fetchQuery({
-          queryKey: ['getVideoInfo', `${artist} - ${song}`],
-          queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
-          staleTime: Infinity,
-          gcTime: Infinity,
-        })
-
-        const urls = data?.getVideoInfo.map((video) => video.videoUrl)
-
-        setCurrentSong({
-          artist,
-          title: song,
-          urls,
-          videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
-        })
-      } else {
-        setCurrentSong({
-          artist,
-          title: song,
-          urls: [songUrl],
-        })
-      }
-
-      setQueue(
-        songs.map((song) => ({
-          artist: song.artist,
-          title: song.title,
-          urls: song.songUrl ? [song.songUrl] : undefined,
-        })) || []
-      )
-
-      setIsPlaying(true)
-    },
-    [
-      identifier,
-      isShuffled,
-      setCurrentSong,
-      setIsPlaying,
-      setQueue,
-      setQueueIdentifier,
-      setShuffle,
-      songs,
-    ]
-  )
+  const { onPlaySong } = usePlaySong({
+    songs,
+    songsIdentifier: identifier || '',
+  })
 
   const onInputChange = (value: string) => {
     setListSearchValue(value)
@@ -227,20 +152,12 @@ export const SongList = (props: SongListProps) => {
               if (isShuffled) {
                 const randomSong = sample(filteredSongs)
                 if (randomSong) {
-                  onPlaySong(
-                    randomSong.title,
-                    randomSong.artist,
-                    randomSong.songUrl
-                  )
+                  onPlaySong(randomSong)
                   return
                 }
               }
 
-              onPlaySong(
-                filteredSongs[0].title,
-                filteredSongs[0].artist,
-                filteredSongs[0].songUrl
-              )
+              onPlaySong(filteredSongs[0])
             }}
             title='Play all'
             variant='primary'
@@ -261,7 +178,7 @@ export const SongList = (props: SongListProps) => {
           value={listSearchValue}
         />
         <div className='col-span-1 flex gap-2'>
-          {onImportFromUrl && !isRadio && (
+          {onImportFromUrl && isEditable && (
             <Button
               onClick={onImportFromUrl}
               title='Import from URL'
@@ -291,34 +208,51 @@ export const SongList = (props: SongListProps) => {
           dateAdded: !!find(songs, (song) => song.createdAt),
         }}
       />
-      {filteredSongs?.map((song, index) => (
-        <Draggable
-          key={song.id || `${song.title}-${song.artist}`}
-          id={song.id || `${song.title}-${song.artist}`}
-          data={{
-            title: song.title,
-            artist: song.artist,
-            id: song.id,
-            songUrl: song.songUrl,
-          }}
-        >
-          <Song
-            position={index + 1}
-            isPlaying={
-              currentSong?.title === song.title &&
-              currentSong?.artist === song.artist
-            }
-            onClick={() => onPlaySong(song.title, song.artist, song.songUrl)}
-            song={song.title}
-            playcount={song.playcount ? Number(song.playcount) : undefined}
-            artist={song.artist}
-            showArtist={showArtist}
-            menuOptions={menuOptions?.(song, song.artist)}
-            dateAdded={song.createdAt}
-            songId={song.id}
-          />
-        </Draggable>
-      ))}
+
+      <SortableContext
+        items={
+          isEditable
+            ? filteredSongs.map((song) => ({
+                id: song.id || `${song.title}-${song.artist}`,
+              }))
+            : []
+        }
+        strategy={verticalListSortingStrategy}
+      >
+        {filteredSongs?.map((song, index) => (
+          <Sortable
+            disabled={!isEditable}
+            id={song.id || `${song.title}-${song.artist}`}
+            data={{
+              title: song.title,
+              artist: song.artist,
+              id: song.id,
+              songUrl: song.songUrl,
+            }}
+            key={song.id || `${song.title}-${song.artist}`}
+          >
+            <Song
+              isSortHighlight={
+                !!song.id && song.id === draggingToPlaylistData?.id
+              }
+              position={index + 1}
+              isPlaying={
+                currentSong?.title === song.title &&
+                currentSong?.artist === song.artist
+              }
+              onClick={() => onPlaySong(song)}
+              song={song.title}
+              playcount={song.playcount ? Number(song.playcount) : undefined}
+              artist={song.artist}
+              showArtist={showArtist}
+              isEditable={isEditable}
+              playlistId={isEditable ? identifier : undefined}
+              dateAdded={song.createdAt}
+              songId={song.id}
+            />
+          </Sortable>
+        ))}
+      </SortableContext>
       <DragOverlay
         dropAnimation={null}
         className='w-fit min-w-96 select-none cursor-grabbing'

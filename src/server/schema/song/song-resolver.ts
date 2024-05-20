@@ -79,6 +79,7 @@ export class SongResolver {
       return {
         artist,
         title: song,
+        lyrics: '',
       }
     }
 

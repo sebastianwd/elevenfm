@@ -1,4 +1,5 @@
 import { type ClientError } from 'graphql-request'
+import { truncate } from 'lodash'
 
 export const getError = (error: ClientError | null) => {
   if (!error) {
@@ -9,5 +10,5 @@ export const getError = (error: ClientError | null) => {
     return error.response.errors[0].message
   }
 
-  return error.message
+  return truncate(String(error.message), { length: 50 })
 }

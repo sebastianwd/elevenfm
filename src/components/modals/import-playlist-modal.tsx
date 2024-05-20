@@ -55,7 +55,8 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
   return (
     <div className='w-96 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] max-w-full p-8 pb-12'>
       <span className='text-sm mb-2 block'>
-        Spotify/YouTube playlist or single track URL
+        Spotify/YouTube playlist or single track URL <br />
+        Soundcloud single track URL only
       </span>
       <div className='flex gap-2'>
         <div className='flex items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2 grow'>

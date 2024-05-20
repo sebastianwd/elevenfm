@@ -3,6 +3,8 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
+import { PlayableSong } from '~/types'
+
 export type VideoPosition =
   | 'artist-page'
   | 'home-page'
@@ -20,6 +22,8 @@ interface LayoutState {
     title: string
   } | null
   setDraggingToPlaylistEl: (el: LayoutState['draggingToPlaylistData']) => void
+  currentPlaylist: PlayableSong[]
+  setCurrentPlaylist: (playlist: PlayableSong[]) => void
 }
 
 export const useLayoutState = create<LayoutState>()(
@@ -39,6 +43,11 @@ export const useLayoutState = create<LayoutState>()(
       setDraggingToPlaylistEl: (el) =>
         set((state) => {
           state.draggingToPlaylistData = el
+        }),
+      currentPlaylist: [],
+      setCurrentPlaylist: (playlist) =>
+        set((state) => {
+          state.currentPlaylist = playlist
         }),
     }))
   )

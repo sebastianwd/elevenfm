@@ -1,8 +1,10 @@
+import { SquaresPlusIcon } from '@heroicons/react/24/outline'
 import {
   EllipsisHorizontalIcon,
   MusicalNoteIcon,
   PlayIcon,
   PlusIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/solid'
 import { useMutation } from '@tanstack/react-query'
 import { format } from 'date-fns'
@@ -12,12 +14,18 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
+import { twMerge } from 'tailwind-merge'
 
-import { createSongRadioMutation } from '~/api'
+import {
+  createSongRadioMutation,
+  queryClient,
+  removeFromPlaylistMutation,
+} from '~/api'
+import { useModalStore } from '~/store/use-modal'
 import { usePlayerState } from '~/store/use-player'
 import { getError } from '~/utils/get-error'
 
-import { MenuItem } from '../dropdown'
+import { AddToPlaylistModal } from '../modals/add-to-playlist-modal'
 import { Toast } from '../toast'
 
 interface SongProps {
@@ -30,9 +38,11 @@ interface SongProps {
   onClick: React.ComponentProps<'button'>['onClick']
   showArtist?: boolean
   onShowLyrics?: () => void
-  menuOptions?: MenuItem[]
+  isEditable?: boolean
   dateAdded?: string | null
   songId?: string
+  playlistId?: string
+  isSortHighlight?: boolean
 }
 
 const DynamicDropdown = dynamic(() => import('../dropdown'), {
@@ -40,14 +50,17 @@ const DynamicDropdown = dynamic(() => import('../dropdown'), {
 })
 
 export const Song = (props: SongProps) => {
-  const { showArtist = true } = props
+  const { showArtist = true, isSortHighlight = false } = props
 
   const addToQueueAction = usePlayerState((state) => state.addToQueue)
 
   const router = useRouter()
 
-  const addToQueue = useCallback(async () => {
-    await addToQueueAction({ artist: props.artist, title: props.song })
+  const openModal = useModalStore((state) => state.openModal)
+  const closeModal = useModalStore((state) => state.closeModal)
+
+  const addToQueue = useCallback(() => {
+    addToQueueAction({ artist: props.artist, title: props.song })
   }, [props.artist, props.song, addToQueueAction])
 
   const createSongRadio = useMutation({
@@ -55,56 +68,117 @@ export const Song = (props: SongProps) => {
     mutationKey: ['createSongRadio'],
   })
 
-  const defaultOptions = useMemo(
-    () => [
-      {
-        label: 'Add to queue',
-        icon: <PlusIcon className='h-5 mr-2 shrink-0' />,
-        onClick: addToQueue,
-      },
-      {
-        label: 'Go to song radio',
-        icon: <MusicalNoteIcon className='h-5 mr-2 shrink-0' />,
-        onClick: async () => {
-          try {
-            const response = await createSongRadio.mutateAsync({
-              songArtist: props.artist,
-              songTitle: props.song,
-              songId: props.songId || null,
+  const openAddToPlaylistModal = useCallback(() => {
+    openModal({
+      content: (
+        <AddToPlaylistModal
+          song={{
+            artist: props.artist,
+            title: props.song,
+          }}
+          onActionEnd={(playlist) => {
+            toast.custom(
+              () => <Toast message={`✔ Added to ${playlist.playlistName}`} />,
+              {
+                duration: 3000,
+              }
+            )
+            closeModal()
+          }}
+        />
+      ),
+      title: 'Add to playlist',
+    })
+  }, [openModal, props.artist, props.song, closeModal])
+
+  const removeFromPlaylist = useMutation({
+    mutationKey: ['removeFromPlaylist', props.playlistId],
+    mutationFn: removeFromPlaylistMutation,
+  })
+
+  const menuOptions: React.ComponentProps<typeof DynamicDropdown>['menuItems'] =
+    useMemo(
+      () => [
+        {
+          label: 'Remove from playlist',
+          icon: <XMarkIcon className='h-5 mr-2 shrink-0' />,
+          hidden: !props.isEditable,
+          onClick: async () => {
+            await removeFromPlaylist.mutateAsync({
+              playlistId: props.playlistId ?? '',
+              songId: props.songId ?? '',
             })
 
-            if (response.createSongRadio) {
-              router.push(`/playlist/${response.createSongRadio.id}`)
-            }
-          } catch (error) {
-            console.error(error)
-            if (error instanceof ClientError) {
-              toast.custom(() => <Toast message={`❌ ${getError(error)}`} />, {
-                duration: 3500,
+            toast.custom(
+              () => <Toast message='✔ Song removed from playlist' />,
+              { duration: 2000 }
+            )
+            await queryClient.invalidateQueries({
+              queryKey: ['userPlaylist', props.playlistId],
+            })
+          },
+        },
+        {
+          label: 'Add to playlist',
+          icon: <SquaresPlusIcon className='h-5 mr-2 shrink-0' />,
+          onClick: openAddToPlaylistModal,
+        },
+        {
+          label: 'Add to queue',
+          icon: <PlusIcon className='h-5 mr-2 shrink-0' />,
+          onClick: addToQueue,
+        },
+        {
+          label: 'Go to song radio',
+          icon: <MusicalNoteIcon className='h-5 mr-2 shrink-0' />,
+          onClick: async () => {
+            try {
+              const response = await createSongRadio.mutateAsync({
+                songArtist: props.artist,
+                songTitle: props.song,
+                songId: props.songId || null,
               })
 
-              return
-            }
-          }
-        },
-      },
-    ],
-    [
-      addToQueue,
-      createSongRadio,
-      props.artist,
-      props.song,
-      props.songId,
-      router,
-    ]
-  )
+              if (response.createSongRadio) {
+                router.push(`/playlist/${response.createSongRadio.id}`)
+              }
+            } catch (error) {
+              console.error(error)
+              if (error instanceof ClientError) {
+                toast.custom(
+                  () => <Toast message={`❌ ${getError(error)}`} />,
+                  {
+                    duration: 3500,
+                  }
+                )
 
-  const options = props.menuOptions
-    ? [...defaultOptions, ...props.menuOptions]
-    : defaultOptions
+                return
+              }
+            }
+          },
+        },
+      ],
+      [
+        props.isEditable,
+        props.playlistId,
+        props.songId,
+        props.artist,
+        props.song,
+        openAddToPlaylistModal,
+        addToQueue,
+        removeFromPlaylist,
+        createSongRadio,
+        router,
+      ]
+    )
 
   return (
-    <div className='flex cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700 h-[3.25rem]'>
+    <div
+      className={twMerge(
+        'flex cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700 h-[3.25rem]',
+        isSortHighlight && 'border border-solid border-primary-500 opacity-80'
+      )}
+    >
       <div className='@container/songs flex grow h-full'>
         <div className='flex items-center @2xl/songs:basis-1/2 h-full'>
           {props.position && (
@@ -182,7 +256,7 @@ export const Song = (props: SongProps) => {
         menuLabel={
           <EllipsisHorizontalIcon className='h-5 shrink-0 transition-colors' />
         }
-        menuItems={options}
+        menuItems={menuOptions}
       />
     </div>
   )

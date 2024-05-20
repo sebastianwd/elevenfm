@@ -18,10 +18,10 @@ import {
 } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
 import { WavesLoader } from '~/components/loader'
-import { Lyrics } from '~/components/player'
 import { Seo } from '~/components/seo'
 import { Song } from '~/components/song'
 import { SongList } from '~/components/song-list'
+import { TheaterMode } from '~/components/theater-mode'
 import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
@@ -305,30 +305,6 @@ const SimilarArtists = (props: SimilarArtistsProps) => {
           )
         })
       )}
-    </div>
-  )
-}
-
-const TheaterMode = () => {
-  const currentSong = usePlayerState((state) => state.currentSong)
-
-  if (!currentSong) {
-    return <p className='text-center my-auto'>No song playing</p>
-  }
-
-  return (
-    <div className='grid grid-cols-1 lg:grid-cols-3 lg:grow'>
-      <VideoPlayerPortalContainer
-        className='aspect-video max-w-full lg:h-full lg:col-span-2'
-        position='theater-mode'
-      />
-      <div className='lg:col-span-1'>
-        <Lyrics
-          artist={currentSong?.artist}
-          song={currentSong?.title}
-          className='lg:h-[calc(100svh-11rem)] h-[calc(100svh/1.95)]'
-        />
-      </div>
     </div>
   )
 }

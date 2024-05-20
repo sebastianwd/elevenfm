@@ -35,6 +35,9 @@ export class UserSong extends Song {
   songUrl?: string
 
   @Field(() => String, { nullable: true })
+  rank?: string
+
+  @Field(() => String, { nullable: true })
   createdAt?: Date
 }
 

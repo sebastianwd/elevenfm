@@ -1,6 +1,11 @@
-import { MusicalNoteIcon, UserIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowLeftStartOnRectangleIcon,
+  MusicalNoteIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline'
 import { HomeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 import { AnimatePresence, motion, Variants } from 'framer-motion'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { signOut, useSession } from 'next-auth/react'
@@ -21,6 +26,7 @@ interface MenuItemProps {
   onClick?: () => void
   className?: string
   active?: boolean
+  tag?: 'button' | 'a' | 'div'
 }
 
 const MenuItem = ({
@@ -30,6 +36,7 @@ const MenuItem = ({
   onClick,
   className,
   active,
+  tag = 'button',
 }: MenuItemProps) => {
   const router = useRouter()
 
@@ -38,19 +45,19 @@ const MenuItem = ({
       ? `stroke-primary-500 text-primary-500`
       : ''
 
-  const Wrapper = href ? Link : 'button'
+  const Wrapper = href ? Link : tag
 
   return (
     <li
       className={twMerge(
-        `group py-2 hover:bg-surface-900 rounded-3xl transition-colors duration-300`,
+        `group hover:bg-surface-900 rounded-3xl transition-colors duration-300`,
         (active ?? router.pathname === href) && 'bg-surface-900',
         className
       )}
     >
       <Wrapper
         href={href || '#'}
-        className='block truncate md:w-full md:px-8 md:py-3'
+        className='block truncate md:w-full md:px-8 md:py-5 py-2'
         onClick={onClick}
       >
         <span className='flex md:flex-col md:items-center'>
@@ -81,6 +88,13 @@ const navAnim: Variants = {
     },
   },
 }
+
+const DynamicPopover = dynamic(
+  async () => (await import('../popover')).Popover,
+  {
+    ssr: false,
+  }
+)
 
 export const Menu = () => {
   const setIsOpen = useGlobalSearchStore((state) => state.setIsOpen)
@@ -125,7 +139,7 @@ export const Menu = () => {
       <div className='sticky top-0 h-full w-full px-4 md:fixed md:w-36 md:px-0 z-40 md:z-20'>
         <div className='sticky top-0 flex h-full flex-grow md:rounded-none rounded-[40px] bg-surface-950 p-4 md:p-0 md:px-0 md:pb-28'>
           <div className='flex relative w-full'>
-            <ul className='flex overflow-hidden md:flex-col md:py-10 md:gap-4 w-full items-center z-10 bg-surface-950 justify-between'>
+            <ul className='flex md:flex-col md:py-10 md:gap-4 w-full items-center z-10 bg-surface-950 justify-between'>
               <MenuItem href='/' icon={<HomeIcon />}>
                 Home
               </MenuItem>
@@ -142,23 +156,44 @@ export const Menu = () => {
               >
                 Playlists
               </MenuItem>
-              <MenuItem
-                className='mt-auto'
-                onClick={() => {
-                  if (session.status === 'authenticated') {
-                    signOut({ redirect: false })
-                    return
-                  }
-
-                  openModal({
-                    content: <AuthModal onClose={closeModal} />,
-                    title: 'Sign In',
-                  })
-                }}
-                icon={<UserIcon />}
-              >
-                {session.status === 'authenticated' ? 'Sign Out' : 'Sign In'}
-              </MenuItem>
+              {session.status === 'authenticated' ? (
+                <DynamicPopover
+                  className='mt-auto'
+                  direction='top start'
+                  menuLabel={(open) => (
+                    <MenuItem icon={<UserIcon />} tag='div' active={open}>
+                      Account
+                    </MenuItem>
+                  )}
+                  menuItems={[
+                    {
+                      label: 'Sign Out',
+                      onClick: () => {
+                        if (session.status === 'authenticated') {
+                          signOut({ redirect: false })
+                          return
+                        }
+                      },
+                      icon: (
+                        <ArrowLeftStartOnRectangleIcon className='h-5 mr-2 shrink-0' />
+                      ),
+                    },
+                  ]}
+                />
+              ) : (
+                <MenuItem
+                  className='mt-auto'
+                  onClick={() => {
+                    openModal({
+                      content: <AuthModal onClose={closeModal} />,
+                      title: 'Sign In',
+                    })
+                  }}
+                  icon={<UserIcon />}
+                >
+                  Sign In
+                </MenuItem>
+              )}
             </ul>
             <AnimatePresence>
               {isPlaylistMenuOpen && (

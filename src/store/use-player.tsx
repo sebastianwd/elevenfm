@@ -265,7 +265,7 @@ export const usePlayerState = create<PlayerState>()(
           }
         })
       },
-      addToQueue: async (song: Song) => {
+      addToQueue: (song: Song) => {
         const state = get()
 
         const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
@@ -287,20 +287,16 @@ export const usePlayerState = create<PlayerState>()(
           return
         }
 
-        const newQueue = [...activeQueue]
-
-        newQueue.splice(currentSongIndex + 1, 0, song)
-
         set((state) => {
-          state.queue = newQueue
+          state.queue = activeQueue.toSpliced(currentSongIndex + 1, 0, song)
         })
 
-        const shuffledQueue = [...state.shuffledQueue]
-
-        shuffledQueue.splice(currentSongIndex + 1, 0, song)
-
         set((state) => {
-          state.shuffledQueue = shuffledQueue
+          state.shuffledQueue = state.shuffledQueue.toSpliced(
+            currentSongIndex + 1,
+            0,
+            song
+          )
         })
       },
 

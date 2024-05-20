@@ -26,9 +26,9 @@ import {
 } from '~/api'
 import { useModalStore } from '~/store/use-modal'
 
-import { EditPlaylistDetailsModal } from '../edit-playlist-details-modal'
-import { ImportPlaylistModal } from '../import-playlist-modal'
 import { WavesLoader } from '../loader'
+import { EditPlaylistDetailsModal } from '../modals/edit-playlist-details-modal'
+import { ImportPlaylistModal } from '../modals/import-playlist-modal'
 import { Toast } from '../toast'
 
 const DynamicDropdown = dynamic(() => import('../dropdown'), {
