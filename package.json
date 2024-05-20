@@ -13,6 +13,7 @@
     "studio": "start http://localhost:3000/api/graphql",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio --verbose",
+    "db:migrate": "drizzle-kit migrate",
     "test": "vitest"
   },
   "resolutions": {
