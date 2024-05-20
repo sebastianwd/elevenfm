@@ -54,9 +54,6 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
-      '@headlessui-float/react':
-        specifier: ^0.13.3
-        version: 0.13.3(@headlessui/react@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@headlessui/react':
         specifier: ^2.0.3
         version: 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1572,13 +1569,6 @@ packages:
   '@graphql-yoga/typed-event-target@3.0.0':
     resolution: {integrity: sha512-w+liuBySifrstuHbFrHoHAEyVnDFVib+073q8AeAJ/qqJfvFvAwUPLLtNohR/WDVRgSasfXtl3dcNuVJWN+rjg==}
     engines: {node: '>=18.0.0'}
-
-  '@headlessui-float/react@0.13.3':
-    resolution: {integrity: sha512-wApuiUu2zcuETftdEJupEUG3XP6AUpwNN+kb6rrBadMf/jpOt1rVBjurgL+peKSW9AfxpNT7uqlL4se6u/epqw==}
-    peerDependencies:
-      '@headlessui/react': ^1.0.0
-      react: ^16 || ^17 || ^18
-      react-dom: ^16 || ^17 || ^18
 
   '@headlessui/react@2.0.3':
     resolution: {integrity: sha512-Xd1h0YZgfhxZ7W1w4TvK0/TZ1c4qaX4liYVUkAXqW1HCLcXSqnMeYAUGJS/BBroBAUL9HErjyFcRpCWRQZ/0lA==}
@@ -7821,15 +7811,6 @@ snapshots:
     dependencies:
       '@repeaterjs/repeater': 3.0.5
       tslib: 2.6.2
-
-  '@headlessui-float/react@0.13.3(@headlessui/react@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@floating-ui/core': 1.6.2
-      '@floating-ui/dom': 1.6.5
-      '@floating-ui/react': 0.26.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@headlessui/react': 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   '@headlessui/react@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
