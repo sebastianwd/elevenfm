@@ -9,14 +9,19 @@ import { NextApiHandler, PageConfig } from 'next'
 import { parseBody } from 'next/dist/server/api-utils/node/parse-body'
 import { buildSchema } from 'type-graphql'
 
+import { auth } from '~/auth'
+import { ErrorInterceptor } from '~/server/middleware/error-interceptor'
 import { ArtistResolver } from '~/server/schema/artist/artist-resolver'
+import { PlaylistResolver } from '~/server/schema/playlist/playlist-resolver'
 import { SongResolver } from '~/server/schema/song/song-resolver'
+import { Context } from '~/types'
 
 const schema = await buildSchema({
-  resolvers: [ArtistResolver, SongResolver],
+  resolvers: [ArtistResolver, SongResolver, PlaylistResolver],
+  globalMiddlewares: [ErrorInterceptor],
 })
 
-const server = new ApolloServer({
+const server = new ApolloServer<Context>({
   schema,
   introspection: true,
   plugins: [
@@ -35,13 +40,17 @@ const server = new ApolloServer({
 
 const handler = startServerAndCreateNextHandler(server, {
   context: async (req, res) => {
-    return { req, res }
+    const session = await auth(req, res)
+    return { req, res, session }
   },
 })
 
 const graphql: NextApiHandler = async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true')
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    process.env.NEXT_PUBLIC_SITE_URL || ''
+  )
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 

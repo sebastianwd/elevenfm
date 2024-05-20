@@ -50,13 +50,16 @@ const ArtistSearchCommandPalette = () => {
   return isOpen ? (
     <CommandPalette
       onSelect={(value) => {
+        if (!value) return
         setIsOpen(false)
         router.push(`/artist/${value}`)
       }}
       commands={results}
       value={search}
       isLoading={isSearching}
-      onInputChange={(value) => setSearch(value)}
+      onInputChange={(value) => {
+        setSearch(value)
+      }}
       isOpen={isOpen}
       onClose={() => setIsOpen(false)}
     />

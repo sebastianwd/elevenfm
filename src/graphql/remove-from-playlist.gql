@@ -1,0 +1,3 @@
+mutation removeFromPlaylistMutation($playlistId: ID!, $songId: ID!) {
+  removeFromPlaylist(playlistId: $playlistId, songId: $songId)
+}

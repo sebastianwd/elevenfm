@@ -1,0 +1,14 @@
+mutation createSongRadioMutation(
+  $songId: ID
+  $songTitle: String
+  $songArtist: String
+) {
+  createSongRadio(
+    songId: $songId
+    songTitle: $songTitle
+    songArtist: $songArtist
+  ) {
+    id
+    name
+  }
+}

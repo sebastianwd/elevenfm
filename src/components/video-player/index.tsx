@@ -1,14 +1,39 @@
-import { isEmpty } from 'lodash'
+import { isEmpty, sample } from 'lodash'
 import dynamic from 'next/dynamic'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type ReactPlayer from 'react-player'
 
-import { useLayoutState } from '~/store/use-layout-state'
+import { invidiousUrls } from '~/server/modules/invidious/invidious'
+import { useLayoutState, type VideoPosition } from '~/store/use-layout-state'
 import {
   usePlayerInstance,
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+
+interface VideoPlayerPortalContainerProps {
+  position: VideoPosition
+  className?: string
+}
+
+export const VideoPlayerPortalContainer = (
+  props: VideoPlayerPortalContainerProps
+) => {
+  const { position, className } = props
+
+  const setVideoPosition = useLayoutState((state) => state.setVideoPosition)
+  const theaterMode = useLayoutState((state) => state.theaterMode)
+
+  const dynamicData = useMemo(() => {
+    return { [`data-${theaterMode ? 'theater-mode' : position}`]: '' }
+  }, [position, theaterMode])
+
+  useEffect(() => {
+    setVideoPosition(theaterMode ? 'theater-mode' : position)
+  }, [setVideoPosition, theaterMode, position])
+
+  return <div className={className} {...dynamicData} />
+}
 
 const DynamicReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
@@ -37,7 +62,7 @@ const VideoPlayer = memo(() => {
   }, [currentSong, setIsPlaying])
 
   const onPlayerEnd = useCallback(() => {
-    playNext()
+    playNext({ isUserAction: false })
   }, [playNext])
 
   const onPlayerPause = useCallback(() => {
@@ -68,14 +93,20 @@ const VideoPlayer = memo(() => {
   const url = useMemo(() => {
     if (isEmpty(currentSong?.urls)) return undefined
 
-    const videoId = currentSong?.urls?.[videoChoice]
-    const url = `https://www.youtube.com/watch?v=${videoId}`
-
-    if (!videoId) {
-      return `${process.env.NEXT_PUBLIC_INVIDIOUS_URL2}/latest_version?id=${currentSong?.urls?.[0]}`
+    if (
+      currentSong?.urls?.length === 1 &&
+      currentSong?.urls[0].includes('soundcloud.com')
+    ) {
+      return currentSong?.urls[0]
     }
 
-    return url
+    const videoUrl = currentSong?.urls?.[videoChoice]
+
+    if (!videoUrl) {
+      return `${sample(invidiousUrls)}/latest_version?id=${currentSong?.urls?.[0]}`
+    }
+
+    return videoUrl
   }, [currentSong?.urls, videoChoice])
 
   useEffect(() => {

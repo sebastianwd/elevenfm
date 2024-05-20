@@ -2,8 +2,9 @@ import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
-import Image from 'next/image'
-import { type ChangeEvent, useCallback, useState } from 'react'
+import { head } from 'lodash'
+import { type ChangeEvent, useCallback, useRef, useState } from 'react'
+import type SimpleBarCore from 'simplebar-core'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 
@@ -15,12 +16,16 @@ import {
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+import { useLocalSettings } from '~/store/user-local-settings'
 
+import { Button } from '../button'
 import {
   LyricsIcon,
   NextIcon,
   PreviousIcon,
   RandomIcon,
+  RepeatIcon,
+  RepeatOneIcon,
   TheaterModeIcon,
 } from '../icons'
 import { WavesLoader } from '../loader'
@@ -66,7 +71,7 @@ const QueueList = (props: QueueListProps) => {
 
     return queue.map((song, index) => {
       return (
-        <li key={index}>
+        <li key={song.title + index}>
           <Song
             artist={song.artist}
             song={song.title}
@@ -84,7 +89,7 @@ const QueueList = (props: QueueListProps) => {
 
   return (
     <motion.div
-      className='bg-dark-800 rounded-lg'
+      className='bg-surface-950 rounded-lg'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -116,8 +121,8 @@ export const Lyrics = (props: LyricsProps) => {
     queryKey: ['getLyricsQuery', song, artist],
     queryFn: () =>
       getLyricsQuery({
-        song: song || '',
-        artist: artist || '',
+        song: song.replace(/\(|\)/g, ''),
+        artist: head(artist.split(','))?.trim() || '',
       }),
     staleTime: Infinity,
     gcTime: Infinity,
@@ -125,6 +130,29 @@ export const Lyrics = (props: LyricsProps) => {
   })
 
   const lyrics = data?.getLyrics?.lyrics
+
+  const scrollableNodeRef = useRef<SimpleBarCore>(null)
+
+  /*const { playerProgress } = usePlayerProgressState((state) => ({
+    playerProgress: state.progress,
+  }))
+
+  useEffect(() => {
+    const el = scrollableNodeRef.current?.getScrollElement()
+    if (el && playerProgress.played) {
+      const scrollAmount =
+        playerProgress.played < 0.1
+          ? 0
+          : playerProgress.played > 0.8
+            ? 1
+            : playerProgress.played
+
+      el.scroll({
+        top: (el.scrollHeight - el.clientHeight) * round(scrollAmount, 1),
+        behavior: 'smooth',
+      })
+    }
+  }, [playerProgress])*/
 
   const renderContent = () => {
     if (isLoading) {
@@ -138,13 +166,16 @@ export const Lyrics = (props: LyricsProps) => {
     if (!lyrics) {
       return (
         <div className='flex justify-center items-center h-[36rem]'>
-          <p className='text-gray-100'>Lyrics not found</p>
+          <p className='text-gray-300'>
+            {song && artist ? 'Lyrics not found' : 'Play a song to view lyrics'}
+          </p>
         </div>
       )
     }
 
     return (
       <SimpleBar
+        ref={scrollableNodeRef}
         className={twMerge(`h-[36rem] overflow-auto pr-4`, props.className)}
         classNames={{
           scrollbar: 'bg-primary-500 w-1 rounded',
@@ -157,7 +188,7 @@ export const Lyrics = (props: LyricsProps) => {
 
   return (
     <motion.div
-      className='bg-dark-800 rounded-lg h-full'
+      className='bg-surface-950 rounded-lg h-full'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -198,9 +229,17 @@ export const FooterPlayer = () => {
     [instance]
   )
 
-  const currentQueue = usePlayerState((state) =>
-    state.isShuffled ? state.shuffledQueue : state.queue
-  )
+  const { queueIdentifier, currentQueue, repeatMode, setRepeatMode } =
+    usePlayerState((state) => ({
+      queueIdentifier: state.queueIdentifier,
+      currentQueue: state.isShuffled ? state.shuffledQueue : state.queue,
+      repeatMode: state.repeatMode,
+      setRepeatMode: state.setRepeatMode,
+    }))
+
+  const { toggleShuffledPlaylist } = useLocalSettings((state) => ({
+    toggleShuffledPlaylist: state.toggleShuffledPlaylist,
+  }))
 
   const [showQueue, setShowQueue] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
@@ -220,12 +259,21 @@ export const FooterPlayer = () => {
         artist,
         title: song,
         urls,
+        videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
       })
 
       setIsPlaying(true)
     },
     [setCurrentSong, setIsPlaying]
   )
+
+  const onShuffleToggle = useCallback(() => {
+    if (queueIdentifier) {
+      toggleShuffledPlaylist(queueIdentifier)
+    }
+
+    setShuffle(!isShuffled)
+  }, [isShuffled, queueIdentifier, setShuffle, toggleShuffledPlaylist])
 
   return (
     <>
@@ -246,17 +294,18 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-dark-800 bg-opacity-20 backdrop-blur-lg'>
-        <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid md:grid-cols-3 grid-cols-2 relative'>
-          <div className='flex gap-2 md:gap-4'>
-            <div className='flex items-center'>
+      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-surface-900 bg-opacity-20 backdrop-blur-lg z-40'>
+        <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid grid-cols-3 relative'>
+          <div className='flex gap-2 md:gap-4 col-span-1'>
+            <div className='flex items-center shrink-0'>
               {currentSong ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={currentSong?.albumCoverUrl || '/cover-placeholder.png'}
                   width={56}
                   height={56}
                   alt='album cover'
-                  className='object-cover rounded-md w-9 md:w-14 grow'
+                  className='object-cover rounded-md w-9 md:w-14 md:h-14 grow'
                 />
               ) : null}
             </div>
@@ -269,18 +318,23 @@ export const FooterPlayer = () => {
               </div>
             </div>
           </div>
-          <div className=''>
+          <div className='col-span-2 md:col-span-1'>
             <div className='flex items-center justify-end md:justify-center gap-1 md:gap-4 mb-3'>
-              <button
-                onClick={() => {
-                  setShuffle(!isShuffled)
-                }}
+              <Button
+                variant='ghost'
+                className='p-0'
+                title='Shuffle'
+                onClick={onShuffleToggle}
               >
                 <RandomIcon
                   className={`h-6 w-6 ${isShuffled ? 'text-primary-500' : ''}`}
                 />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='ghost'
+                className='p-0'
+                disabled={!currentSong}
+                title='Previous'
                 onClick={() => {
                   if (!currentSong) {
                     return
@@ -289,8 +343,12 @@ export const FooterPlayer = () => {
                 }}
               >
                 <PreviousIcon className='h-8 w-8' />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='ghost'
+                className='p-0'
+                disabled={!currentSong}
+                title='Play/Pause'
                 onClick={() => {
                   if (!currentSong) {
                     return
@@ -304,8 +362,12 @@ export const FooterPlayer = () => {
                 ) : (
                   <PlayCircleIcon className='h-12 w-12' />
                 )}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='ghost'
+                title='Next'
+                disabled={!currentSong}
+                className='p-0'
                 onClick={() => {
                   if (!currentSong) {
                     return
@@ -314,7 +376,29 @@ export const FooterPlayer = () => {
                 }}
               >
                 <NextIcon className='h-8 w-8' />
-              </button>
+              </Button>
+              <Button
+                onClick={() => {
+                  setRepeatMode(
+                    repeatMode === 'none'
+                      ? 'all'
+                      : repeatMode === 'all'
+                        ? 'one'
+                        : 'none'
+                  )
+                }}
+                variant='ghost'
+                title='Repeat'
+                className='p-0'
+              >
+                {repeatMode === 'none' ? (
+                  <RepeatIcon className='h-6 w-6' />
+                ) : repeatMode === 'all' ? (
+                  <RepeatIcon className='h-6 w-6 text-primary-500' />
+                ) : (
+                  <RepeatOneIcon className='h-6 w-6 text-primary-500' />
+                )}
+              </Button>
               <div className='w-2' />
               <button
                 onClick={() => {

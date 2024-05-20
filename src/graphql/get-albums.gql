@@ -1,5 +1,5 @@
-query getAlbumsQuery($artist: String!) {
-  getAlbums(artist: $artist, limit: 10, page: 1) {
+query getAlbumsQuery($artist: String!, $limit: Int!) {
+  getAlbums(artist: $artist, limit: $limit, page: 1) {
     artist
     coverImage
     description

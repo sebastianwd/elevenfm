@@ -1,7 +1,30 @@
 /** @type {import('next').NextConfig} */
+
+const externalImageUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS.split(',')
+
 const nextConfig = {
+  // https://github.com/nextauthjs/next-auth/discussions/9385
+  transpilePackages: ['next-auth'],
   images: {
-    domains: ['www.theaudiodb.com', 'lastfm.freetls.fastly.net'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'www.theaudiodb.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.theaudiodb.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lastfm.freetls.fastly.net',
+      },
+      ...externalImageUrls.map((url) => {
+        const { protocol, hostname } = new URL(url)
+
+        return { protocol: protocol.replace(':', ''), hostname }
+      }),
+    ],
   },
   reactStrictMode: true,
   typescript: {

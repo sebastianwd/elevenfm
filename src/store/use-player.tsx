@@ -1,16 +1,19 @@
-import { random, sortBy } from 'lodash'
+import { head, isEmpty, random, sortBy } from 'lodash'
 import { createRef } from 'react'
 import type ReactPlayer from 'react-player'
+import { toast } from 'sonner'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
 import { getAlbumBySongQuery, getVideoInfoQuery, queryClient } from '~/api'
+import { Toast } from '~/components/toast'
 
 export type Song = {
   title: string
   artist: string
   albumCoverUrl?: string
+  videoThumbnailUrl?: string
   duration?: number
   urls?: string[]
 }
@@ -31,13 +34,18 @@ interface PlayerState {
   duration: number
   setDuration: (duration: number) => void
   queue: Song[]
+  queueIdentifier: string
+  setQueueIdentifier: (identifier: string) => void
   shuffledQueue: Song[]
   setQueue: (queue: Song[]) => void
-  playNext: () => void
+  playNext: (options?: { isUserAction: boolean }) => void
   playPrevious: () => void
   isShuffled: boolean
   setShuffle: (random: boolean) => void
   addToQueue: (song: Song) => void
+  repeatMode: 'none' | 'one' | 'all'
+  setRepeatMode: (mode: 'none' | 'one' | 'all') => void
+  toggleIsPlaying: () => void
 }
 
 interface PlayerInstanceState {
@@ -137,7 +145,7 @@ export const usePlayerState = create<PlayerState>()(
             state.shuffledQueue = [currentSong, ...shuffledSongs]
           }
         }),
-      playNext: async () => {
+      playNext: async (options = { isUserAction: true }) => {
         const state = get()
 
         const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
@@ -148,19 +156,50 @@ export const usePlayerState = create<PlayerState>()(
             song.artist === state.currentSong?.artist
         )
 
-        const nextSong = state.isShuffled
-          ? state.shuffledQueue[currentSongIndex + 1]
-          : state.queue[currentSongIndex + 1]
+        const getNextSong = () => {
+          if (!options.isUserAction) {
+            if (state.repeatMode === 'one') return activeQueue[currentSongIndex]
+          }
+
+          if (state.repeatMode === 'all')
+            return activeQueue[currentSongIndex + 1] || activeQueue[0]
+
+          return activeQueue[currentSongIndex + 1]
+        }
+
+        const nextSong = getNextSong()
+
+        const isSameAsCurrent =
+          nextSong?.title === state.currentSong?.title &&
+          nextSong?.artist === state.currentSong?.artist
 
         if (nextSong) {
-          const data = await getVideoInfo(nextSong)
+          if (isSameAsCurrent) {
+            instanceRef.current?.seekTo(0)
+            return
+          }
 
-          const urls = data.map((item) => item?.videoId)
+          const getVideoData = async () => {
+            const data = await getVideoInfo(nextSong)
+
+            return {
+              thumbnailUrl: head(data)?.thumbnailUrl,
+              videoUrls: data.map((item) => item?.videoUrl),
+            }
+          }
+
+          const videoData = isEmpty(nextSong.urls)
+            ? await getVideoData()
+            : {
+                thumbnailUrl: nextSong.videoThumbnailUrl,
+                videoUrls: nextSong.urls,
+              }
 
           await state.setCurrentSong({
             artist: nextSong.artist,
             title: nextSong.title,
-            urls,
+            urls: videoData.videoUrls,
+            videoThumbnailUrl: videoData.thumbnailUrl,
           })
         }
       },
@@ -180,14 +219,27 @@ export const usePlayerState = create<PlayerState>()(
           : state.queue[currentSongIndex - 1]
 
         if (previousSong) {
-          const data = await getVideoInfo(previousSong)
+          const getVideoData = async () => {
+            const data = await getVideoInfo(previousSong)
 
-          const urls = data.map((item) => item?.videoId)
+            return {
+              thumbnailUrl: head(data)?.thumbnailUrl,
+              videoUrls: data.map((item) => item?.videoUrl),
+            }
+          }
+
+          const videoData = isEmpty(previousSong.urls)
+            ? await getVideoData()
+            : {
+                thumbnailUrl: previousSong.videoThumbnailUrl,
+                videoUrls: previousSong.urls,
+              }
 
           await state.setCurrentSong({
             artist: previousSong.artist,
             title: previousSong.title,
-            urls,
+            urls: videoData.videoUrls,
+            videoThumbnailUrl: videoData.thumbnailUrl,
           })
         }
       },
@@ -209,11 +261,11 @@ export const usePlayerState = create<PlayerState>()(
             title: song.title,
             duration: song.duration,
             urls: song.urls,
-            albumCoverUrl: coverUrl,
+            albumCoverUrl: coverUrl || song.videoThumbnailUrl,
           }
         })
       },
-      addToQueue: async (song: Song) => {
+      addToQueue: (song: Song) => {
         const state = get()
 
         const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
@@ -224,22 +276,44 @@ export const usePlayerState = create<PlayerState>()(
             song.artist === state.currentSong?.artist
         )
 
-        const newQueue = [...activeQueue]
+        const isSameAsCurrentSong =
+          song.title === state.currentSong?.title &&
+          song.artist === state.currentSong?.artist
 
-        newQueue.splice(currentSongIndex + 1, 0, song)
+        if (isSameAsCurrentSong) {
+          toast.custom(() => <Toast message='❌ Song is already playing' />, {
+            duration: 2500,
+          })
+          return
+        }
 
         set((state) => {
-          state.queue = newQueue
+          state.queue = activeQueue.toSpliced(currentSongIndex + 1, 0, song)
         })
 
-        const shuffledQueue = [...state.shuffledQueue]
-
-        shuffledQueue.splice(currentSongIndex + 1, 0, song)
-
         set((state) => {
-          state.shuffledQueue = shuffledQueue
+          state.shuffledQueue = state.shuffledQueue.toSpliced(
+            currentSongIndex + 1,
+            0,
+            song
+          )
         })
       },
+
+      queueIdentifier: '',
+      setQueueIdentifier: (identifier: string) =>
+        set((state) => {
+          state.queueIdentifier = identifier
+        }),
+      repeatMode: 'none',
+      setRepeatMode: (mode: 'none' | 'one' | 'all') =>
+        set((state) => {
+          state.repeatMode = mode
+        }),
+      toggleIsPlaying: () =>
+        set((state) => {
+          state.isPlaying = !state.isPlaying
+        }),
     }))
   )
 )
