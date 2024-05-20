@@ -295,9 +295,9 @@ export const FooterPlayer = () => {
         </AnimatePresence>
       </div>
       <footer className='fixed bottom-0 mt-auto h-28 w-full bg-surface-900 bg-opacity-20 backdrop-blur-lg z-40'>
-        <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid md:grid-cols-3 grid-cols-2 relative'>
-          <div className='flex gap-2 md:gap-4'>
-            <div className='flex items-center'>
+        <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid grid-cols-3 relative'>
+          <div className='flex gap-2 md:gap-4 col-span-1'>
+            <div className='flex items-center shrink-0'>
               {currentSong ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -318,7 +318,7 @@ export const FooterPlayer = () => {
               </div>
             </div>
           </div>
-          <div>
+          <div className='col-span-2 md:col-span-1'>
             <div className='flex items-center justify-end md:justify-center gap-1 md:gap-4 mb-3'>
               <Button
                 variant='ghost'

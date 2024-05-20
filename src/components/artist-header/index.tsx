@@ -30,7 +30,7 @@ export const ArtistHeader = (props: ArtistHeaderProps) => {
             )
           : null}
       </div>
-      <h5 className='text-sm font-thin md:text-left text-center text-gray-300'>
+      <h5 className='text-sm font-thin md:text-left text-center text-gray-300 mt-1'>
         {subtitle}
       </h5>
     </div>
