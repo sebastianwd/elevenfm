@@ -248,6 +248,7 @@ export const SongList = (props: SongListProps) => {
               playlistId={isEditable ? identifier : undefined}
               dateAdded={song.createdAt}
               songId={song.id}
+              songUrl={song.songUrl}
             />
           </Sortable>
         ))}

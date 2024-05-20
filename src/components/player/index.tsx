@@ -75,6 +75,7 @@ const QueueList = (props: QueueListProps) => {
           <Song
             artist={song.artist}
             song={song.title}
+            songUrl={song.urls ? song.urls[0] : undefined}
             position={index + 1}
             isPlaying={
               currentSong?.title === song.title &&

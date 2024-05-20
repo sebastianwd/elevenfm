@@ -30,6 +30,7 @@ import { Toast } from '../toast'
 
 interface SongProps {
   song: string
+  songUrl?: string | null
   artist: string
   isPlaying: boolean
   position?: number
@@ -60,8 +61,12 @@ export const Song = (props: SongProps) => {
   const closeModal = useModalStore((state) => state.closeModal)
 
   const addToQueue = useCallback(() => {
-    addToQueueAction({ artist: props.artist, title: props.song })
-  }, [props.artist, props.song, addToQueueAction])
+    addToQueueAction({
+      artist: props.artist,
+      title: props.song,
+      urls: props.songUrl ? [props.songUrl] : [],
+    })
+  }, [addToQueueAction, props.artist, props.song, props.songUrl])
 
   const createSongRadio = useMutation({
     mutationFn: createSongRadioMutation,
