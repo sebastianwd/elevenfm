@@ -221,7 +221,6 @@ export const SongList = (props: SongListProps) => {
       >
         {filteredSongs?.map((song, index) => (
           <Sortable
-            disabled={!isEditable}
             id={song.id || `${song.title}-${song.artist}`}
             data={{
               title: song.title,
