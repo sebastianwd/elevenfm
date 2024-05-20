@@ -43,7 +43,7 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tanstack/react-query": "^5.36.2",
     "@upstash/redis": "^1.31.1",
-    "argon2": "^0.40.1",
+    "argon2": "0.31.2",
     "axios": "^1.6.8",
     "class-validator": "^0.14.1",
     "class-variance-authority": "^0.7.0",

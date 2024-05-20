@@ -72,7 +72,7 @@ export class SongResolver {
   ): Promise<SongLyrics> {
     const lyrics = await getLyrics({
       artist,
-      title: song,
+      title: song.replace(/w\//, ''),
     })
 
     if (isEmpty(lyrics)) {
