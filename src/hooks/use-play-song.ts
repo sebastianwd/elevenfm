@@ -38,7 +38,10 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
       if (!songUrl) {
         const data = await queryClient.fetchQuery({
           queryKey: ['getVideoInfo', `${artist} - ${title}`],
-          queryFn: () => getVideoInfoQuery({ query: `${artist} - ${title}` }),
+          queryFn: () =>
+            getVideoInfoQuery({
+              query: `${artist.split(' & ').join(',').split(',')[0]} - ${title}`,
+            }),
           staleTime: Infinity,
           gcTime: Infinity,
         })
