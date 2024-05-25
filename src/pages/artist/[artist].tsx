@@ -1,4 +1,4 @@
-import { Tab } from '@headlessui/react'
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
 import { head } from 'lodash'
@@ -393,8 +393,8 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
             </div>
             <div className='grid lg:grid-cols-3'>
               <div className='md:pl-8 lg:col-span-2 lg:-mt-11'>
-                <Tab.Group>
-                  <Tab.List>
+                <TabGroup>
+                  <TabList>
                     <Tab
                       className={({ selected }) =>
                         twMerge(
@@ -425,21 +425,21 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
                     >
                       Biography
                     </Tab>
-                  </Tab.List>
-                  <Tab.Panels>
-                    <Tab.Panel>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
                       <div className='md:pr-4'>
                         <ArtistSongs artist={artist} />
                       </div>
-                    </Tab.Panel>
-                    <Tab.Panel>
+                    </TabPanel>
+                    <TabPanel>
                       <ArtistAlbums
                         selectedAlbum={selectedAlbum}
                         onAlbumSelect={onAlbumSelect}
                         artist={artist}
                       />
-                    </Tab.Panel>
-                    <Tab.Panel>
+                    </TabPanel>
+                    <TabPanel>
                       <div className='p-4 pt-6'>
                         <h3 className='text-xl font-semibold mb-3'>
                           Biography
@@ -472,9 +472,9 @@ const ArtistPage: NextPage<{ artist: string }> = (props) => {
                           <p>{data?.artist.biography || ''}</p>
                         </article>
                       </div>
-                    </Tab.Panel>
-                  </Tab.Panels>
-                </Tab.Group>
+                    </TabPanel>
+                  </TabPanels>
+                </TabGroup>
               </div>
               <div className='mt-5 px-4 md:pl-12 lg:px-0'>
                 <h3 className='text-xl font-semibold mb-4'>Similar artists</h3>

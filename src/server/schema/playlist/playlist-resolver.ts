@@ -51,10 +51,12 @@ const formatYoutubeTitle = (title: string, author: string) => {
     defaultTitle: title,
   }) || ['Unknown', 'Unknown']
 
+  const sanitizedTitle = songTitle.replace(/\(.*\)/, '').trim()
+
   return {
     // replace " - Topic" with ""
     artist: songArtist.replace(/ - Topic$/, ''),
-    title: songTitle.replace(/\(.*\)/, ''),
+    title: sanitizedTitle ? sanitizedTitle : songTitle,
   }
 }
 

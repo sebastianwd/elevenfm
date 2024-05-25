@@ -1,4 +1,10 @@
-import { Dialog, Transition } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { Fragment } from 'react'
 
@@ -15,7 +21,7 @@ export function Modal() {
     <>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as='div' className='relative z-50' onClose={closeModal}>
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter='ease-out duration-300'
             enterFrom='opacity-0'
@@ -25,10 +31,10 @@ export function Modal() {
             leaveTo='opacity-0'
           >
             <div className='fixed inset-0 bg-black bg-opacity-40' />
-          </Transition.Child>
+          </TransitionChild>
           <div className='fixed inset-0'>
             <div className='flex min-h-full items-center justify-center p-4 text-center '>
-              <Transition.Child
+              <TransitionChild
                 as={Fragment}
                 enter='ease-out duration-300'
                 enterFrom='opacity-0 scale-95'
@@ -37,8 +43,8 @@ export function Modal() {
                 leaveFrom='opacity-100 scale-100'
                 leaveTo='opacity-0 scale-95'
               >
-                <Dialog.Panel className='w-fit transform overflow-y-auto overflow-x-clip rounded-2xl text-left align-middle shadow-xl transition-all max-h-[80svh] bg-surface-900 border border-solid border-zinc-900'>
-                  <Dialog.Title
+                <DialogPanel className='w-fit transform overflow-y-auto overflow-x-clip rounded-2xl text-left align-middle shadow-xl transition-all max-h-[80svh] bg-surface-900 border border-solid border-zinc-900'>
+                  <DialogTitle
                     as='h3'
                     className='text-lg font-medium leading-6 sticky top-0 bg-surface-700 p-4 rounded-t-2xl flex justify-between items-center bg-opacity-30'
                   >
@@ -51,10 +57,10 @@ export function Modal() {
                     >
                       <XMarkIcon className='h-6 w-6' />
                     </Button>
-                  </Dialog.Title>
+                  </DialogTitle>
                   {content.content}
-                </Dialog.Panel>
-              </Transition.Child>
+                </DialogPanel>
+              </TransitionChild>
             </div>
           </div>
         </Dialog>
