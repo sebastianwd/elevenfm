@@ -224,16 +224,20 @@ export const Song = (props: SongProps) => {
           )}
           {props.artist && showArtist && (
             <div className='mr-8 @2xl/songs:block hidden basis-1/2 text-gray-400 truncate'>
-              {props.artist.split(',').map((artist, index, artists) => (
-                <Link
-                  key={artist}
-                  href={`/artist/${artist.trim()}`}
-                  className='text-sm  hover:underline'
-                >
-                  {artist}
-                  {index < artists.length - 1 ? ', ' : ''}
-                </Link>
-              ))}
+              {props.artist
+                .split(' & ')
+                .join(',')
+                .split(',')
+                .map((artist, index, artists) => (
+                  <Link
+                    key={artist}
+                    href={`/artist/${artist.trim()}`}
+                    className='text-sm  hover:underline'
+                  >
+                    {artist.trim()}
+                    {index < artists.length - 1 ? ', ' : ''}
+                  </Link>
+                ))}
             </div>
           )}
           {props.dateAdded && (
