@@ -11,6 +11,7 @@ import { playlistQuery } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
 import { WavesLoader } from '~/components/loader'
 import { ImportPlaylistModal } from '~/components/modals/import-playlist-modal'
+import { Seo } from '~/components/seo'
 import { SongList } from '~/components/song-list'
 import { TheaterMode } from '~/components/theater-mode'
 import { Toast } from '~/components/toast'
@@ -115,6 +116,7 @@ const PlaylistPage: NextPage = () => {
 
   return (
     <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
+      <Seo />
       {theaterMode ? (
         <TheaterMode />
       ) : (
