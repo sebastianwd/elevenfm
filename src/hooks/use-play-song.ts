@@ -5,6 +5,7 @@ import { getVideoInfoQuery, queryClient } from '~/api'
 import { usePlayerState } from '~/store/use-player'
 import { useLocalSettings } from '~/store/user-local-settings'
 import { PlayableSong } from '~/types'
+import { splitArtist } from '~/utils/song-title-utils'
 
 interface UsePlaySongOptions {
   songs: PlayableSong[]
@@ -36,11 +37,13 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
       setQueueIdentifier(identifier ?? '')
 
       if (!songUrl) {
+        const videoSearchQuery = `${splitArtist(artist)[0]} - ${title}`
+
         const data = await queryClient.fetchQuery({
-          queryKey: ['getVideoInfo', `${artist} - ${title}`],
+          queryKey: ['getVideoInfo', videoSearchQuery],
           queryFn: () =>
             getVideoInfoQuery({
-              query: `${artist.split(' & ').join(',').split(',')[0]} - ${title}`,
+              query: videoSearchQuery,
             }),
           staleTime: Infinity,
           gcTime: Infinity,

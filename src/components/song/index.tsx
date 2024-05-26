@@ -12,7 +12,7 @@ import { ClientError } from 'graphql-request'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { Fragment, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
@@ -24,6 +24,7 @@ import {
 import { useModalStore } from '~/store/use-modal'
 import { usePlayerState } from '~/store/use-player'
 import { getError } from '~/utils/get-error'
+import { splitArtist } from '~/utils/song-title-utils'
 
 import { AddToPlaylistModal } from '../modals/add-to-playlist-modal'
 import { Toast } from '../toast'
@@ -223,21 +224,19 @@ export const Song = (props: SongProps) => {
             </div>
           )}
           {props.artist && showArtist && (
-            <div className='mr-8 @2xl/songs:block hidden basis-1/2 text-gray-400 truncate'>
-              {props.artist
-                .split(' & ')
-                .join(',')
-                .split(',')
-                .map((artist, index, artists) => (
+            <div className='mr-8 @2xl/songs:block hidden basis-1/2 text-gray-400 truncate text-sm'>
+              {splitArtist(props.artist).map((artist, index, artists) => (
+                <Fragment key={artist}>
                   <Link
                     key={artist}
                     href={`/artist/${artist.trim()}`}
-                    className='text-sm  hover:underline'
+                    className='hover:underline'
                   >
                     {artist.trim()}
-                    {index < artists.length - 1 ? ', ' : ''}
                   </Link>
-                ))}
+                  {index < artists.length - 1 ? ',\u00a0' : ''}
+                </Fragment>
+              ))}
             </div>
           )}
           {props.dateAdded && (

@@ -2,6 +2,7 @@ import { DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { LinkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { PauseIcon, PlayIcon } from '@heroicons/react/24/solid'
+import isMobile from 'is-mobile'
 import { find, sample } from 'lodash'
 import React, { useCallback } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -222,6 +223,7 @@ export const SongList = (props: SongListProps) => {
         {filteredSongs?.map((song, index) => (
           <Sortable
             id={song.id || `${song.title}-${song.artist}`}
+            disabled={isMobile()}
             data={{
               title: song.title,
               artist: song.artist,

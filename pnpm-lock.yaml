@@ -126,6 +126,9 @@ importers:
       immer:
         specifier: ^10.1.1
         version: 10.1.1
+      is-mobile:
+        specifier: ^4.0.0
+        version: 4.0.0
       lexorank:
         specifier: ^1.0.5
         version: 1.0.5
@@ -4103,6 +4106,9 @@ packages:
   is-map@2.0.3:
     resolution: {integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==}
     engines: {node: '>= 0.4'}
+
+  is-mobile@4.0.0:
+    resolution: {integrity: sha512-mlcHZA84t1qLSuWkt2v0I2l61PYdyQDt4aG1mLIXF5FDMm4+haBCxCPYSr/uwqQNRk1MiTizn0ypEuRAOLRAew==}
 
   is-negative-zero@2.0.3:
     resolution: {integrity: sha512-5KoIu2Ngpyek75jXodFvnafB6DJgr3u8uuK0LEZJjrU19DrMD3EVERaR8sjz8CCGgpZvxPl9SuE1GMVPFHx1mw==}
@@ -10834,6 +10840,8 @@ snapshots:
       tslib: 2.6.2
 
   is-map@2.0.3: {}
+
+  is-mobile@4.0.0: {}
 
   is-negative-zero@2.0.3: {}
 

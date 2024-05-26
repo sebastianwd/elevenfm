@@ -3,7 +3,14 @@ import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { head } from 'lodash'
-import { type ChangeEvent, useCallback, useRef, useState } from 'react'
+import Link from 'next/link'
+import {
+  type ChangeEvent,
+  Fragment,
+  useCallback,
+  useRef,
+  useState,
+} from 'react'
 import type SimpleBarCore from 'simplebar-core'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
@@ -17,6 +24,7 @@ import {
   usePlayerState,
 } from '~/store/use-player'
 import { useLocalSettings } from '~/store/user-local-settings'
+import { sanitizeSongTitle, splitArtist } from '~/utils/song-title-utils'
 
 import { Button } from '../button'
 import {
@@ -122,8 +130,8 @@ export const Lyrics = (props: LyricsProps) => {
     queryKey: ['getLyricsQuery', song, artist],
     queryFn: () =>
       getLyricsQuery({
-        song: song.replace(/\(|\)/g, ''),
-        artist: head(artist.split(','))?.trim() || '',
+        song: sanitizeSongTitle(song),
+        artist: splitArtist(artist)[0].trim(),
       }),
     staleTime: Infinity,
     gcTime: Infinity,
@@ -315,7 +323,19 @@ export const FooterPlayer = () => {
                 {currentSong?.title}
               </h1>
               <div className='flex text-xs md:text-sm text-zinc-300'>
-                {currentSong?.artist}
+                {splitArtist(currentSong?.artist || '').map(
+                  (artist, index, artists) => (
+                    <Fragment key={artist}>
+                      <Link
+                        href={`/artist/${artist.trim()}`}
+                        className='hover:underline '
+                      >
+                        {artist.trim()}
+                      </Link>
+                      {index < artists.length - 1 ? ',\u00a0' : ''}
+                    </Fragment>
+                  )
+                )}
               </div>
             </div>
           </div>
@@ -328,7 +348,7 @@ export const FooterPlayer = () => {
                 onClick={onShuffleToggle}
               >
                 <RandomIcon
-                  className={`h-6 w-6 ${isShuffled ? 'text-primary-500' : ''}`}
+                  className={`size-5 md:size-6 ${isShuffled ? 'text-primary-500' : ''}`}
                 />
               </Button>
               <Button
@@ -393,11 +413,11 @@ export const FooterPlayer = () => {
                 className='p-0'
               >
                 {repeatMode === 'none' ? (
-                  <RepeatIcon className='h-6 w-6' />
+                  <RepeatIcon className='size-5 md:size-6' />
                 ) : repeatMode === 'all' ? (
-                  <RepeatIcon className='h-6 w-6 text-primary-500' />
+                  <RepeatIcon className='size-5 md:size-6 text-primary-500' />
                 ) : (
-                  <RepeatOneIcon className='h-6 w-6 text-primary-500' />
+                  <RepeatOneIcon className='size-5 md:size-6 text-primary-500' />
                 )}
               </Button>
               <div className='w-2' />

@@ -7,8 +7,8 @@ import { GetLyricsOptions } from './types'
 const getLyrics = (args: Pick<GetLyricsOptions, 'artist' | 'title'>) =>
   getLyricsRequest({
     ...args,
-    apiKey: process.env.GENIUS_ACCESS_TOKEN,
+    apiKey: process.env.GENIUS_ACCESS_TOKEN!,
     optimizeQuery: true,
-  } as GetLyricsOptions) as Promise<string>
+  } satisfies GetLyricsOptions) as Promise<string>
 
 export { getLyrics }

@@ -14,6 +14,7 @@ import { invidious } from '~/server/modules/invidious/invidious'
 import { soundcloud } from '~/server/modules/soundcloud/soundcloud'
 import { type Context } from '~/types'
 import { ytGetId } from '~/utils/get-yt-url-id'
+import { sanitizeSongTitle } from '~/utils/song-title-utils'
 
 import { SongInput } from '../song/song'
 import { getLastRankInPlaylist, Playlist } from './playlist'
@@ -51,12 +52,10 @@ const formatYoutubeTitle = (title: string, author: string) => {
     defaultTitle: title,
   }) || ['Unknown', 'Unknown']
 
-  const sanitizedTitle = songTitle.replace(/\(.*\)/, '').trim()
-
   return {
     // replace " - Topic" with ""
     artist: songArtist.replace(/ - Topic$/, ''),
-    title: sanitizedTitle ? sanitizedTitle : songTitle,
+    title: sanitizeSongTitle(songTitle),
   }
 }
 
