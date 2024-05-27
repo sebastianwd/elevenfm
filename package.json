@@ -1,9 +1,14 @@
 {
-  "name": "elevenfm-monorepo",
+  "name": "elevenfm",
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "web": "pnpm --filter elevenfm"
+    "web": "pnpm --filter @elevenfm/web",
+    "shared": "pnpm --filter @elevenfm/shared",
+    "dev": "nx dev @elevenfm/web",
+    "build": "nx build @elevenfm/web",
+    "start": "nx start @elevenfm/web",
+    "gen": "graphql-codegen"
   },
   "keywords": [],
   "author": "sebastianwd",
@@ -20,6 +25,14 @@
     }
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^5.0.2",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/typescript": "^4.0.6",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@graphql-codegen/typescript-operations": "^4.2.0",
+    "@graphql-codegen/typescript-react-query": "^6.1.0",
+    "nx": "^19.1.0",
     "typescript": "^5.4.5"
   }
 }

@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const path = require('path')
+
 module.exports = {
   client: {
     excludes: [
@@ -9,7 +12,7 @@ module.exports = {
     service: {
       name: 'elevenfm',
       // url: ' http://localhost:4000/___graphql',
-      localSchemaFile: './graphql.schema.json',
+      localSchemaFile: path.resolve(__dirname, './graphql.schema.json'),
       // skipSSLValidation: true,
     },
   },

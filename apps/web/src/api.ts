@@ -1,7 +1,6 @@
+import { getSdk } from '@elevenfm/shared'
 import { QueryClient } from '@tanstack/react-query'
 import { GraphQLClient } from 'graphql-request'
-
-import { getSdk } from '~/generated/graphql'
 
 import { getBaseURL } from './utils/get-base-url'
 

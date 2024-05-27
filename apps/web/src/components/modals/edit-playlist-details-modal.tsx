@@ -1,3 +1,4 @@
+import { PlaylistQueryQuery, UserPlaylistsQueryQuery } from '@elevenfm/shared'
 import { LinkIcon } from '@heroicons/react/24/outline'
 import { useMutation } from '@tanstack/react-query'
 import { type ClientError } from 'graphql-request'
@@ -6,10 +7,6 @@ import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { queryClient, updatePlaylistMutation } from '~/api'
-import {
-  PlaylistQueryQuery,
-  UserPlaylistsQueryQuery,
-} from '~/generated/graphql'
 import { getError } from '~/utils/get-error'
 
 interface EditPlaylistDetailsModalProps {
