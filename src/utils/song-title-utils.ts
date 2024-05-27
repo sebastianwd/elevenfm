@@ -3,7 +3,7 @@ export const splitArtist = (artist: string) =>
 
 export const sanitizeSongTitle = (title: string) => {
   const sanitizedTitle = title
-    .replace(/w\//, '')
+    .replace(/w\/.*/, '')
     .replace(/\(.*\)/, '')
     .trim()
 

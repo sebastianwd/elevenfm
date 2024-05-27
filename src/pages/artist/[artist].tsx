@@ -1,7 +1,6 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
-import { head } from 'lodash'
 import type { GetServerSideProps, NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,7 +10,6 @@ import { twMerge } from 'tailwind-merge'
 import {
   artistQuery,
   getAlbumsQuery,
-  getVideoInfoQuery,
   queryClient,
   similarArtistsQuery,
   topsongsByArtistQuery,
@@ -23,8 +21,10 @@ import { Song } from '~/components/song'
 import { SongList } from '~/components/song-list'
 import { TheaterMode } from '~/components/theater-mode'
 import { VideoPlayerPortalContainer } from '~/components/video-player'
+import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
+import { PlayableSong } from '~/types'
 
 interface ArtistAlbumsProps {
   artist: string
@@ -33,7 +33,7 @@ interface ArtistAlbumsProps {
 }
 
 const ArtistAlbums = (props: ArtistAlbumsProps) => {
-  const { artist, selectedAlbum, onAlbumSelect } = props
+  const { artist, selectedAlbum: selectedAlbumName, onAlbumSelect } = props
 
   const getAlbums = useQuery({
     queryKey: ['getAlbums', artist],
@@ -42,45 +42,21 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
 
   const albums = getAlbums.data?.getAlbums
 
-  const { setIsPlaying, setCurrentSong, setQueue } = usePlayerState()
+  const selectedAlbum = React.useMemo(() => {
+    return albums?.find((album) => album.name === selectedAlbumName)
+  }, [albums, selectedAlbumName])
 
-  const onPlaySong = React.useCallback(
-    async (song: string, artist: string) => {
-      const data = await queryClient.fetchQuery({
-        queryKey: ['getVideoInfo', `${artist} - ${song}`],
-        queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
-        staleTime: Infinity,
-        gcTime: Infinity,
-      })
-
-      const urls = data?.getVideoInfo.map((video) => video.videoUrl)
-
-      const album = albums?.find((album) => album.name === selectedAlbum)
-
-      setCurrentSong({
-        artist,
+  const { onPlaySong } = usePlaySong({
+    songs:
+      selectedAlbum?.tracks?.map((song) => ({
+        artist: artist,
         title: song,
-        urls,
-        albumCoverUrl:
-          album?.coverImage || head(data.getVideoInfo)?.thumbnailUrl,
-      })
-
-      setQueue(
-        album?.tracks?.map((song) => ({
-          artist: artist,
-          title: song,
-        })) || []
-      )
-
-      setIsPlaying(true)
-    },
-    [albums, selectedAlbum, setCurrentSong, setIsPlaying, setQueue]
-  )
+      })) || [],
+    songsIdentifier: selectedAlbum?.name ?? '',
+  })
 
   const renderContent = () => {
-    const album = albums?.find((album) => album.name === selectedAlbum)
-
-    if (selectedAlbum && album) {
+    if (selectedAlbumName && selectedAlbum) {
       return (
         <>
           <button
@@ -93,12 +69,12 @@ const ArtistAlbums = (props: ArtistAlbumsProps) => {
             <h3 className='text-xl font-semibold'>Albums</h3>
           </button>
           <ArtistAlbum
-            album={selectedAlbum}
+            album={selectedAlbumName}
             artist={artist}
-            songs={album?.tracks || []}
-            coverImage={album?.coverImage || undefined}
+            songs={selectedAlbum?.tracks || []}
+            coverImage={selectedAlbum?.coverImage || undefined}
             onPlaySong={onPlaySong}
-            description={album?.description || undefined}
+            description={selectedAlbum?.description || undefined}
           />
         </>
       )
@@ -183,7 +159,7 @@ interface ArtistAlbumProps {
   coverImage?: string
   songs: string[]
   artist: string
-  onPlaySong: (song: string, artist: string) => void
+  onPlaySong: (song: PlayableSong) => void
   description?: string
 }
 
@@ -246,7 +222,13 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
             isPlaying={
               currentSong?.title === song && currentSong?.artist === artist
             }
-            onClick={() => onPlaySong(song, artist)}
+            onClick={() =>
+              onPlaySong({
+                title: song,
+                artist: artist,
+                albumCoverUrl: coverImage,
+              })
+            }
             song={song}
             artist={artist}
             showArtist={false}

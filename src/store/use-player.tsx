@@ -8,6 +8,7 @@ import { immer } from 'zustand/middleware/immer'
 
 import { getAlbumBySongQuery, getVideoInfoQuery, queryClient } from '~/api'
 import { Toast } from '~/components/toast'
+import { splitArtist } from '~/utils/song-title-utils'
 
 export type Song = {
   title: string
@@ -69,10 +70,11 @@ const getAlbum = async (song: Song) => {
 }
 
 const getVideoInfo = async (song: Song) => {
+  const videoSearchQuery = `${splitArtist(song.artist)[0]} - ${song.title}`
+
   const data = await queryClient.fetchQuery({
-    queryKey: ['videoInfo', `${song.artist} - ${song.title}`],
-    queryFn: () =>
-      getVideoInfoQuery({ query: `${song.artist} - ${song.title}` }),
+    queryKey: ['videoInfo', videoSearchQuery],
+    queryFn: () => getVideoInfoQuery({ query: videoSearchQuery }),
     gcTime: Infinity,
     staleTime: Infinity,
   })

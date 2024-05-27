@@ -1,7 +1,6 @@
-/** @type {import('next').NextConfig} */
-
 const externalImageUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS.split(',')
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   // https://github.com/nextauthjs/next-auth/discussions/9385
   transpilePackages: ['next-auth'],

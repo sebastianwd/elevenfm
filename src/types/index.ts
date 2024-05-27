@@ -7,6 +7,7 @@ export interface Context extends BaseContext {
 
 export interface PlayableSong {
   title: string
+  albumCoverUrl?: string | null
   playcount?: string | null
   artist: string
   rank?: string | null

@@ -31,10 +31,12 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
     async (song: PlayableSong) => {
       const { artist, title, songUrl } = song
 
-      if (!isNil(isShuffled)) {
-        setShuffle(isShuffled)
+      if (identifier) {
+        if (!isNil(isShuffled)) {
+          setShuffle(isShuffled)
+        }
+        setQueueIdentifier(identifier ?? '')
       }
-      setQueueIdentifier(identifier ?? '')
 
       if (!songUrl) {
         const videoSearchQuery = `${splitArtist(artist)[0]} - ${title}`
@@ -56,6 +58,7 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
           title,
           urls,
           videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
+          albumCoverUrl: song.albumCoverUrl || undefined,
         })
       } else {
         setCurrentSong({
@@ -65,13 +68,15 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
         })
       }
 
-      setQueue(
-        songs.map((song) => ({
-          artist: song.artist,
-          title: song.title,
-          urls: song.songUrl ? [song.songUrl] : undefined,
-        })) || []
-      )
+      if (identifier) {
+        setQueue(
+          songs.map((song) => ({
+            artist: song.artist,
+            title: song.title,
+            urls: song.songUrl ? [song.songUrl] : undefined,
+          })) || []
+        )
+      }
 
       setIsPlaying(true)
     },

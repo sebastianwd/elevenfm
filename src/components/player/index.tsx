@@ -2,20 +2,13 @@ import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
-import { head } from 'lodash'
 import Link from 'next/link'
-import {
-  type ChangeEvent,
-  Fragment,
-  useCallback,
-  useRef,
-  useState,
-} from 'react'
-import type SimpleBarCore from 'simplebar-core'
+import { type ChangeEvent, Fragment, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 
-import { getLyricsQuery, getVideoInfoQuery, queryClient } from '~/api'
+import { getLyricsQuery } from '~/api'
+import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
 import {
   Song as SongType,
@@ -24,6 +17,7 @@ import {
   usePlayerState,
 } from '~/store/use-player'
 import { useLocalSettings } from '~/store/user-local-settings'
+import { PlayableSong } from '~/types'
 import { sanitizeSongTitle, splitArtist } from '~/utils/song-title-utils'
 
 import { Button } from '../button'
@@ -50,7 +44,7 @@ const formatSeconds = (seconds: number) => {
 
 interface QueueListProps {
   queue: SongType[]
-  onPlay: (song: string, artist: string) => void
+  onPlay: (song: PlayableSong) => void
 }
 
 const container = {
@@ -89,7 +83,13 @@ const QueueList = (props: QueueListProps) => {
               currentSong?.title === song.title &&
               currentSong?.artist === song.artist
             }
-            onClick={() => onPlay(song.title, song.artist)}
+            onClick={() =>
+              onPlay({
+                artist: song.artist,
+                title: song.title,
+                songUrl: song.urls ? song.urls[0] : undefined,
+              })
+            }
           />
         </li>
       )
@@ -140,7 +140,7 @@ export const Lyrics = (props: LyricsProps) => {
 
   const lyrics = data?.getLyrics?.lyrics
 
-  const scrollableNodeRef = useRef<SimpleBarCore>(null)
+  //const scrollableNodeRef = useRef<SimpleBarCore>(null)
 
   /*const { playerProgress } = usePlayerProgressState((state) => ({
     playerProgress: state.progress,
@@ -183,15 +183,9 @@ export const Lyrics = (props: LyricsProps) => {
     }
 
     return (
-      <SimpleBar
-        ref={scrollableNodeRef}
-        className={twMerge(`h-[36rem] overflow-auto pr-4`, props.className)}
-        classNames={{
-          scrollbar: 'bg-primary-500 w-1 rounded',
-        }}
-      >
-        <pre className='whitespace-pre-line px-4 py-2 text-lg'>{lyrics}</pre>{' '}
-      </SimpleBar>
+      <pre className='whitespace-pre-line px-4 py-2 text-lg overflow-auto'>
+        {lyrics}
+      </pre>
     )
   }
 
@@ -204,7 +198,14 @@ export const Lyrics = (props: LyricsProps) => {
       variants={container}
     >
       <h3 className='font-semibold text-lg px-5 py-3'>{song}</h3>
-      {renderContent()}
+      <SimpleBar
+        className={twMerge(`h-[36rem] overflow-auto pr-4`, props.className)}
+        classNames={{
+          scrollbar: 'bg-primary-500 w-1 rounded',
+        }}
+      >
+        {renderContent()}
+      </SimpleBar>
     </motion.div>
   )
 }
@@ -219,7 +220,6 @@ export const FooterPlayer = () => {
     playPrevious,
     isShuffled,
     setShuffle,
-    setCurrentSong,
   } = usePlayerState()
 
   const { progress } = usePlayerProgressState()
@@ -253,28 +253,10 @@ export const FooterPlayer = () => {
   const [showQueue, setShowQueue] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
 
-  const onPlaySong = useCallback(
-    async (song: string, artist: string) => {
-      const data = await queryClient.fetchQuery({
-        queryKey: ['getVideoInfo', `${artist} - ${song}`],
-        queryFn: () => getVideoInfoQuery({ query: `${artist} - ${song}` }),
-        staleTime: Infinity,
-        gcTime: Infinity,
-      })
-
-      const urls = data.getVideoInfo?.map((video) => video.videoId)
-
-      setCurrentSong({
-        artist,
-        title: song,
-        urls,
-        videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
-      })
-
-      setIsPlaying(true)
-    },
-    [setCurrentSong, setIsPlaying]
-  )
+  const { onPlaySong } = usePlaySong({
+    songs: currentQueue,
+    songsIdentifier: '',
+  })
 
   const onShuffleToggle = useCallback(() => {
     if (queueIdentifier) {
