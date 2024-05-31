@@ -9,7 +9,7 @@
     "build": "nx build elevenfm-web",
     "start": "nx start elevenfm-web",
     "release": "changeset",
-    "release:publish": "pnpm shared build && changeset publish",
+    "release:publish": "pnpm shared build && changeset publish --provenance --access public",
     "gen": "graphql-codegen"
   },
   "keywords": [],

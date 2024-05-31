@@ -1,6 +1,6 @@
 {
   "name": "elevenfm-shared",
-  "version": "1.0.3",
+  "version": "1.0.7",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -17,8 +17,7 @@
     "graphql-request": "7.0.1"
   },
   "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "access": "public"
   },
   "repository": {
     "type": "git",
