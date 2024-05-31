@@ -1,7 +1,4 @@
 name: Publish
-defaults:
-  run:
-    working-directory: ./packages/shared
 on:
   workflow_run:
     workflows: [CI]
@@ -34,6 +31,7 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm run release
+          cwd: ./packages/shared
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
