@@ -1,5 +1,11 @@
 # @elevenfm/shared
 
+## 1.0.1
+
+### Patch Changes
+
+- f304713: figuring out how to release
+
 ## 1.0.0
 
 ### Major Changes
