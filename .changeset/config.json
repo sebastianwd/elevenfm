@@ -7,5 +7,5 @@
   "access": "restricted",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
-  "ignore": ["@elevenfm/web"]
+  "ignore": ["elevenfm-web"]
 }

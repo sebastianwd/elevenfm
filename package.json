@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "web": "pnpm --filter @elevenfm/web",
-    "shared": "pnpm --filter @elevenfm/shared",
-    "dev": "nx dev @elevenfm/web",
-    "build": "nx build @elevenfm/web",
-    "start": "nx start @elevenfm/web",
+    "web": "pnpm --filter elevenfm-web",
+    "shared": "pnpm --filter elevenfm-shared",
+    "dev": "nx dev elevenfm-web",
+    "build": "nx build elevenfm-web",
+    "start": "nx start elevenfm-web",
     "release": "changeset",
     "release:publish": "pnpm shared build && changeset publish",
     "gen": "graphql-codegen"
