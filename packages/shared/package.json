@@ -20,7 +20,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "repository": "github:sebastianwd/elevenfm",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sebastianwd/elevenfm.git",
+    "directory": "packages/shared"
+  },
   "devDependencies": {
     "tsup": "^8.0.2",
     "graphql-tag": "^2.12.6",
