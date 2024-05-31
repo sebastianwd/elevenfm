@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 20.x
           cache: "pnpm"
-          registry-url: "https://npm.pkg.github.com"
+          registry-url: https://npm.pkg.github.com/
 
       - run: pnpm install --frozen-lockfile
       - name: Create Release Pull Request or Publish
