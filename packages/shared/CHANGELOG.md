@@ -1,5 +1,11 @@
 # elevenfm-shared
 
+## 1.0.7
+
+### Patch Changes
+
+- 3b4e632: test publish
+
 ## 1.0.6
 
 ### Patch Changes
