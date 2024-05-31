@@ -18,6 +18,9 @@ importers:
 
   .:
     devDependencies:
+      '@changesets/cli':
+        specifier: ^2.27.3
+        version: 2.27.3
       '@graphql-codegen/add':
         specifier: ^5.0.2
         version: 5.0.2(graphql@16.8.1)
@@ -344,9 +347,6 @@ importers:
         specifier: 7.0.1
         version: 7.0.1(graphql@16.8.1)
     devDependencies:
-      '@changesets/cli':
-        specifier: ^2.27.3
-        version: 2.27.3
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.8.1)
@@ -4713,7 +4713,6 @@ packages:
 
   libsql@0.3.18:
     resolution: {integrity: sha512-lvhKr7WV3NLWRbXkjn/MeKqXOAqWKU0PX9QYrvDh7fneukapj+iUQ4qgJASrQyxcCrEsClXCQiiK5W6OoYPAlA==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:

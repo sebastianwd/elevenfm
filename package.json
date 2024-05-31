@@ -8,6 +8,8 @@
     "dev": "nx dev @elevenfm/web",
     "build": "nx build @elevenfm/web",
     "start": "nx start @elevenfm/web",
+    "release": "changeset",
+    "release:publish": "pnpm shared build && changeset publish",
     "gen": "graphql-codegen"
   },
   "keywords": [],
@@ -25,6 +27,7 @@
     }
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.3",
     "@graphql-codegen/add": "^5.0.2",
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/introspection": "^4.0.3",
