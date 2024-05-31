@@ -16,6 +16,10 @@
     "graphql": "^16.8.1",
     "graphql-request": "7.0.1"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "tsup": "^8.0.2",
     "graphql-tag": "^2.12.6",
