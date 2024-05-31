@@ -1,8 +1,4 @@
 {
-  "tailwindCSS.experimental.classRegex": [
-    "tw`([^`]*)",
-    "tw\\.style\\(([^)]*)\\)",
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "eslint.workingDirectories": ["./apps/web", "./packages/shared"]
 }

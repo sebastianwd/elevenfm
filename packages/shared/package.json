@@ -1,0 +1,26 @@
+{
+  "name": "@elevenfm/shared",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "lint": "tsc --noEmit",
+    "release": "changeset"
+  },
+  "keywords": [],
+  "author": "sebastianwd",
+  "license": "ISC",
+  "dependencies": {
+    "graphql": "^16.8.1",
+    "graphql-request": "7.0.1"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.3",
+    "tsup": "^8.0.2",
+    "graphql-tag": "^2.12.6",
+    "typescript": "^5.4.5"
+  }
+}

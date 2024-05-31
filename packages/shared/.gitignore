@@ -36,6 +36,4 @@ yarn-error.log*
 
 .env
 
-local.db
-
-.nx
+dist
