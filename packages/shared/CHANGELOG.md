@@ -1,5 +1,11 @@
 # @elevenfm/shared
 
+## 1.0.3
+
+### Patch Changes
+
+- 1e28d4a: package.json config
+
 ## 1.0.2
 
 ### Patch Changes
