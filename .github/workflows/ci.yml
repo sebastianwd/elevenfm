@@ -3,7 +3,9 @@ on:
   push:
     branches:
       - "**"
-
+defaults:
+  run:
+    working-directory: ./packages/shared
 jobs:
   build:
     runs-on: ubuntu-latest
