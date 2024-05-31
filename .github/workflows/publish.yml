@@ -1,4 +1,7 @@
 name: Publish
+defaults:
+  run:
+    working-directory: ./packages/shared
 on:
   workflow_run:
     workflows: [CI]
