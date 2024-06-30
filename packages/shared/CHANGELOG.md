@@ -1,5 +1,11 @@
 # elevenfm-shared
 
+## 1.0.8
+
+### Patch Changes
+
+- db650e6: move graphql-request to peer deps for version compat
+
 ## 1.0.7
 
 ### Patch Changes
