@@ -41,7 +41,7 @@ export const { handlers, auth } = NextAuth({
     CredentialsProvider({
       id: 'credentials',
       credentials: {
-        username: { label: 'Username', type: 'text' },
+        username: { label: 'Usernam', type: 'text' },
         password: { label: 'Password', type: 'password' },
         csrfToken: { type: 'text' },
         action: { type: 'text' },
