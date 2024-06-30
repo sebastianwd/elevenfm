@@ -10,7 +10,8 @@
     "start": "nx start elevenfm-web",
     "release": "changeset",
     "release:publish": "pnpm shared build && changeset publish --provenance --access public",
-    "gen": "graphql-codegen"
+    "gen": "graphql-codegen",
+    "update": "ncu -i"
   },
   "keywords": [],
   "author": "sebastianwd",
@@ -35,7 +36,9 @@
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@graphql-codegen/typescript-operations": "^4.2.0",
     "@graphql-codegen/typescript-react-query": "^6.1.0",
+    "npm-check-updates": "^16.14.20",
     "nx": "^19.1.0",
+    "prettier": "^3.3.2",
     "typescript": "^5.4.5"
   }
 }

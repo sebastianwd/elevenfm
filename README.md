@@ -25,6 +25,7 @@ A music streaming webapp that uses YouTube to get the audio and video. The artis
 - View lyrics.
 - Randomize the queue.
 - Manage playlists.
+- Reorder tracks.
 - Import playlists from Spotify, YouTube and SoundCloud. (100 max at a time)
 - Simple account creation with no email required.
 - Fully responsive design.

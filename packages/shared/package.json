@@ -13,8 +13,10 @@
   "author": "sebastianwd",
   "license": "ISC",
   "dependencies": {
-    "graphql": "^16.8.1",
-    "graphql-request": "7.0.1"
+    "graphql": "^16.8.1"
+  },
+  "peerDependencies": {
+    "graphql-request": "^7.1.0"
   },
   "publishConfig": {
     "access": "public"

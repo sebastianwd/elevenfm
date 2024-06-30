@@ -47,7 +47,10 @@ const getUrlSourceName = (url: string) => {
 }
 
 const formatYoutubeTitle = (title: string, author: string) => {
-  const [songArtist, songTitle] = getArtistTitle(title, {
+  // remove ":"
+  const formattedTitle = title.replace(/(?<=\s|^):(\w+)/g, '$1')
+
+  const [songArtist, songTitle] = getArtistTitle(formattedTitle, {
     defaultArtist: author,
     defaultTitle: title,
   }) || ['Unknown', 'Unknown']

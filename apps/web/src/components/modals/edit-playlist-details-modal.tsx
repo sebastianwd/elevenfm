@@ -1,6 +1,6 @@
-import { PlaylistQueryQuery, UserPlaylistsQueryQuery } from '@elevenfm/shared'
 import { LinkIcon } from '@heroicons/react/24/outline'
 import { useMutation } from '@tanstack/react-query'
+import { PlaylistQueryQuery, UserPlaylistsQueryQuery } from 'elevenfm-shared'
 import { type ClientError } from 'graphql-request'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'

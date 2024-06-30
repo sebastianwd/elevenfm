@@ -1,5 +1,5 @@
-/** @type {import("eslint").Linter.Config} */
-module.exports = {
+/** @type {import('@typescript-eslint/utils').TSESLint.Linter.ConfigType} */
+const config = {
   parser: '@typescript-eslint/parser',
   root: true,
   parserOptions: {
@@ -53,3 +53,5 @@ module.exports = {
     ],
   },
 }
+
+module.exports = config
