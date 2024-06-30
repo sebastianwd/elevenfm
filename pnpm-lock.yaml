@@ -350,7 +350,7 @@ importers:
         specifier: ^16.6.0
         version: 16.8.1
       graphql-request:
-        specifier: ^7.0.1
+        specifier: ^7.1.0
         version: 7.1.0(@dprint/formatter@0.3.0)(graphql@16.8.1)
     devDependencies:
       graphql-tag:
