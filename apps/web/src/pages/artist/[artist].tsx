@@ -175,13 +175,13 @@ const ArtistSongs = (props: ArtistSongsProps) => {
         topsongsByArtist?.topsongsByArtist,
         (song) =>
           song.playcount ? Number(song.playcount) : Number.MIN_SAFE_INTEGER,
-        [sortingSettings?.direction || 'asc']
+        [sortingSettings?.direction || 'desc']
       )
     }
     return orderBy(
       topsongsByArtist?.topsongsByArtist,
       sortablePropertiesMapping[sortBySetting as ArtistSortableProperties],
-      [sortingSettings?.direction || 'asc']
+      [sortingSettings?.direction || 'desc']
     )
   }, [
     sortingSettings?.direction,

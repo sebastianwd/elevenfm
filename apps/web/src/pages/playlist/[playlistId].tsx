@@ -65,7 +65,7 @@ const PlaylistPage: NextPage = () => {
               ? 'createdAt'
               : sortingSettings?.sortBy,
           ],
-          [sortingSettings?.direction || 'asc']
+          [sortingSettings?.direction || 'desc']
         )
       )
     }

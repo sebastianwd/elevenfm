@@ -302,6 +302,13 @@ export const SongList = (props: SongListProps) => {
                 className='p-2 font-light text-neutral-300'
                 disabled={isCustomSorting || isDefaultSorting}
                 onClick={() => {
+                  if (!sortingSettings?.direction) {
+                    toggleSortedPlaylist({
+                      identifier: identifier ?? '',
+                      direction: 'asc',
+                    })
+                  }
+
                   toggleSortedPlaylist({
                     identifier: identifier ?? '',
                     direction:
