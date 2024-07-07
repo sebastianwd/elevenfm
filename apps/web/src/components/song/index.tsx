@@ -1,4 +1,4 @@
-import { SquaresPlusIcon } from '@heroicons/react/24/outline'
+import { MinusCircleIcon, SquaresPlusIcon } from '@heroicons/react/24/outline'
 import {
   EllipsisHorizontalIcon,
   MusicalNoteIcon,
@@ -41,6 +41,7 @@ interface SongProps {
   showArtist?: boolean
   onShowLyrics?: () => void
   isEditable?: boolean
+  isQueue?: boolean
   dateAdded?: string | null
   songId?: string
   playlistId?: string
@@ -55,6 +56,7 @@ export const Song = (props: SongProps) => {
   const { showArtist = true, isSortHighlight = false } = props
 
   const addToQueueAction = usePlayerState((state) => state.addToQueue)
+  const removeFromQueueAction = usePlayerState((state) => state.removeFromQueue)
 
   const router = useRouter()
 
@@ -68,6 +70,13 @@ export const Song = (props: SongProps) => {
       urls: props.songUrl ? [props.songUrl] : [],
     })
   }, [addToQueueAction, props.artist, props.song, props.songUrl])
+
+  const removeFromQueue = useCallback(() => {
+    removeFromQueueAction({
+      artist: props.artist,
+      title: props.song,
+    })
+  }, [props.artist, props.song, removeFromQueueAction])
 
   const createSongRadio = useMutation({
     mutationFn: createSongRadioMutation,
@@ -106,6 +115,12 @@ export const Song = (props: SongProps) => {
     useMemo(
       () => [
         {
+          label: 'Remove from queue',
+          icon: <MinusCircleIcon className='h-5 mr-2 shrink-0' />,
+          hidden: !props.isQueue,
+          onClick: removeFromQueue,
+        },
+        {
           label: 'Remove from playlist',
           icon: <XMarkIcon className='h-5 mr-2 shrink-0' />,
           hidden: !props.isEditable,
@@ -132,8 +147,10 @@ export const Song = (props: SongProps) => {
         {
           label: 'Add to queue',
           icon: <PlusIcon className='h-5 mr-2 shrink-0' />,
+          hidden: props.isQueue,
           onClick: addToQueue,
         },
+
         {
           label: 'Go to song radio',
           icon: <MusicalNoteIcon className='h-5 mr-2 shrink-0' />,
@@ -165,6 +182,7 @@ export const Song = (props: SongProps) => {
         },
       ],
       [
+        props.isQueue,
         props.isEditable,
         props.playlistId,
         props.songId,
@@ -172,6 +190,7 @@ export const Song = (props: SongProps) => {
         props.song,
         openAddToPlaylistModal,
         addToQueue,
+        removeFromQueue,
         removeFromPlaylist,
         createSongRadio,
         router,

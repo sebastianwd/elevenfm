@@ -1,16 +1,26 @@
 import { DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { LinkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import { PauseIcon, PlayIcon } from '@heroicons/react/24/solid'
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ListBulletIcon,
+  PauseIcon,
+  PlayIcon,
+} from '@heroicons/react/24/solid'
 import isMobile from 'is-mobile'
 import { find, sample } from 'lodash'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { useShallow } from 'zustand/react/shallow'
 
 import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
-import { useLocalSettings } from '~/store/user-local-settings'
+import {
+  type PlaylistSortingSettings,
+  useLocalSettings,
+} from '~/store/user-local-settings'
 import { PlayableSong } from '~/types'
 
 import { Button } from '../button'
@@ -79,6 +89,31 @@ interface SongListProps {
   onImportFromUrl?: () => void
 }
 
+const sortableProrpertiesLabels = {
+  custom: 'Custom',
+  title: 'Title',
+  artist: 'Artist',
+  dateAdded: 'Date added',
+  default: 'Default',
+  scrobbles: 'Scrobbles',
+} as const satisfies Record<
+  NonNullable<PlaylistSortingSettings['sortBy']>,
+  string
+>
+
+const getNextSortingProperty = (
+  currentSortingProperty: NonNullable<PlaylistSortingSettings['sortBy']>,
+  sortableProrperties: NonNullable<PlaylistSortingSettings['sortBy']>[]
+) => {
+  const index = sortableProrperties.findIndex(
+    (property) => property === currentSortingProperty
+  )
+  if (index === sortableProrperties.length - 1) {
+    return sortableProrperties[0]
+  }
+  return sortableProrperties[index + 1]
+}
+
 export const SongList = (props: SongListProps) => {
   const {
     songs,
@@ -90,17 +125,30 @@ export const SongList = (props: SongListProps) => {
 
   const [listSearchValue, setListSearchValue] = React.useState('')
 
-  const { currentSong, toggleIsPlaying, isPlaying } = usePlayerState()
+  const { currentSong, toggleIsPlaying, isPlaying } = usePlayerState(
+    useShallow((state) => ({
+      currentSong: state.currentSong,
+      toggleIsPlaying: state.toggleIsPlaying,
+      isPlaying: state.isPlaying,
+    }))
+  )
 
-  const { toggleShuffledPlaylist, isShuffled } = useLocalSettings((state) => ({
-    toggleShuffledPlaylist: state.toggleShuffledPlaylist,
-    isShuffled: state.shuffledPlaylists.includes(identifier ?? ''),
-  }))
+  const {
+    toggleShuffledPlaylist,
+    isShuffled,
+    sortedPlaylists,
+    toggleSortedPlaylist,
+  } = useLocalSettings(
+    useShallow((state) => ({
+      toggleShuffledPlaylist: state.toggleShuffledPlaylist,
+      isShuffled: state.shuffledPlaylists.includes(identifier ?? ''),
+      sortedPlaylists: state.sortedPlaylists,
+      toggleSortedPlaylist: state.toggleSortedPlaylist,
+    }))
+  )
 
-  const { queueIdentifier, setShuffle } = usePlayerState((state) => ({
-    queueIdentifier: state.queueIdentifier,
-    setShuffle: state.setShuffle,
-  }))
+  const queueIdentifier = usePlayerState((state) => state.queueIdentifier)
+  const setShuffle = usePlayerState((state) => state.setShuffle)
 
   const { onPlaySong } = usePlaySong({
     songs,
@@ -135,13 +183,38 @@ export const SongList = (props: SongListProps) => {
     isShuffled,
   ])
 
-  const { draggingToPlaylistData } = useLayoutState((state) => ({
-    draggingToPlaylistData: state.draggingToPlaylistData,
-  }))
+  const { draggingToPlaylistData } = useLayoutState(
+    useShallow((state) => ({
+      draggingToPlaylistData: state.draggingToPlaylistData,
+    }))
+  )
+
+  const sortingSettings = useMemo(
+    () =>
+      sortedPlaylists.find((playlist) => playlist.identifier === identifier),
+    [sortedPlaylists, identifier]
+  )
+
+  const isCustomSorting =
+    sortingSettings?.sortBy === 'custom' || !sortingSettings?.sortBy
+
+  const isDefaultSorting =
+    sortingSettings?.sortBy === 'default' || !sortingSettings?.sortBy
+
+  const currentSortingProperty =
+    sortingSettings?.sortBy || (isEditable ? 'custom' : 'default')
+
+  const sortableProrperties = useMemo(() => {
+    return (
+      isEditable
+        ? ['custom', 'title', 'artist', 'dateAdded']
+        : ['default', 'title', 'scrobbles']
+    ) satisfies NonNullable<PlaylistSortingSettings['sortBy']>[]
+  }, [isEditable])
 
   return (
     <>
-      <div className='grid grid-cols-5 lg:grid-cols-3 px-4 py-2 gap-2'>
+      <div className='grid grid-cols-5 lg:grid-cols-3 px-2 py-2 gap-2'>
         <div className='col-span-1 flex gap-2'>
           <Button
             onClick={() => {
@@ -162,7 +235,7 @@ export const SongList = (props: SongListProps) => {
             }}
             title='Play all'
             variant='primary'
-            className='p-2  ml-auto'
+            className='p-2 ml-auto'
             disabled={!filteredSongs.length}
           >
             {queueIdentifier === identifier && isPlaying ? (
@@ -199,6 +272,51 @@ export const SongList = (props: SongListProps) => {
               <RandomIcon className='h-5 w-5' />
             </Button>
           )}
+          <div className='flex ml-auto'>
+            <Button
+              title='Sort by:'
+              variant='ghost'
+              className='p-2 font-normal text-neutral-300'
+              onClick={() => {
+                toggleSortedPlaylist({
+                  identifier: identifier ?? '',
+                  sortBy: getNextSortingProperty(
+                    currentSortingProperty,
+                    sortableProrperties
+                  ),
+                })
+              }}
+            >
+              <ListBulletIcon className='shrink-0 h-5' />
+              <span className='text-sm ml-1 my-auto '>
+                {sortableProrpertiesLabels[currentSortingProperty]}
+              </span>
+            </Button>
+            <div
+              className={
+                isCustomSorting || isDefaultSorting ? 'cursor-not-allowed' : ''
+              }
+            >
+              <Button
+                variant='ghost'
+                className='p-2 font-light text-neutral-300'
+                disabled={isCustomSorting || isDefaultSorting}
+                onClick={() => {
+                  toggleSortedPlaylist({
+                    identifier: identifier ?? '',
+                    direction:
+                      sortingSettings?.direction === 'asc' ? 'desc' : 'asc',
+                  })
+                }}
+              >
+                {sortingSettings?.direction === 'asc' ? (
+                  <ArrowUpIcon className='shrink-0 h-5' />
+                ) : (
+                  <ArrowDownIcon className='shrink-0 h-5' />
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       <SongListHeader
@@ -209,10 +327,9 @@ export const SongList = (props: SongListProps) => {
           dateAdded: !!find(songs, (song) => song.createdAt),
         }}
       />
-
       <SortableContext
         items={
-          isEditable
+          isEditable && isCustomSorting
             ? filteredSongs.map((song) => ({
                 id: song.id || `${song.title}-${song.artist}`,
               }))

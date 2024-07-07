@@ -66,6 +66,8 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
   const pathname = usePathname()
   const router = useRouter()
 
+  const isActive = pathname === `/playlist/${playlist.id}`
+
   const deletePlaylist = useMutation({
     mutationKey: ['deletePlaylist'],
     mutationFn: (playlistId: string) => deletePlaylistMutation({ playlistId }),
@@ -80,7 +82,9 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
       key={playlist.id}
       className={twMerge(
         `bg-surface-800 rounded-lg text-left flex items-center transition-colors`,
-        isOver && 'text-primary-500 bg-surface-900'
+        isActive && 'text-primary-500',
+        isOver &&
+          'text-primary-500 bg-surface-900 outline-primary-500 outline outline-1'
       )}
       ref={setNodeRef}
     >
@@ -146,7 +150,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
               await deletePlaylist.mutateAsync(playlist.id)
               const updatedPlaylists = await userPlaylists.refetch()
 
-              if (pathname === `/playlist/${playlist.id}`) {
+              if (isActive) {
                 if (!isEmpty(updatedPlaylists.data?.userPlaylists)) {
                   router.replace(
                     `/playlist/${head(updatedPlaylists.data?.userPlaylists)?.id}`,

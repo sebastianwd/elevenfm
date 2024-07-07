@@ -1,11 +1,13 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
 import { dehydrate, useQuery } from '@tanstack/react-query'
+import { orderBy } from 'lodash'
 import type { GetServerSideProps, NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
+import { useShallow } from 'zustand/react/shallow'
 
 import {
   artistQuery,
@@ -24,6 +26,10 @@ import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
 import { usePlayerState } from '~/store/use-player'
+import {
+  type ArtistSortableProperties,
+  useLocalSettings,
+} from '~/store/user-local-settings'
 import { PlayableSong } from '~/types'
 
 interface ArtistAlbumsProps {
@@ -136,6 +142,12 @@ interface ArtistSongsProps {
   artist: string
 }
 
+const sortablePropertiesMapping = {
+  default: 'default',
+  title: 'title',
+  scrobbles: 'playcount',
+} as const satisfies Record<ArtistSortableProperties, string>
+
 const ArtistSongs = (props: ArtistSongsProps) => {
   const { artist } = props
 
@@ -146,12 +158,38 @@ const ArtistSongs = (props: ArtistSongsProps) => {
     gcTime: Infinity,
   })
 
-  return (
-    <SongList
-      identifier={artist}
-      songs={topsongsByArtist?.topsongsByArtist || []}
-    />
+  const { sortedPlaylists } = useLocalSettings(
+    useShallow((state) => ({
+      sortedPlaylists: state.sortedPlaylists,
+    }))
   )
+  const sortingSettings = sortedPlaylists.find(
+    (playlist) => playlist.identifier === artist
+  )
+
+  const sortBySetting = sortingSettings?.sortBy || 'default'
+
+  const sortedSongs = React.useMemo(() => {
+    if (sortBySetting === 'scrobbles') {
+      return orderBy(
+        topsongsByArtist?.topsongsByArtist,
+        (song) =>
+          song.playcount ? Number(song.playcount) : Number.MIN_SAFE_INTEGER,
+        [sortingSettings?.direction || 'asc']
+      )
+    }
+    return orderBy(
+      topsongsByArtist?.topsongsByArtist,
+      sortablePropertiesMapping[sortBySetting as ArtistSortableProperties],
+      [sortingSettings?.direction || 'asc']
+    )
+  }, [
+    sortingSettings?.direction,
+    topsongsByArtist?.topsongsByArtist,
+    sortBySetting,
+  ])
+
+  return <SongList identifier={artist} songs={sortedSongs} />
 }
 
 interface ArtistAlbumProps {

@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-ignore-next-line
 import { getLyrics as getLyricsRequest } from 'genius-lyrics-api'
 
 import { GetLyricsOptions } from './types'
 
-const getLyrics = (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
+const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
   const [title, artist] = `${args.title}▲${args.artist}`
     .toLowerCase()
     .replace(/ *\([^)]*\) */g, '')

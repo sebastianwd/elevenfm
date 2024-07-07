@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { ClientError } from 'graphql-request'
-import { isEmpty } from 'lodash'
+import { isEmpty, orderBy } from 'lodash'
 import { NextPage } from 'next'
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import React, { useCallback, useEffect } from 'react'
 import { toast } from 'sonner'
+import { useShallow } from 'zustand/react/shallow'
 
 import { playlistQuery } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
@@ -19,6 +20,7 @@ import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { playlistType } from '~/constants'
 import { useLayoutState } from '~/store/use-layout-state'
 import { useModalStore } from '~/store/use-modal'
+import { useLocalSettings } from '~/store/user-local-settings'
 import { getError } from '~/utils/get-error'
 import { sortByLexoRankAsc } from '~/utils/lexorank'
 
@@ -40,11 +42,39 @@ const PlaylistPage: NextPage = () => {
     currentPlaylist: state.currentPlaylist,
   }))
 
+  const { sortedPlaylists } = useLocalSettings(
+    useShallow((state) => ({
+      sortedPlaylists: state.sortedPlaylists,
+    }))
+  )
+  const sortingSettings = sortedPlaylists.find(
+    (playlist) => playlist.identifier === params?.playlistId
+  )
+
   useEffect(() => {
-    setCurrentPlaylist(
-      playlist.data?.playlist.songs?.toSorted(sortByLexoRankAsc) ?? []
-    )
-  }, [playlist.data?.playlist.songs, setCurrentPlaylist])
+    if (sortingSettings?.sortBy === 'custom' || !sortingSettings?.sortBy) {
+      setCurrentPlaylist(
+        playlist.data?.playlist.songs?.toSorted(sortByLexoRankAsc) ?? []
+      )
+    } else {
+      setCurrentPlaylist(
+        orderBy(
+          playlist.data?.playlist.songs,
+          [
+            sortingSettings?.sortBy === 'dateAdded'
+              ? 'createdAt'
+              : sortingSettings?.sortBy,
+          ],
+          [sortingSettings?.direction || 'asc']
+        )
+      )
+    }
+  }, [
+    playlist.data?.playlist.songs,
+    setCurrentPlaylist,
+    sortingSettings?.direction,
+    sortingSettings?.sortBy,
+  ])
 
   const openModal = useModalStore((state) => state.openModal)
   const closeModal = useModalStore((state) => state.closeModal)

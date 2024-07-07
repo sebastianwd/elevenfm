@@ -34,6 +34,13 @@ const invidious = async <T>(method: InvidiousMethods) => {
         logger.info(e.response?.data)
         if (
           e.response?.data &&
+          String(e.response?.data).includes('Too Many Requests')
+        ) {
+          continue
+        }
+
+        if (
+          e.response?.data &&
           'error' in e.response.data &&
           String(e.response?.data.error).includes('Could not create mix')
         ) {

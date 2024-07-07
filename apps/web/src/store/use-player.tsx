@@ -44,6 +44,7 @@ interface PlayerState {
   isShuffled: boolean
   setShuffle: (random: boolean) => void
   addToQueue: (song: Song) => void
+  removeFromQueue: (song: Song) => void
   repeatMode: 'none' | 'one' | 'all'
   setRepeatMode: (mode: 'none' | 'one' | 'all') => void
   toggleIsPlaying: () => void
@@ -272,12 +273,6 @@ export const usePlayerState = create<PlayerState>()(
 
         const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
 
-        const currentSongIndex = activeQueue.findIndex(
-          (song) =>
-            song.title === state.currentSong?.title &&
-            song.artist === state.currentSong?.artist
-        )
-
         const isSameAsCurrentSong =
           song.title === state.currentSong?.title &&
           song.artist === state.currentSong?.artist
@@ -289,19 +284,40 @@ export const usePlayerState = create<PlayerState>()(
           return
         }
 
-        set((state) => {
-          state.queue = activeQueue.toSpliced(currentSongIndex + 1, 0, song)
-        })
+        const songAlreadyInQueueIndex = activeQueue.findIndex(
+          (queueSong) =>
+            queueSong.title === song?.title && queueSong.artist === song?.artist
+        )
 
         set((state) => {
-          state.shuffledQueue = state.shuffledQueue.toSpliced(
-            currentSongIndex + 1,
-            0,
-            song
+          const updatedQueue =
+            songAlreadyInQueueIndex > -1
+              ? activeQueue.toSpliced(songAlreadyInQueueIndex, 1)
+              : activeQueue
+
+          const currentSongIndex = updatedQueue.findIndex(
+            (song) =>
+              song.title === state.currentSong?.title &&
+              song.artist === state.currentSong?.artist
           )
+
+          state.queue = updatedQueue.toSpliced(currentSongIndex + 1, 0, song)
         })
       },
+      removeFromQueue: (song: Song) => {
+        const state = get()
 
+        const activeQueue = state.isShuffled ? state.shuffledQueue : state.queue
+
+        const songToRemoveIndex = activeQueue.findIndex(
+          (queueSong) =>
+            queueSong.title === song?.title && queueSong.artist === song?.artist
+        )
+
+        set((state) => {
+          state.queue = activeQueue.toSpliced(songToRemoveIndex, 1)
+        })
+      },
       queueIdentifier: '',
       setQueueIdentifier: (identifier: string) =>
         set((state) => {
