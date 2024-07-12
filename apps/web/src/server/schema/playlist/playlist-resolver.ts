@@ -80,7 +80,12 @@ const getExternalPlaylistTracks = async (
     if (ytId.type === 'video') {
       const videoInfo = await invidious.getVideoInfo({ videoId: ytId.id })
 
-      return [formatYoutubeTitle(videoInfo.data.title, videoInfo.data.author)]
+      return [
+        {
+          ...formatYoutubeTitle(videoInfo.data.title, videoInfo.data.author),
+          url,
+        },
+      ]
     }
 
     return map(
@@ -185,8 +190,6 @@ export class PlaylistResolver {
             const lastRank = await getLastRankInPlaylist(
               createdPlaylist.insertedId
             )
-
-            console.log('lastRank', lastRank)
 
             let currentRank = lastRank?.rank
               ? LexoRank.parse(lastRank.rank).genNext()
