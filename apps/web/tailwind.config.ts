@@ -1,39 +1,53 @@
 import containerQueries from '@tailwindcss/container-queries'
 import typography from '@tailwindcss/typography'
+import type { Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
+import twAnimate from 'tailwindcss-animate'
 
-/*type TailwindShade<T extends readonly number[], S extends string> = {
-  [key in T[number]]: `var(--${S}-${key}) / <alpha-value>`
-}
-
-const twLevels = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const
-
-const getShades = <T extends string>(color: T) => {
-  return twLevels.reduce(
-    (acc, level) => {
-      Object.assign(acc, {
-        [level]: `rbg(var(--${color}-${level}) / <alpha-value>)`,
-      })
-      return acc
-    },
-    {} as TailwindShade<typeof twLevels, typeof color>
-  )
-}*/
-
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: 'class',
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  prefix: '',
   theme: {
     extend: {
       keyframes: {
         waves: {
-          '0%, 100%': { transform: 'scale(0)', opacity: 1 },
-          '50%': { transform: 'scale(1)', opacity: 1 },
+          '0%, 100%': { transform: 'scale(0)', opacity: '1' },
+          '50%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+        ripple: {
+          '0%, 100%': {
+            transform: 'translate(-50%, -50%) scale(1)',
+          },
+          '50%': {
+            transform: 'translate(-50%, -50%) scale(0.9)',
+          },
+        },
+        'shine-pulse': {
+          '0%': {
+            'background-position': '0% 0%',
+          },
+          '50%': {
+            'background-position': '100% 100%',
+          },
+          to: {
+            'background-position': '0% 0%',
+          },
         },
       },
       animation: {
         waves: 'waves 1s linear infinite',
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        ripple: 'ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite',
       },
       colors: {
         primary: {
@@ -62,6 +76,7 @@ module.exports = {
   plugins: [
     typography,
     containerQueries,
+    twAnimate,
     plugin(({ matchUtilities, theme }) => {
       matchUtilities(
         {
@@ -77,4 +92,4 @@ module.exports = {
       )
     }),
   ],
-}
+} satisfies Config

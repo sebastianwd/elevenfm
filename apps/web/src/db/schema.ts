@@ -1,6 +1,10 @@
-import { createId } from '@paralleldrive/cuid2'
+import { init } from '@paralleldrive/cuid2'
 import { relations, sql } from 'drizzle-orm'
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+
+const createId = init({
+  length: 14,
+})
 
 export const Users = sqliteTable('users', {
   id: text('id')

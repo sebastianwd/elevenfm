@@ -286,7 +286,7 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-surface-900 bg-opacity-20 backdrop-blur-lg z-40'>
+      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-surface-800 bg-opacity-20 backdrop-blur-lg z-40'>
         <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid grid-cols-3 relative'>
           <div className='flex gap-2 md:gap-4 col-span-1'>
             <div className='flex items-center shrink-0'>

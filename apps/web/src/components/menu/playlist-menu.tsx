@@ -82,7 +82,6 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
       key={playlist.id}
       className={twMerge(
         `bg-surface-800 rounded-lg text-left flex items-center transition-colors`,
-        isActive && 'text-primary-500',
         isOver &&
           'text-primary-500 bg-surface-900 outline-primary-500 outline outline-1'
       )}
@@ -96,8 +95,11 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
       </Link>
       <DynamicDropdown
         direction='right'
-        className='ml-auto self-stretch'
-        triggerClassName='hover:text-primary-500 h-full transition-colors px-3'
+        className='ml-auto self-stretch '
+        triggerClassName={twMerge(
+          'hover:text-primary-500 h-full transition-colors px-3',
+          isActive && 'text-primary-500'
+        )}
         menuLabel={<EllipsisHorizontalIcon className='h-5 shrink-0' />}
         menuItems={[
           {
@@ -230,42 +232,44 @@ export const PlaylistMenu = () => {
     <div className='px-4 py-7 h-full'>
       <div className='flex justify-between'>
         <h1 className='text-gray-300 font-semibold text-xl'>Your playlists</h1>
-        <DynamicDropdown
-          direction='right'
-          menuLabel={
-            <PlusIcon className='size-6 shrink-0 hover:text-primary-500 transition-colors' />
-          }
-          menuItems={[
-            {
-              label: 'Create playlist',
-              icon: <PlusIcon className='h-3.5 mr-2 shrink-0' />,
-              onClick: async () => {
-                await createPlaylistMutation()
-                await userPlaylists.refetch()
+        {session.status === 'authenticated' && (
+          <DynamicDropdown
+            direction='right'
+            menuLabel={
+              <PlusIcon className='size-6 shrink-0 hover:text-primary-500 transition-colors' />
+            }
+            menuItems={[
+              {
+                label: 'Create playlist',
+                icon: <PlusIcon className='h-3.5 mr-2 shrink-0' />,
+                onClick: async () => {
+                  await createPlaylistMutation()
+                  await userPlaylists.refetch()
+                },
               },
-            },
-            {
-              label: 'Import from URL',
-              icon: <LinkIcon className='h-3.5 mr-2 shrink-0' />,
-              onClick: () => {
-                openModal({
-                  content: (
-                    <ImportPlaylistModal
-                      onImportEnd={() => {
-                        toast.custom(
-                          () => <Toast message='✔ Playlist imported' />,
-                          { duration: 3000 }
-                        )
-                        closeModal()
-                      }}
-                    />
-                  ),
-                  title: 'Import playlist',
-                })
+              {
+                label: 'Import from URL',
+                icon: <LinkIcon className='h-3.5 mr-2 shrink-0' />,
+                onClick: () => {
+                  openModal({
+                    content: (
+                      <ImportPlaylistModal
+                        onImportEnd={() => {
+                          toast.custom(
+                            () => <Toast message='✔ Playlist imported' />,
+                            { duration: 3000 }
+                          )
+                          closeModal()
+                        }}
+                      />
+                    ),
+                    title: 'Import playlist',
+                  })
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        )}
       </div>
       {renderPlaylists()}
     </div>

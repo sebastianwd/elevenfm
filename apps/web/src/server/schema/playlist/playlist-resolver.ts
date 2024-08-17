@@ -22,7 +22,7 @@ import { getLastRankInPlaylist, Playlist } from './playlist'
 const { getTracks } = spotifyFetch(fetch)
 
 const createId = init({
-  length: 8,
+  length: 6,
 })
 
 const getUrlSourceName = (url: string) => {
