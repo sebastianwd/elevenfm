@@ -35,7 +35,7 @@ export function AnimatedBeam({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'relative flex items-center justify-center overflow-hidden rounded-lg w-1/2',
+        'relative flex items-center justify-center rounded-lg w-2/3 md:w-1/2',
         className
       )}
       ref={containerRef}

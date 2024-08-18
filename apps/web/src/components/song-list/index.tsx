@@ -214,8 +214,8 @@ export const SongList = (props: SongListProps) => {
 
   return (
     <>
-      <div className='grid grid-cols-5 lg:grid-cols-3 px-2 py-2 gap-2'>
-        <div className='col-span-1 flex gap-2'>
+      <div className='flex px-2 py-2'>
+        <div className='flex gap-2 mx-auto'>
           <Button
             onClick={() => {
               if (queueIdentifier === identifier) {
@@ -244,14 +244,12 @@ export const SongList = (props: SongListProps) => {
               <PlayIcon className='h-5 w-5' />
             )}
           </Button>
-        </div>
-        <Input
-          className='col-span-3 lg:col-span-1 mt-auto'
-          icon={<MagnifyingGlassIcon className='h-4 w-4' />}
-          onChange={(e) => onInputChange(e.target.value)}
-          value={listSearchValue}
-        />
-        <div className='col-span-1 flex gap-2'>
+          <Input
+            className='mt-auto lg:min-w-96'
+            icon={<MagnifyingGlassIcon className='h-4 w-4' />}
+            onChange={(e) => onInputChange(e.target.value)}
+            value={listSearchValue}
+          />
           {onImportFromUrl && isEditable && (
             <Button
               onClick={onImportFromUrl}
@@ -272,57 +270,57 @@ export const SongList = (props: SongListProps) => {
               <RandomIcon className='h-5 w-5' />
             </Button>
           )}
-          <div className='flex ml-auto'>
+        </div>
+        <div className='flex'>
+          <Button
+            title='Sort by:'
+            variant='ghost'
+            className='p-2 font-normal text-neutral-300'
+            onClick={() => {
+              toggleSortedPlaylist({
+                identifier: identifier ?? '',
+                sortBy: getNextSortingProperty(
+                  currentSortingProperty,
+                  sortableProrperties
+                ),
+              })
+            }}
+          >
+            <ListBulletIcon className='shrink-0 h-5' />
+            <span className='text-sm ml-1 my-auto '>
+              {sortableProrpertiesLabels[currentSortingProperty]}
+            </span>
+          </Button>
+          <div
+            className={
+              isCustomSorting || isDefaultSorting ? 'cursor-not-allowed' : ''
+            }
+          >
             <Button
-              title='Sort by:'
               variant='ghost'
-              className='p-2 font-normal text-neutral-300'
+              className='p-2 font-light text-neutral-300'
+              disabled={isCustomSorting || isDefaultSorting}
               onClick={() => {
+                if (!sortingSettings?.direction) {
+                  toggleSortedPlaylist({
+                    identifier: identifier ?? '',
+                    direction: 'asc',
+                  })
+                }
+
                 toggleSortedPlaylist({
                   identifier: identifier ?? '',
-                  sortBy: getNextSortingProperty(
-                    currentSortingProperty,
-                    sortableProrperties
-                  ),
+                  direction:
+                    sortingSettings?.direction === 'asc' ? 'desc' : 'asc',
                 })
               }}
             >
-              <ListBulletIcon className='shrink-0 h-5' />
-              <span className='text-sm ml-1 my-auto '>
-                {sortableProrpertiesLabels[currentSortingProperty]}
-              </span>
+              {sortingSettings?.direction === 'asc' ? (
+                <ArrowUpIcon className='shrink-0 h-5' />
+              ) : (
+                <ArrowDownIcon className='shrink-0 h-5' />
+              )}
             </Button>
-            <div
-              className={
-                isCustomSorting || isDefaultSorting ? 'cursor-not-allowed' : ''
-              }
-            >
-              <Button
-                variant='ghost'
-                className='p-2 font-light text-neutral-300'
-                disabled={isCustomSorting || isDefaultSorting}
-                onClick={() => {
-                  if (!sortingSettings?.direction) {
-                    toggleSortedPlaylist({
-                      identifier: identifier ?? '',
-                      direction: 'asc',
-                    })
-                  }
-
-                  toggleSortedPlaylist({
-                    identifier: identifier ?? '',
-                    direction:
-                      sortingSettings?.direction === 'asc' ? 'desc' : 'asc',
-                  })
-                }}
-              >
-                {sortingSettings?.direction === 'asc' ? (
-                  <ArrowUpIcon className='shrink-0 h-5' />
-                ) : (
-                  <ArrowDownIcon className='shrink-0 h-5' />
-                )}
-              </Button>
-            </div>
           </div>
         </div>
       </div>

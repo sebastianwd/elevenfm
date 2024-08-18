@@ -51,7 +51,11 @@ export const AuthModal = (props: AuthModalProps) => {
   } = useForm<Inputs>()
 
   const getCredentialsError = (credentialsError: string = '') => {
-    if (['AccessDenied', 'CredentialsSignin'].includes(credentialsError)) {
+    if (
+      ['AccessDenied', 'CredentialsSignin', 'Configuration'].includes(
+        credentialsError
+      )
+    ) {
       if (authType === 'login') {
         return 'Invalid credentials'
       }

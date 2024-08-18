@@ -26,6 +26,7 @@ interface MenuItemProps {
   onClick?: () => void
   className?: string
   active?: boolean
+  loading?: boolean
   tag?: 'button' | 'a' | 'div'
 }
 
@@ -36,6 +37,7 @@ const MenuItem = ({
   onClick,
   className,
   active,
+  loading,
   tag = 'button',
 }: MenuItemProps) => {
   const router = useRouter()
@@ -57,7 +59,10 @@ const MenuItem = ({
     >
       <Wrapper
         href={href || '#'}
-        className='block truncate md:w-full md:px-8 md:py-5 py-2'
+        className={twMerge(
+          'block truncate md:w-full md:px-8 md:py-5 py-2',
+          loading && 'cursor-wait'
+        )}
         onClick={onClick}
       >
         <span className='flex md:flex-col md:items-center'>
@@ -183,6 +188,7 @@ export const Menu = () => {
               ) : (
                 <MenuItem
                   className='mt-auto'
+                  loading={session.status === 'loading'}
                   onClick={() => {
                     openModal({
                       content: <AuthModal onClose={closeModal} />,
