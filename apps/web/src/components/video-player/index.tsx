@@ -10,6 +10,7 @@ import {
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+import { ytGetId } from '~/utils/get-yt-url-id'
 
 interface VideoPlayerPortalContainerProps {
   position: VideoPosition
@@ -93,17 +94,20 @@ const VideoPlayer = memo(() => {
   const url = useMemo(() => {
     if (isEmpty(currentSong?.urls)) return undefined
 
-    if (
+    const isSoundCloud =
       currentSong?.urls?.length === 1 &&
       currentSong?.urls[0].includes('soundcloud.com')
-    ) {
-      return currentSong?.urls[0]
+
+    if (isSoundCloud) {
+      return currentSong?.urls![0]
     }
 
     const videoUrl = currentSong?.urls?.[videoChoice]
 
-    if (!videoUrl) {
-      return `${sample(invidiousUrls)}/latest_version?id=${currentSong?.urls?.[0]}`
+    const isVideoUrlBlocked = !videoUrl
+
+    if (isVideoUrlBlocked) {
+      return `${sample(invidiousUrls)}/latest_version?id=${ytGetId(currentSong?.urls?.[0] ?? '')?.id}`
     }
 
     return videoUrl
@@ -129,6 +133,7 @@ const VideoPlayer = memo(() => {
       onProgress={onPlayerProgress}
       position={videoPosition}
       onError={(error) => {
+        console.log(error)
         if (error) {
           setVideoChoice((prev) => prev + 1)
         }

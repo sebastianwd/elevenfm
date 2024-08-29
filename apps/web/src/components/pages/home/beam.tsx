@@ -1,10 +1,8 @@
-'use client'
-
 import { Icon } from '@iconify/react'
 import React, { forwardRef, useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { AnimatedBeam as AnimatedBeamBase } from '~/components/magicui/animated-beam'
-import { cn } from '~/lib/utils'
 
 const Circle = forwardRef<
   HTMLDivElement,
@@ -13,7 +11,7 @@ const Circle = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn(
+      className={twMerge(
         'z-10 flex size-16 items-center justify-center rounded-full  bg-surface-800  p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
         className
       )}
@@ -34,7 +32,7 @@ export function AnimatedBeam({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn(
+      className={twMerge(
         'relative flex items-center justify-center rounded-lg w-2/3 md:w-1/2',
         className
       )}
