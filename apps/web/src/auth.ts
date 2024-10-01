@@ -203,10 +203,6 @@ export const { handlers, auth } = NextAuth({
         }
       }
 
-      if (trigger) {
-        console.log('trigger11', trigger, session)
-      }
-
       if (trigger === 'update' && session) {
         return {
           ...token,
