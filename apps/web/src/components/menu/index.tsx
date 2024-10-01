@@ -17,6 +17,7 @@ import { useLayoutState } from '~/store/use-layout-state'
 import { useModalStore } from '~/store/use-modal'
 
 import { AuthModal } from '../auth/auth-modal'
+import { MyAccountModal } from '../modals/my-account-modal'
 import { PlaylistMenu } from './playlist-menu'
 
 interface MenuItemProps {
@@ -171,6 +172,16 @@ export const Menu = () => {
                     </MenuItem>
                   )}
                   menuItems={[
+                    {
+                      label: 'My Account',
+                      onClick: () => {
+                        openModal({
+                          content: <MyAccountModal onClose={closeModal} />,
+                          title: 'My Account',
+                        })
+                      },
+                      icon: <UserIcon className='h-5 mr-2 shrink-0' />,
+                    },
                     {
                       label: 'Sign Out',
                       onClick: () => {

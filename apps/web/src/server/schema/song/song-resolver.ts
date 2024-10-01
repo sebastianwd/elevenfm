@@ -19,7 +19,6 @@ export class SongResolver {
     })
 
     /* const ytmusicMix = await ytmusic.getMix(head(data)?.videoId ?? '') */
-
     const video = data.map((video) => ({
       title: video.title,
       artist: video.author,

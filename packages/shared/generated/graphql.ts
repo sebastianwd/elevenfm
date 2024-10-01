@@ -41,6 +41,7 @@ export type Mutation = {
   removeFromPlaylist: Scalars["Boolean"]["output"];
   updatePlaylist: Playlist;
   updatePlaylistSongRank: Scalars["Boolean"]["output"];
+  updateUser: UpdateUserOutput;
 };
 
 export type MutationAddToPlaylistArgs = {
@@ -84,6 +85,10 @@ export type MutationUpdatePlaylistSongRankArgs = {
   songId: Scalars["ID"]["input"];
 };
 
+export type MutationUpdateUserArgs = {
+  user: UserInput;
+};
+
 export type Query = {
   __typename?: "Query";
   artist: Artist;
@@ -91,6 +96,7 @@ export type Query = {
   getAlbums: Maybe<Array<Album>>;
   getLyrics: SongLyrics;
   getVideoInfo: Array<SongVideo>;
+  me: User;
   playlist: Playlist;
   searchArtists: Array<Scalars["String"]["output"]>;
   similarArtists: Array<Artist>;
@@ -141,6 +147,11 @@ export type QueryTopsongsByArtistArgs = {
   artist: Scalars["String"]["input"];
   limit?: Scalars["Int"]["input"];
   page: InputMaybe<Scalars["Int"]["input"]>;
+};
+
+export type Account = {
+  __typename?: "account";
+  provider: Scalars["String"]["output"];
 };
 
 export type Album = {
@@ -225,11 +236,32 @@ export type SongVideo = {
   videoUrl: Scalars["String"]["output"];
 };
 
+export type UpdateUserOutput = {
+  __typename?: "updateUserOutput";
+  email: Maybe<Scalars["String"]["output"]>;
+  name: Maybe<Scalars["String"]["output"]>;
+  updatedAt: Scalars["String"]["output"];
+  username: Scalars["String"]["output"];
+};
+
 export type User = {
   __typename?: "user";
+  accounts: Array<Account>;
+  createdAt: Scalars["String"]["output"];
   email: Maybe<Scalars["String"]["output"]>;
+  hasPassword: Scalars["Boolean"]["output"];
   id: Scalars["ID"]["output"];
-  name: Scalars["String"]["output"];
+  name: Maybe<Scalars["String"]["output"]>;
+  updatedAt: Scalars["String"]["output"];
+  username: Scalars["String"]["output"];
+};
+
+export type UserInput = {
+  email: InputMaybe<Scalars["String"]["input"]>;
+  name: InputMaybe<Scalars["String"]["input"]>;
+  newPassword: InputMaybe<Scalars["String"]["input"]>;
+  password: InputMaybe<Scalars["String"]["input"]>;
+  username: Scalars["String"]["input"];
 };
 
 export type UserSong = {
@@ -392,6 +424,22 @@ export type ImportPlaylistMutationMutation = {
   };
 };
 
+export type MeQueryQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MeQueryQuery = {
+  __typename?: "Query";
+  me: {
+    __typename: "user";
+    id: string;
+    name: string | null;
+    email: string | null;
+    username: string;
+    createdAt: string;
+    hasPassword: boolean;
+    accounts: Array<{ __typename: "account"; provider: string }>;
+  };
+};
+
 export type RemoveFromPlaylistMutationMutationVariables = Exact<{
   playlistId: Scalars["ID"]["input"];
   songId: Scalars["ID"]["input"];
@@ -462,6 +510,21 @@ export type UpdatePlaylistMutationMutation = {
   updatePlaylist: { __typename?: "playlist"; id: string; name: string };
 };
 
+export type UpdateUserMutationMutationVariables = Exact<{
+  user: UserInput;
+}>;
+
+export type UpdateUserMutationMutation = {
+  __typename?: "Mutation";
+  updateUser: {
+    __typename: "updateUserOutput";
+    name: string | null;
+    username: string;
+    email: string | null;
+    updatedAt: string;
+  };
+};
+
 export type PlaylistQueryQueryVariables = Exact<{
   playlistId: Scalars["ID"]["input"];
 }>;
@@ -482,7 +545,7 @@ export type PlaylistQueryQuery = {
       rank: string | null;
       createdAt: string | null;
     }> | null;
-    user: { __typename?: "user"; id: string; name: string } | null;
+    user: { __typename?: "user"; id: string; name: string | null } | null;
   };
 };
 
@@ -613,6 +676,23 @@ export const ImportPlaylistMutationDocument = gql`
     }
   }
 `;
+export const MeQueryDocument = gql`
+  query meQuery {
+    me {
+      id
+      name
+      email
+      username
+      createdAt
+      hasPassword
+      accounts {
+        provider
+        __typename
+      }
+      __typename
+    }
+  }
+`;
 export const RemoveFromPlaylistMutationDocument = gql`
   mutation removeFromPlaylistMutation($playlistId: ID!, $songId: ID!) {
     removeFromPlaylist(playlistId: $playlistId, songId: $songId)
@@ -665,6 +745,17 @@ export const UpdatePlaylistMutationDocument = gql`
     updatePlaylist(name: $name, playlistId: $playlistId) {
       id
       name
+    }
+  }
+`;
+export const UpdateUserMutationDocument = gql`
+  mutation updateUserMutation($user: userInput!) {
+    updateUser(user: $user) {
+      name
+      username
+      email
+      updatedAt
+      __typename
     }
   }
 `;
@@ -877,6 +968,21 @@ export function getSdk(
         variables,
       );
     },
+    meQuery(
+      variables?: MeQueryQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<MeQueryQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<MeQueryQuery>(MeQueryDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "meQuery",
+        "query",
+        variables,
+      );
+    },
     removeFromPlaylistMutation(
       variables: RemoveFromPlaylistMutationMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -969,6 +1075,22 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders },
           ),
         "updatePlaylistMutation",
+        "mutation",
+        variables,
+      );
+    },
+    updateUserMutation(
+      variables: UpdateUserMutationMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<UpdateUserMutationMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdateUserMutationMutation>(
+            UpdateUserMutationDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        "updateUserMutation",
         "mutation",
         variables,
       );

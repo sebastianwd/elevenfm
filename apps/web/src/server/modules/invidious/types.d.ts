@@ -112,7 +112,8 @@ export type GetVideoById = {
 }
 
 export type GetVideoSearch = Array<{
-  type: string
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: 'video' | 'playlist' | (string & {})
   title: string
   videoId: string
   author: string

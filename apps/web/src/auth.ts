@@ -3,6 +3,7 @@ import { UpstashRedisAdapter } from '@auth/upstash-redis-adapter'
 import { Redis } from '@upstash/redis'
 import argon2 from 'argon2'
 import { and, eq } from 'drizzle-orm'
+import { random } from 'lodash'
 import { cookies } from 'next/headers'
 import NextAuth, { type NextAuthConfig } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -148,10 +149,16 @@ export const { handlers, auth } = NextAuth({
           .where(eq(Users.email, user.email))
 
         if (!existingUser) {
+          const usernameFromEmail = user.email.substring(
+            0,
+            user.email.lastIndexOf('@')
+          )
+
           const [createdUser] = await db
             .insert(Users)
             .values({
               name: `${user.name!}`,
+              username: `${usernameFromEmail}#${random(1000, 9999)}`,
               email: `${user.email}`,
               updatedAt: new Date(),
             })
@@ -168,9 +175,11 @@ export const { handlers, auth } = NextAuth({
 
       return true
     },
-    async jwt({ token, trigger, account, user }) {
+    async jwt({ token, trigger, account, user, session }) {
       if (trigger === 'signIn' || trigger === 'signUp') {
-        if (account && account.provider !== 'credentials') {
+        const isOAuth = account && account.provider !== 'credentials'
+
+        if (isOAuth) {
           const [usersByAccount] = await db
             .select()
             .from(Accounts)
@@ -191,6 +200,14 @@ export const { handlers, auth } = NextAuth({
             ...token,
             id: user.id,
           }
+        }
+      }
+
+      if (trigger === 'update' && session) {
+        return {
+          ...token,
+          name: session.name ?? token.name,
+          email: session.email ?? token.email,
         }
       }
 

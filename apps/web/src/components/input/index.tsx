@@ -5,26 +5,33 @@ interface InputProps extends React.ComponentProps<'input'> {
   icon?: React.ReactNode
   iconDirection?: 'left' | 'right'
   className?: string
+  error?: string
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-  const { icon, iconDirection = 'right', className, ...rest } = props
+  const { icon, iconDirection = 'right', className, error, ...rest } = props
 
   return (
-    <div
-      className={twMerge(
-        'flex items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2 h-9',
-        className
-      )}
-    >
-      {iconDirection === 'left' && icon}
-      <input
-        ref={ref}
-        className='text-md border-0 bg-transparent w-full h-full py-2 outline-none ring-0'
-        {...rest}
-      />
-      {iconDirection === 'right' && icon}
-    </div>
+    <>
+      <div
+        className={twMerge(
+          'flex items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2 h-9',
+          error && 'border-red-500 border border-solid',
+          className
+        )}
+      >
+        {iconDirection === 'left' && icon}
+        <input
+          ref={ref}
+          className='text-md border-0 bg-transparent w-full h-full py-2 outline-none ring-0'
+          {...rest}
+        />
+        {iconDirection === 'right' && icon}
+      </div>
+      {error ? (
+        <p className='text-red-500 text-xs min-h-4 text-wrap'>{error}</p>
+      ) : null}
+    </>
   )
 })
 

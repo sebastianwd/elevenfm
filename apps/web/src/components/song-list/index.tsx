@@ -205,17 +205,21 @@ export const SongList = (props: SongListProps) => {
     sortingSettings?.sortBy || (isEditable ? 'custom' : 'default')
 
   const sortableProrperties = useMemo(() => {
-    return (
-      isEditable
-        ? ['custom', 'title', 'artist', 'dateAdded']
-        : ['default', 'title', 'scrobbles']
-    ) satisfies NonNullable<PlaylistSortingSettings['sortBy']>[]
-  }, [isEditable])
+    const hasScrobbles = find(songs, (song) => !!song.playcount)
+    if (isEditable) {
+      return ['custom', 'title', 'artist', 'dateAdded']
+    }
+    return hasScrobbles
+      ? ['default', 'title', 'scrobbles']
+      : ['default', 'title']
+  }, [isEditable, songs]) satisfies NonNullable<
+    PlaylistSortingSettings['sortBy']
+  >[]
 
   return (
     <>
-      <div className='flex px-2 py-2'>
-        <div className='flex gap-2 mx-auto'>
+      <div className='flex px-2 py-2 flex-wrap justify-center gap-2'>
+        <div className='flex gap-2 grow justify-center'>
           <Button
             onClick={() => {
               if (queueIdentifier === identifier) {
@@ -235,7 +239,7 @@ export const SongList = (props: SongListProps) => {
             }}
             title='Play all'
             variant='primary'
-            className='p-2 ml-auto'
+            className='p-2'
             disabled={!filteredSongs.length}
           >
             {queueIdentifier === identifier && isPlaying ? (
@@ -271,11 +275,11 @@ export const SongList = (props: SongListProps) => {
             </Button>
           )}
         </div>
-        <div className='flex'>
+        <div className='flex min-w-40'>
           <Button
             title='Sort by:'
             variant='ghost'
-            className='p-2 font-normal text-neutral-300'
+            className='p-2 font-normal text-neutral-300 ml-auto'
             onClick={() => {
               toggleSortedPlaylist({
                 identifier: identifier ?? '',

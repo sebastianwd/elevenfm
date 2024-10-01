@@ -5,26 +5,30 @@ import { useMemo, useState } from 'react'
 
 import { getAlbumsQuery } from '~/api'
 import { WavesLoader } from '~/components/loader'
-import { Song } from '~/components/song'
-import { usePlaySong } from '~/hooks/use-play-song'
-import { usePlayerState } from '~/store/use-player'
-import { PlayableSong } from '~/types'
+import { SongList } from '~/components/song-list'
 
 interface ArtistAlbumProps {
   album: string
   coverImage?: string
   songs: string[]
   artist: string
-  onPlaySong: (song: PlayableSong) => void
   description?: string
 }
 
 const ArtistAlbum = (props: ArtistAlbumProps) => {
-  const { album, coverImage, songs, artist, onPlaySong, description } = props
-
-  const currentSong = usePlayerState((state) => state.currentSong)
+  const { album, coverImage, songs, artist, description } = props
 
   const [readMore, setReadMore] = useState(false)
+
+  const playableSongs = useMemo(
+    () =>
+      songs.map((song) => ({
+        title: song,
+        artist: artist,
+        albumCoverUrl: coverImage,
+      })),
+    [songs, artist, coverImage]
+  )
 
   return (
     <div>
@@ -70,27 +74,7 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
           )}
         </div>
       </div>
-      {songs.map((song, index) => {
-        return (
-          <Song
-            key={index}
-            position={index + 1}
-            isPlaying={
-              currentSong?.title === song && currentSong?.artist === artist
-            }
-            onClick={() =>
-              onPlaySong({
-                title: song,
-                artist: artist,
-                albumCoverUrl: coverImage,
-              })
-            }
-            song={song}
-            artist={artist}
-            showArtist={false}
-          />
-        )
-      })}
+      <SongList identifier={`${artist}-${album}`} songs={playableSongs} />
     </div>
   )
 }
@@ -115,15 +99,6 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
     return albums?.find((album) => album.name === selectedAlbumName)
   }, [albums, selectedAlbumName])
 
-  const { onPlaySong } = usePlaySong({
-    songs:
-      selectedAlbum?.tracks?.map((song) => ({
-        artist: artist,
-        title: song,
-      })) || [],
-    songsIdentifier: selectedAlbum?.name ?? '',
-  })
-
   const renderContent = () => {
     if (selectedAlbumName && selectedAlbum) {
       return (
@@ -142,7 +117,6 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
             artist={artist}
             songs={selectedAlbum?.tracks || []}
             coverImage={selectedAlbum?.coverImage || undefined}
-            onPlaySong={onPlaySong}
             description={selectedAlbum?.description || undefined}
           />
         </>
