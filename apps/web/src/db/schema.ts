@@ -11,7 +11,7 @@ export const Users = sqliteTable('users', {
     .primaryKey()
     .$defaultFn(() => createId()),
   name: text('name').notNull(),
-  username: text('username').unique(),
+  username: text('username').unique().notNull(),
   email: text('email').unique(),
   password: text('password'),
   createdAt: integer('createdAt', { mode: 'timestamp' })

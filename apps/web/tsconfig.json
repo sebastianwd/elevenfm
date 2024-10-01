@@ -16,13 +16,20 @@
     "jsx": "preserve",
     "incremental": true,
     "alwaysStrict": true,
-    "lib": ["dom", "dom.iterable", "es2022", "ESNext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2022",
+      "ESNext"
+    ],
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": [
+        "./src/*"
+      ]
     },
     "allowJs": true,
     "plugins": [
@@ -30,7 +37,9 @@
         "name": "next"
       }
     ],
-    "types": ["vitest/globals"]
+    "types": [
+      "vitest/globals"
+    ]
   },
   "include": [
     "next-env.d.ts",
@@ -47,5 +56,8 @@
     "drizzle.config.ts",
     "vitest.config.ts"
   ],
-  "exclude": ["node_modules", ".next"]
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
 }

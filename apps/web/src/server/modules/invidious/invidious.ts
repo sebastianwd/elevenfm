@@ -59,10 +59,12 @@ const invidious = async <T>(method: InvidiousMethods) => {
 invidious.getVideoInfo = (args: { videoId: string }) =>
   invidious<GetVideoById>(`videos/${args.videoId}`)
 
-invidious.getVideos = (args: { query: string }) =>
-  invidious<GetVideoSearch>(
-    `search?q=${args.query}&sortBy=relevance&page=1&type=video`
+invidious.getVideos = async (args: { query: string }) => {
+  const response = await invidious<GetVideoSearch>(
+    `search?q=${args.query}&sortBy=relevance&page=1`
   )
+  return { data: response.data.filter((video) => video.type === 'video') }
+}
 
 invidious.getPlaylist = (args: { playlistId: string }) =>
   invidious<GetPlaylistById>(`playlists/${args.playlistId}`)
