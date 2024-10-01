@@ -13,6 +13,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio --verbose",
     "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate",
     "test": "vitest"
   },
   "engines": {
