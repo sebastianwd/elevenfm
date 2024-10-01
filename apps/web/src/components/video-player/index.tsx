@@ -102,8 +102,6 @@ const VideoPlayer = memo(() => {
       return currentSong?.urls![0]
     }
 
-    console.log('currentSong?.urls', currentSong?.urls)
-
     const videoUrl = currentSong?.urls?.[videoChoice]
 
     const isVideoUrlBlocked = !videoUrl
