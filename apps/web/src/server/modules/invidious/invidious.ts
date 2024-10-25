@@ -31,10 +31,11 @@ const invidious = async <T>(method: InvidiousMethods) => {
       if (response.status === 200) break
     } catch (e) {
       if (e instanceof AxiosError) {
-        logger.info(e.response?.data)
+        logger.info(`Invidious error: ${invidiousUrl} - ${e.response?.data}`)
         if (
           e.response?.data &&
-          String(e.response?.data).includes('Too Many Requests')
+          (String(e.response?.data).includes('Too Many Requests') ||
+            String(e.response?.data).includes('502 Bad Gateway'))
         ) {
           continue
         }
@@ -48,7 +49,7 @@ const invidious = async <T>(method: InvidiousMethods) => {
         }
         continue
       }
-      logger.info(e)
+      logger.info(`Invidious error: ${invidiousUrl} - ${e}`)
       continue
     }
   }

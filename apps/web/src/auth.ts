@@ -1,6 +1,5 @@
 import { AccessDenied, CredentialsSignin } from '@auth/core/errors'
 import { UpstashRedisAdapter } from '@auth/upstash-redis-adapter'
-import { Redis } from '@upstash/redis'
 import argon2 from 'argon2'
 import { and, eq } from 'drizzle-orm'
 import { random } from 'lodash'
@@ -11,11 +10,7 @@ import GithubProvider from 'next-auth/providers/github'
 
 import { db } from './db/db'
 import { Accounts, Users } from './db/schema'
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_URL!,
-  token: process.env.UPSTASH_REDIS_TOKEN!,
-})
+import { redis } from './server/redis'
 
 const validateCsrfToken = (tokenValue: string) => {
   const csrfCookie = cookies().get(

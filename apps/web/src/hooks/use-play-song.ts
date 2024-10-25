@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 
 import { getVideoInfoQuery, queryClient } from '~/api'
 import { usePlayerState } from '~/store/use-player'
-import { useLocalSettings } from '~/store/user-local-settings'
+import { useLocalSettings } from '~/store/use-local-settings'
 import { PlayableSong } from '~/types'
 import { splitArtist } from '~/utils/song-title-utils'
 

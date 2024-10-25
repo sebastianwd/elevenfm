@@ -8,7 +8,7 @@ import { SongList } from '~/components/song-list'
 import {
   type ArtistSortableProperties,
   useLocalSettings,
-} from '~/store/user-local-settings'
+} from '~/store/use-local-settings'
 
 interface ArtistSongsProps {
   artist: string

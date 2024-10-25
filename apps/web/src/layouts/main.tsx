@@ -212,7 +212,7 @@ const AddToPlaylistDndContext = memo(
 
     const pointerSensor = useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 4,
+        distance: 3,
       },
     })
 
@@ -243,8 +243,31 @@ const AddToPlaylistDndContext = memo(
 
 AddToPlaylistDndContext.displayName = 'AddToPlaylistDndContext'
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
+const Attribution = () => {
+  const theaterMode = useLayoutState((state) => state.theaterMode)
+
+  if (theaterMode) return null
+
   const currentYear = new Date().getFullYear()
+
+  return (
+    <div className='flex gap-1 items-center w-fit mx-auto py-4'>
+      <p className='text-xs text-gray-400'>
+        Made with ❤️ for music | {currentYear} ElevenFM |
+      </p>
+      <a
+        href='https://github.com/sebastianwd/elevenfm'
+        target='_blank'
+        rel='noreferrer noopener'
+        className='hover:text-primary-500 transition-colors'
+      >
+        <Icon icon='mdi:github' className='size-4 shrink-0' />
+      </a>
+    </div>
+  )
+}
+
+const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <div className='relative flex w-full flex-grow flex-col flex-wrap py-4 md:flex-row md:flex-nowrap md:py-0'>
@@ -255,19 +278,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           </main>
         </AddToPlaylistDndContext>
       </div>
-      <div className='flex gap-1 items-center w-fit mx-auto py-4'>
-        <p className='text-xs text-gray-400'>
-          Made with ❤️ for music | {currentYear} ElevenFM |
-        </p>
-        <a
-          href='https://github.com/sebastianwd/elevenfm'
-          target='_blank'
-          rel='noreferrer noopener'
-          className='hover:text-primary-500 transition-colors'
-        >
-          <Icon icon='mdi:github' className='size-4 shrink-0' />
-        </a>
-      </div>
+      <Attribution />
       <div className='h-28' />
       <FooterPlayer />
       <Toaster />

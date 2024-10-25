@@ -16,11 +16,11 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
-import { usePlayerState } from '~/store/use-player'
 import {
   type PlaylistSortingSettings,
   useLocalSettings,
-} from '~/store/user-local-settings'
+} from '~/store/use-local-settings'
+import { usePlayerState } from '~/store/use-player'
 import { PlayableSong } from '~/types'
 
 import { Button } from '../button'
@@ -60,7 +60,7 @@ const SongListHeader = (props: SongListHeaderProps) => {
         </div>
         <div className='flex items-center grow'>
           {columns.playcount && (
-            <div className='text-sm text-gray-400 mr-8 hidden md:inline-block'>
+            <div className='text-sm text-gray-400 mr-8 hidden @2xl/songs:inline-block'>
               Scrobbles
             </div>
           )}
@@ -249,7 +249,7 @@ export const SongList = (props: SongListProps) => {
             )}
           </Button>
           <Input
-            className='mt-auto lg:min-w-96'
+            className='mt-auto lg:min-w-96 w-48'
             icon={<MagnifyingGlassIcon className='h-4 w-4' />}
             onChange={(e) => onInputChange(e.target.value)}
             value={listSearchValue}

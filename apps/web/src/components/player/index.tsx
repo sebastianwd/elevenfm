@@ -16,7 +16,7 @@ import {
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
-import { useLocalSettings } from '~/store/user-local-settings'
+import { useLocalSettings } from '~/store/use-local-settings'
 import { PlayableSong } from '~/types'
 import { sanitizeSongTitle, splitArtist } from '~/utils/song-title-utils'
 

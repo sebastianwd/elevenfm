@@ -187,19 +187,63 @@ export const RepeatIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const BackgroundLanding = (props: SVGProps<SVGSVGElement>) => (
-  <svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' {...props}>
-    <pattern
-      id='pattern-hero'
-      x={-10}
-      y={0}
-      width={16}
-      height={16}
-      patternUnits='userSpaceOnUse'
-      patternTransform='translate(-0.4,-0.4)'
-    >
-      <circle cx='0.4' cy='0.4' r='0.4' fill='currentColor' />
-    </pattern>
-    <rect x={0} y={0} width='100%' height='100%' fill='url(#pattern-hero)' />
-  </svg>
-)
+export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
+  return (
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 26' {...props}>
+      <g id='audio-wave' data-name='audio-wave' className='[&>*]:[y:11px]'>
+        <rect
+          id='wave-5'
+          className='wave animate-pulse-size animation-delay-[0.4s]'
+          x='32'
+          width='4'
+          height='0'
+          rx='2'
+          ry='2'
+          fill='currentColor'
+        />
+        <rect
+          id='wave-4'
+          className='wave animate-pulse-size duration-1000 animation-delay-700'
+          x='24'
+          y='2'
+          width='4'
+          height='0'
+          rx='2'
+          ry='2'
+          fill='currentColor'
+        />
+        <rect
+          id='wave-3'
+          className='wave animate-pulse-size duration-1000 animation-delay-[600ms]'
+          x='16'
+          width='4'
+          height='0'
+          rx='2'
+          ry='2'
+          fill='currentColor'
+        />
+        <rect
+          id='wave-2'
+          className='wave animate-pulse-size duration-1000 delay-1000'
+          x='8'
+          y='5'
+          width='4'
+          height='0'
+          rx='2'
+          fill='currentColor'
+          ry='2'
+        />
+        <rect
+          id='wave-1'
+          className='wave animate-pulse-size duration-1000 delay-200'
+          y='9'
+          width='4'
+          height='0'
+          rx='2'
+          fill='currentColor'
+          ry='2'
+        />
+      </g>
+    </svg>
+  )
+}

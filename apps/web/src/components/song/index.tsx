@@ -26,6 +26,7 @@ import { usePlayerState } from '~/store/use-player'
 import { getError } from '~/utils/get-error'
 import { splitArtist } from '~/utils/song-title-utils'
 
+import { AudioWave } from '../icons'
 import { AddToPlaylistModal } from '../modals/add-to-playlist-modal'
 import { Toast } from '../toast'
 
@@ -215,11 +216,18 @@ export const Song = (props: SongProps) => {
             onClick={props.onClick}
             className='flex items-center h-full hover:text-primary-500'
           >
-            <PlayIcon
-              className={`h-4 ml-5 transition-colors shrink-0 ${
-                props.isPlaying ? 'text-primary-500' : ''
-              } `}
-            />
+            <div
+              className={twMerge(
+                'ml-5 transition-[width] shrink-0 flex w-5',
+                !props.isPlaying && 'w-4'
+              )}
+            >
+              {!props.isPlaying ? (
+                <PlayIcon className={`h-4 transition-colors`} />
+              ) : (
+                <AudioWave className='h-4 text-primary-500' />
+              )}
+            </div>
             <div className='ml-4'>
               <p
                 className={`text-sm font-medium text-gray-300 line-clamp-1 text-left ${
@@ -238,7 +246,7 @@ export const Song = (props: SongProps) => {
         </div>
         <div className='flex items-center grow'>
           {props.playcount && (
-            <div className='text-sm text-gray-400 mr-8 hidden md:inline-block'>
+            <div className='text-sm text-gray-400 mr-8 hidden @2xl/songs:inline-block'>
               {props.playcount}
             </div>
           )}
@@ -265,7 +273,7 @@ export const Song = (props: SongProps) => {
               </p>
             </div>
           )}
-          {/* 
+          {/*
         {props.isFavorited ? (
           <HeartIconSolid className='cursor-pointer h-5 ml-5 text-primary-500 grow' />
         ) : (
