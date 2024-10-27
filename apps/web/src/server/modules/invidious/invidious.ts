@@ -1,5 +1,6 @@
 import Axios, { AxiosError, AxiosResponse } from 'axios'
 
+import { cache } from '~/server/cache'
 import { logger } from '~/server/logger'
 
 import {
@@ -25,6 +26,9 @@ const invidious = async <T>(method: InvidiousMethods) => {
   let response = {} as AxiosResponse<T>
 
   for (const invidiousUrl of invidiousUrls) {
+    const cacheKey = `rateLimit:${invidiousUrl}`
+    if (cache.has(cacheKey)) continue
+
     try {
       response = await Axios.get<T>(getEndpoint(invidiousUrl, method))
 
@@ -37,6 +41,8 @@ const invidious = async <T>(method: InvidiousMethods) => {
           (String(e.response?.data).includes('Too Many Requests') ||
             String(e.response?.data).includes('502 Bad Gateway'))
         ) {
+          cache.set(cacheKey, 'true')
+
           continue
         }
 
