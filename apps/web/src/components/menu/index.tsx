@@ -116,6 +116,61 @@ export const Menu = () => {
     return null
   }
 
+  const renderAccountOption = () => {
+    if (session.status === 'authenticated')
+      return (
+        <DynamicPopover
+          className='mt-auto'
+          direction='top start'
+          menuLabel={(open) => (
+            <MenuItem icon={<UserIcon />} tag='div' active={open}>
+              Account
+            </MenuItem>
+          )}
+          menuItems={[
+            {
+              label: 'My Account',
+              onClick: () => {
+                openModal({
+                  content: <MyAccountModal onClose={closeModal} />,
+                  title: 'My Account',
+                })
+              },
+              icon: <UserIcon className='h-5 mr-2 shrink-0' />,
+            },
+            {
+              label: 'Sign Out',
+              onClick: () => {
+                if (session.status === 'authenticated') {
+                  signOut({ redirect: false })
+                  return
+                }
+              },
+              icon: (
+                <ArrowLeftStartOnRectangleIcon className='h-5 mr-2 shrink-0' />
+              ),
+            },
+          ]}
+        />
+      )
+
+    return (
+      <MenuItem
+        className='mt-auto'
+        loading={session.status === 'loading'}
+        onClick={() => {
+          openModal({
+            content: <AuthModal onClose={closeModal} />,
+            title: 'Sign In',
+          })
+        }}
+        icon={<UserIcon />}
+      >
+        Sign In
+      </MenuItem>
+    )
+  }
+
   return (
     <>
       <div className='flex-shrink-0 md:w-36'></div>
@@ -162,55 +217,7 @@ export const Menu = () => {
               >
                 Playlists
               </MenuItem>
-              {session.status === 'authenticated' ? (
-                <DynamicPopover
-                  className='mt-auto'
-                  direction='top start'
-                  menuLabel={(open) => (
-                    <MenuItem icon={<UserIcon />} tag='div' active={open}>
-                      Account
-                    </MenuItem>
-                  )}
-                  menuItems={[
-                    {
-                      label: 'My Account',
-                      onClick: () => {
-                        openModal({
-                          content: <MyAccountModal onClose={closeModal} />,
-                          title: 'My Account',
-                        })
-                      },
-                      icon: <UserIcon className='h-5 mr-2 shrink-0' />,
-                    },
-                    {
-                      label: 'Sign Out',
-                      onClick: () => {
-                        if (session.status === 'authenticated') {
-                          signOut({ redirect: false })
-                          return
-                        }
-                      },
-                      icon: (
-                        <ArrowLeftStartOnRectangleIcon className='h-5 mr-2 shrink-0' />
-                      ),
-                    },
-                  ]}
-                />
-              ) : (
-                <MenuItem
-                  className='mt-auto'
-                  loading={session.status === 'loading'}
-                  onClick={() => {
-                    openModal({
-                      content: <AuthModal onClose={closeModal} />,
-                      title: 'Sign In',
-                    })
-                  }}
-                  icon={<UserIcon />}
-                >
-                  Sign In
-                </MenuItem>
-              )}
+              {renderAccountOption()}
             </ul>
             <AnimatePresence>
               {isPlaylistMenuOpen && (

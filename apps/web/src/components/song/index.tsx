@@ -6,7 +6,8 @@ import {
   PlusIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid'
-import { useMutation } from '@tanstack/react-query'
+import { Icon } from '@iconify/react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { ClientError } from 'graphql-request'
 import dynamic from 'next/dynamic'
@@ -21,10 +22,11 @@ import {
   queryClient,
   removeFromPlaylistMutation,
 } from '~/api'
+import { queryKeys } from '~/constants'
 import { useModalStore } from '~/store/use-modal'
 import { usePlayerState } from '~/store/use-player'
 import { getError } from '~/utils/get-error'
-import { splitArtist } from '~/utils/song-title-utils'
+import { getMainArtist, splitArtist } from '~/utils/song-title-utils'
 
 import { AudioWave } from '../icons'
 import { AddToPlaylistModal } from '../modals/add-to-playlist-modal'
@@ -52,6 +54,32 @@ interface SongProps {
 const DynamicDropdown = dynamic(() => import('../dropdown'), {
   ssr: false,
 })
+
+interface SongStatusIconProps {
+  artist: string
+  song: string
+  isPlaying?: boolean
+}
+
+const SongStatusIcon = (props: SongStatusIconProps) => {
+  const videoSearchQuery = `${getMainArtist(props.artist)} - ${props.song}`
+  const videoInfoQuery = useQuery({
+    queryKey: queryKeys.videoInfo(videoSearchQuery),
+    enabled: false,
+  })
+
+  if (videoInfoQuery.isLoading) {
+    return (
+      <Icon icon='line-md:loading-twotone-loop' className='text-primary-500' />
+    )
+  }
+
+  return !props.isPlaying ? (
+    <PlayIcon className='h-4 transition-colors' />
+  ) : (
+    <AudioWave className='h-4 text-primary-500' />
+  )
+}
 
 export const Song = (props: SongProps) => {
   const { showArtist = true, isSortHighlight = false } = props
@@ -222,11 +250,11 @@ export const Song = (props: SongProps) => {
                 !props.isPlaying && 'w-4'
               )}
             >
-              {!props.isPlaying ? (
-                <PlayIcon className={`h-4 transition-colors`} />
-              ) : (
-                <AudioWave className='h-4 text-primary-500' />
-              )}
+              <SongStatusIcon
+                artist={props.artist}
+                song={props.song}
+                isPlaying={props.isPlaying}
+              />
             </div>
             <div className='ml-4'>
               <p

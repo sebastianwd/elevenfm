@@ -2,10 +2,11 @@ import { head, isNil } from 'lodash'
 import { useCallback } from 'react'
 
 import { getVideoInfoQuery, queryClient } from '~/api'
-import { usePlayerState } from '~/store/use-player'
+import { queryKeys } from '~/constants'
 import { useLocalSettings } from '~/store/use-local-settings'
+import { usePlayerState } from '~/store/use-player'
 import { PlayableSong } from '~/types'
-import { splitArtist } from '~/utils/song-title-utils'
+import { getMainArtist } from '~/utils/song-title-utils'
 
 interface UsePlaySongOptions {
   songs: PlayableSong[]
@@ -39,10 +40,10 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
       }
 
       if (!songUrl) {
-        const videoSearchQuery = `${splitArtist(artist)[0]} - ${title}`
+        const videoSearchQuery = `${getMainArtist(artist)} - ${title}`
 
         const data = await queryClient.fetchQuery({
-          queryKey: ['getVideoInfo', videoSearchQuery],
+          queryKey: queryKeys.videoInfo(videoSearchQuery),
           queryFn: () =>
             getVideoInfoQuery({
               query: videoSearchQuery,

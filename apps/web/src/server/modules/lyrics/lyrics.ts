@@ -11,6 +11,7 @@ const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
     .replace(/ *\[[^\]]*]/, '')
     .replace(/\b(feat\.|ft\.)\b/g, '')
     .replace(/\s+/g, ' ')
+    .replace('<3', '')
     .trim()
     .split('▲')
 

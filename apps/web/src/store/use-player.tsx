@@ -8,7 +8,8 @@ import { immer } from 'zustand/middleware/immer'
 
 import { getAlbumBySongQuery, getVideoInfoQuery, queryClient } from '~/api'
 import { Toast } from '~/components/toast'
-import { splitArtist } from '~/utils/song-title-utils'
+import { queryKeys } from '~/constants'
+import { getMainArtist } from '~/utils/song-title-utils'
 
 export type Song = {
   title: string
@@ -71,10 +72,10 @@ const getAlbum = async (song: Song) => {
 }
 
 const getVideoInfo = async (song: Song) => {
-  const videoSearchQuery = `${splitArtist(song.artist)[0]} - ${song.title}`
+  const videoSearchQuery = `${getMainArtist(song.artist)} - ${song.title}`
 
   const data = await queryClient.fetchQuery({
-    queryKey: ['videoInfo', videoSearchQuery],
+    queryKey: queryKeys.videoInfo(videoSearchQuery),
     queryFn: () => getVideoInfoQuery({ query: videoSearchQuery }),
     gcTime: Infinity,
     staleTime: Infinity,
@@ -134,8 +135,6 @@ export const usePlayerState = create<PlayerState>()(
               state.queue = queue
 
               const currentSong = state.currentSong
-
-              console.log(currentSong)
 
               if (currentSong) {
                 const songsWithoutCurrent = queue.filter(

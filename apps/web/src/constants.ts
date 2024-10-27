@@ -6,3 +6,7 @@ export const playlistType = {
 export const dbErrorCodes = {
   SQLITE_CONSTRAINT_UNIQUE: 'SQLITE_CONSTRAINT_UNIQUE',
 } as const
+
+export const queryKeys = {
+  videoInfo: (query: string) => ['getVideoInfo', query],
+}
