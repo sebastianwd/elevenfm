@@ -18,8 +18,10 @@ interface LayoutState {
   setTheaterMode: (theaterMode: boolean) => void
   draggingToPlaylistData: {
     id: UniqueIdentifier
-    artist: string
-    title: string
+    items: {
+      artist: string
+      title: string
+    }[]
   } | null
   setDraggingToPlaylistEl: (el: LayoutState['draggingToPlaylistData']) => void
   currentPlaylist: PlayableSong[]

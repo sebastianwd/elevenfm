@@ -49,7 +49,7 @@ const VideoPlayerPortal = () => {
 
 type DroppableEntity =
   | DataRef<{ name: string; id: string }>
-  | DataRef<PlayableSong & SortableData>
+  | DataRef<{ items: PlayableSong[] } & SortableData>
 
 const isPlaylistEntity = (
   entity: DroppableEntity['current']
@@ -75,10 +75,20 @@ const AddToPlaylistDndContext = memo(
       NonNullable<React.ComponentProps<typeof DndContext>['onDragStart']>
     >(
       (event) => {
+        const data = (
+          event.active.data as DataRef<{ items: PlayableSong[] } & SortableData>
+        )?.current
+
+        if (!data) {
+          return
+        }
+
         setDraggingToPlaylistEl({
-          artist: event.active.data.current?.artist,
           id: event.active.id,
-          title: event.active.data.current?.title,
+          items: data.items.map((item) => ({
+            title: item.title,
+            artist: item.artist,
+          })),
         })
       },
       [setDraggingToPlaylistEl]
@@ -108,25 +118,30 @@ const AddToPlaylistDndContext = memo(
           return
         }
 
-        const song = (event.active.data as DataRef<PlayableSong & SortableData>)
-          ?.current
+        const songs = (
+          event.active.data as DataRef<{ items: PlayableSong[] } & SortableData>
+        )?.current
 
         if (isPlaylistEntity(droppableEntity)) {
-          if (!song?.title && !song?.artist) return
+          if (!songs) {
+            return
+          }
+
+          const songsHaveIds = songs.items.every((song) => !!song.id)
 
           try {
             await addToPlaylist.mutateAsync({
               playlistId: droppableEntity.id,
-              songIds: song.id ? [song.id] : [],
-              songs: !song.id
-                ? [
-                    {
-                      title: song.title,
-                      artist: song.artist,
-                      songUrl: song.songUrl || null,
-                      album: '',
-                    },
-                  ]
+              // songs in a playlist use id
+              songIds: songsHaveIds ? songs.items.map((song) => song.id!) : [],
+              // songs from public artist use song data
+              songs: !songsHaveIds
+                ? songs.items.map((song) => ({
+                    title: song.title,
+                    artist: song.artist,
+                    songUrl: song.songUrl || null,
+                    album: '',
+                  }))
                 : [],
             })
 
@@ -159,16 +174,19 @@ const AddToPlaylistDndContext = memo(
             setDraggingToPlaylistEl(null)
           }
         } else {
+          const song = songs?.items[0]
           if (
-            droppableEntity.id === song?.id ||
+            droppableEntity.items[0].id === song?.id ||
             !params?.playlistId ||
-            !song?.id
+            !song?.id ||
+            !songs ||
+            songs.items.length !== 1
           ) {
             setDraggingToPlaylistEl(null)
             return
           }
 
-          const oldIndex = song.sortable.index
+          const oldIndex = songs.sortable.index
           const newIndex = droppableEntity.sortable.index
 
           if (!currentPlaylist?.length) return

@@ -49,6 +49,8 @@ interface SongProps {
   songId?: string
   playlistId?: string
   isSortHighlight?: boolean
+  onSelect?: React.ComponentProps<'div'>['onClick']
+  isSelected?: boolean
 }
 
 const DynamicDropdown = dynamic(() => import('../dropdown'), {
@@ -82,7 +84,12 @@ const SongStatusIcon = (props: SongStatusIconProps) => {
 }
 
 export const Song = (props: SongProps) => {
-  const { showArtist = true, isSortHighlight = false } = props
+  const {
+    showArtist = true,
+    isSortHighlight = false,
+    onSelect,
+    isSelected = false,
+  } = props
 
   const addToQueueAction = usePlayerState((state) => state.addToQueue)
   const removeFromQueueAction = usePlayerState((state) => state.removeFromQueue)
@@ -230,8 +237,12 @@ export const Song = (props: SongProps) => {
     <div
       className={twMerge(
         'flex cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700 h-[3.25rem]',
-        isSortHighlight && 'border border-solid border-primary-500 opacity-80'
+        isSortHighlight && 'border border-solid border-primary-500 opacity-80',
+        isSelected && 'bg-surface-600 hover:bg-surface-600'
       )}
+      role='row'
+      onClick={onSelect}
+      aria-selected={isSelected}
     >
       <div className='@container/songs flex grow h-full'>
         <div className='flex items-center @2xl/songs:basis-1/2 h-full'>
@@ -241,7 +252,10 @@ export const Song = (props: SongProps) => {
             </div>
           )}
           <button
-            onClick={props.onClick}
+            onClick={(e) => {
+              e.stopPropagation()
+              props.onClick?.(e)
+            }}
             className='flex items-center h-full hover:text-primary-500'
           >
             <div
