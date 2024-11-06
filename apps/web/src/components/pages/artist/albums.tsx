@@ -1,11 +1,18 @@
 import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
 import { useQuery } from '@tanstack/react-query'
+import { orderBy } from 'lodash'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 import { getAlbumsQuery } from '~/api'
 import { WavesLoader } from '~/components/loader'
 import { SongList } from '~/components/song-list'
+import { sortablePropertiesMapping } from '~/constants'
+import {
+  ArtistSortableProperties,
+  useLocalSettings,
+} from '~/store/use-local-settings'
 
 interface ArtistAlbumProps {
   album: string
@@ -20,6 +27,8 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
 
   const [readMore, setReadMore] = useState(false)
 
+  const identifier = `${artist}-${album}`
+
   const playableSongs = useMemo(
     () =>
       songs.map((song) => ({
@@ -29,6 +38,25 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
       })),
     [songs, artist, coverImage]
   )
+
+  const { sortedPlaylists } = useLocalSettings(
+    useShallow((state) => ({
+      sortedPlaylists: state.sortedPlaylists,
+    }))
+  )
+  const sortingSettings = sortedPlaylists.find(
+    (playlist) => playlist.identifier === identifier
+  )
+
+  const sortBySetting = sortingSettings?.sortBy || 'default'
+
+  const sortedPlayableSongs = useMemo(() => {
+    return orderBy(
+      playableSongs,
+      sortablePropertiesMapping[sortBySetting as ArtistSortableProperties],
+      [sortingSettings?.direction || 'desc']
+    )
+  }, [playableSongs, sortBySetting, sortingSettings?.direction])
 
   return (
     <div>
@@ -74,7 +102,7 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
           )}
         </div>
       </div>
-      <SongList identifier={`${artist}-${album}`} songs={playableSongs} />
+      <SongList identifier={identifier} songs={sortedPlayableSongs} />
     </div>
   )
 }

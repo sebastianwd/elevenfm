@@ -23,7 +23,10 @@ export const Sortable = (props: SortableProps) => {
 
   return (
     <div
-      className={twMerge('cursor-grabbing', className)}
+      className={twMerge(
+        'cursor-grabbing focus-visible:outline-0 focus-visible:border-0 select-none',
+        className
+      )}
       style={style}
       ref={setNodeRef}
       {...listeners}

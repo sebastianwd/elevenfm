@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { topsongsByArtistQuery } from '~/api'
 import { SongList } from '~/components/song-list'
+import { sortablePropertiesMapping } from '~/constants'
 import {
   type ArtistSortableProperties,
   useLocalSettings,
@@ -13,12 +14,6 @@ import {
 interface ArtistSongsProps {
   artist: string
 }
-
-const sortablePropertiesMapping = {
-  default: 'default',
-  title: 'title',
-  scrobbles: 'playcount',
-} as const satisfies Record<ArtistSortableProperties, string>
 
 export const ArtistSongs = (props: ArtistSongsProps) => {
   const { artist } = props
