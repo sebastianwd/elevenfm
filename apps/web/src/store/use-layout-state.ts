@@ -1,9 +1,9 @@
-import { UniqueIdentifier } from '@dnd-kit/core'
+import type { UniqueIdentifier } from '@dnd-kit/core'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
-import { PlayableSong } from '~/types'
+import type { PlayableSong } from '~/types'
 
 export type VideoPosition =
   | 'artist-page'

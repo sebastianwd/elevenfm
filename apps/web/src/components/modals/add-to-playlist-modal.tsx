@@ -6,7 +6,7 @@ import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 
 import { addToPlaylistMutation, queryClient, userPlaylistsQuery } from '~/api'
-import { PlayableSong } from '~/types'
+import type { PlayableSong } from '~/types'
 import { getError } from '~/utils/get-error'
 
 import { Button } from '../button'
@@ -69,15 +69,15 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
 
   return (
     <div className='w-96 max-w-full p-8'>
-      <div className='gap-2 flex flex-col'>
-        <p className='text-base text-center mb-2'>
+      <div className='flex flex-col gap-2'>
+        <p className='mb-2 text-center text-base'>
           {song.artist} - {song.title}
         </p>
         <p className='text-sm text-neutral-400'>
           Click on a playlist to add the song
         </p>
         <SimpleBar
-          className='max-h-[50svh] overflow-y-auto px-3 -mx-3'
+          className='-mx-3 max-h-[50svh] overflow-y-auto px-3'
           classNames={{
             contentEl: 'flex flex-col gap-2',
             scrollbar: 'bg-primary-500 w-1 rounded',
@@ -92,11 +92,11 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
                   playlistName: playlist.name,
                 })
               }
-              className='py-1 px-3 grow bg-surface-800 rounded-lg text-left  transition-colors flex flex-col w-full gap-1'
+              className='flex w-full grow flex-col gap-1 rounded-lg  bg-surface-800 px-3 py-1 text-left transition-colors'
               variant='ghost'
             >
               <p className='text-base'>{playlist.name}</p>
-              <p className='text-xs text-gray-400 mt-0.5'>
+              <p className='mt-0.5 text-xs text-gray-400'>
                 {format(new Date(Number(playlist.createdAt!)), 'MM/dd/yyyy')}
               </p>
             </Button>

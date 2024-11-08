@@ -12,11 +12,11 @@ export const HomePage = () => {
   return (
     <>
       <Seo description='Enjoy unlimited free music, find similar artists, full albums, lyrics and much more!' />
-      <div className='container mx-auto flex h-full px-6 md:px-8 items-center flex-col md:flex-row lg:gap-4 relative '>
+      <div className='container relative mx-auto flex h-full flex-col items-center px-6 md:flex-row md:px-8 lg:gap-4 '>
         <Gradient />
-        <div className='flex flex-col grow'>
+        <div className='flex grow flex-col'>
           <h1
-            className='mb-4 mt-8 lg:-mt-4 text-3xl lg:text-4xl text-balance text-gray-100'
+            className='mb-4 mt-8 text-balance text-3xl text-gray-100 lg:-mt-4 lg:text-4xl'
             id='home'
           >
             Listen to your favorite artists <br /> and create your own
@@ -27,11 +27,11 @@ export const HomePage = () => {
             and much more!
           </h2>
           <SearchTrigger
-            className='mt-6 h-12 py-7 px-5 z-10'
+            className='z-10 mt-6 h-12 px-5 py-7'
             onClick={() => setIsOpen(true)}
           />
         </div>
-        <AnimatedBeam className='mx-auto mt-10 h-2/5 lg:mt-0 md:pl-8' />
+        <AnimatedBeam className='mx-auto mt-10 h-2/5 md:pl-8 lg:mt-0' />
       </div>
       <VideoPlayerPortalContainer className='hidden' position='home-page' />
     </>

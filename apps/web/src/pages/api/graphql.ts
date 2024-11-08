@@ -5,7 +5,7 @@ import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheContr
 import responseCachePlugin from '@apollo/server-plugin-response-cache'
 import { startServerAndCreateNextHandler } from '@as-integrations/next'
 import { pick } from 'lodash'
-import { NextApiHandler, PageConfig } from 'next'
+import type { NextApiHandler, PageConfig } from 'next'
 import { parseBody } from 'next/dist/server/api-utils/node/parse-body'
 import { buildSchema } from 'type-graphql'
 
@@ -15,7 +15,7 @@ import { ArtistResolver } from '~/server/schema/artist/artist-resolver'
 import { PlaylistResolver } from '~/server/schema/playlist/playlist-resolver'
 import { SongResolver } from '~/server/schema/song/song-resolver'
 import { UserResolver } from '~/server/schema/user/user-resolver'
-import { Context } from '~/types'
+import type { Context } from '~/types'
 
 const schema = await buildSchema({
   resolvers: [ArtistResolver, SongResolver, PlaylistResolver, UserResolver],
@@ -70,7 +70,7 @@ const graphql: NextApiHandler = async (req, res) => {
   try {
     return await handler(req, res)
   } catch (e) {
-    res.status(500).send(`Error: ${e instanceof Error ? e.message : `${e}`}`)
+    res.status(500).send(`Error: ${e instanceof Error ? e.message : String(e)}`)
   }
 }
 

@@ -2,9 +2,9 @@ import {
   HydrationBoundary as Hydrate,
   QueryClientProvider,
 } from '@tanstack/react-query'
-import { AppProps } from 'next/app'
+import type { AppProps } from 'next/app'
 import { SessionProvider } from 'next-auth/react'
-import * as React from 'react'
+import type * as React from 'react'
 
 import { queryClient } from '~/api'
 

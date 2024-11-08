@@ -1,6 +1,7 @@
-import { MiddlewareFn } from 'type-graphql'
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+import type { MiddlewareFn } from 'type-graphql'
 
-import { Context } from '~/types'
+import type { Context } from '~/types'
 
 import { logger } from '../logger'
 

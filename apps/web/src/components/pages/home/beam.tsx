@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
-import React, { forwardRef, useRef } from 'react'
+import type React from 'react'
+import { forwardRef, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { AnimatedBeam as AnimatedBeamBase } from '~/components/magicui/animated-beam'
@@ -38,7 +39,7 @@ export function AnimatedBeam({ className }: { className?: string }) {
       )}
       ref={containerRef}
     >
-      <div className='flex size-full flex-row items-stretch justify-between gap-10 max-w-lg'>
+      <div className='flex size-full max-w-lg flex-row items-stretch justify-between gap-10'>
         <div className='flex flex-col justify-center gap-2'>
           <Circle ref={div1Ref}>
             <Icon icon='ri:soundcloud-line' className='size-12' />
@@ -50,7 +51,7 @@ export function AnimatedBeam({ className }: { className?: string }) {
             <Icon icon='basil:youtube-solid' className='size-12' />
           </Circle>
         </div>
-        <div className='flex flex-col justify-center relative'>
+        <div className='relative flex flex-col justify-center'>
           <Circle ref={div6Ref} className='size-16 bg-primary-500/70'>
             <Icon icon='entypo:folder-music' className='size-14' />
           </Circle>

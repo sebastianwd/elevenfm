@@ -4,7 +4,8 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline'
 import { HomeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
-import { AnimatePresence, motion, Variants } from 'framer-motion'
+import type { Variants } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -71,7 +72,7 @@ const MenuItem = ({
             className: `w-7 md:mx-2 mx-4 inline transition-colors ${activeClassname}`,
           })}
           <span
-            className={`hidden text-sm md:inline transition-colors ${activeClassname}`}
+            className={`hidden text-sm transition-colors md:inline ${activeClassname}`}
           >
             {children}
           </span>
@@ -136,18 +137,18 @@ export const Menu = () => {
                   title: 'My Account',
                 })
               },
-              icon: <UserIcon className='h-5 mr-2 shrink-0' />,
+              icon: <UserIcon className='mr-2 h-5 shrink-0' />,
             },
             {
               label: 'Sign Out',
-              onClick: () => {
+              onClick: async () => {
                 if (session.status === 'authenticated') {
-                  signOut({ redirect: false })
+                  await signOut({ redirect: false })
                   return
                 }
               },
               icon: (
-                <ArrowLeftStartOnRectangleIcon className='h-5 mr-2 shrink-0' />
+                <ArrowLeftStartOnRectangleIcon className='mr-2 h-5 shrink-0' />
               ),
             },
           ]}
@@ -173,11 +174,11 @@ export const Menu = () => {
 
   return (
     <>
-      <div className='flex-shrink-0 md:w-36'></div>
+      <div className='shrink-0 md:w-36'></div>
       <AnimatePresence>
         {isPlaylistMenuOpen && (
           <motion.div
-            className='xl:block hidden'
+            className='hidden xl:block'
             initial='hidden'
             exit='hidden'
             animate='show'
@@ -197,10 +198,10 @@ export const Menu = () => {
           />
         )}
       </AnimatePresence>
-      <div className='sticky top-0 h-full w-full px-4 md:fixed md:w-36 md:px-0 z-40 md:z-20'>
-        <div className='sticky top-0 flex h-full flex-grow md:rounded-none rounded-[40px] bg-surface-950 p-4 md:p-0 md:px-0 md:pb-28'>
-          <div className='flex relative w-full'>
-            <ul className='flex md:flex-col md:py-10 md:gap-4 w-full items-center z-10 bg-surface-950 justify-between'>
+      <div className='sticky top-0 z-40 size-full px-4 md:fixed md:z-20 md:w-36 md:px-0'>
+        <div className='sticky top-0 flex h-full grow rounded-[40px] bg-surface-950 p-4 md:rounded-none md:p-0 md:pb-28'>
+          <div className='relative flex w-full'>
+            <ul className='z-10 flex w-full items-center justify-between bg-surface-950 md:flex-col md:gap-4 md:py-10'>
               <MenuItem href='/' icon={<HomeIcon />}>
                 Home
               </MenuItem>
@@ -222,7 +223,7 @@ export const Menu = () => {
             <AnimatePresence>
               {isPlaylistMenuOpen && (
                 <motion.div
-                  className='bg-surface-950 absolute -left-8 md:left-auto md:-right-64 top-16 md:-top-0 w-64 md:h-full rounded-r-3xl h-[calc(100svh-12.25rem)] md:max-h-full'
+                  className='absolute -left-8 top-16 h-[calc(100svh-12.25rem)] w-64 rounded-r-3xl bg-surface-950 md:-right-64 md:-top-0 md:left-auto md:h-full md:max-h-full'
                   initial='hidden'
                   exit='hidden'
                   animate='show'

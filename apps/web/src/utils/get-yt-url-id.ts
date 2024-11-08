@@ -19,7 +19,7 @@ export const ytGetId = (url: string) => {
     }
     return null
   } catch (e) {
-    console.error(`Error in ytGetId: ${e}, url: ${url}`)
+    console.error(`Error in ytGetId: ${String(e)}, url: ${url}`)
     return null
   }
 }

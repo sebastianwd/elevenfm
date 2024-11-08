@@ -3,7 +3,7 @@ import { oneLineTrim } from 'common-tags'
 
 import { createQueryParam } from '~/utils/create-query-param'
 
-import {
+import type {
   AlbumGetInfo,
   ArtistGetInfo,
   ArtistGetSimilar,

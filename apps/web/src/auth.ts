@@ -54,7 +54,14 @@ export const { handlers, auth } = NextAuth({
           throw new AccessDenied('CSRF token mismatch')
         }
 
-        if (!username || !password || !action) {
+        if (
+          !username ||
+          !password ||
+          !action ||
+          typeof username !== 'string' ||
+          typeof password !== 'string' ||
+          typeof action !== 'string'
+        ) {
           return null
         }
 

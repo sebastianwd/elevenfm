@@ -44,16 +44,17 @@ export const Popover = (props: PopoverProps) => {
           >
             <PopoverPanel
               anchor={direction}
-              className='divide-y z-40 divide-surface-900 rounded-xl min-w-48 p-1 bg-surface-600 bg-opacity-75'
+              className='z-40 min-w-48 divide-y divide-surface-900 rounded-xl bg-surface-600/75 p-1'
             >
               {menuItems.map((item, index) => {
                 return (
                   <button
+                    type='button'
                     key={index}
-                    className={`hover:bg-surface-950 bg-surface-800 group flex w-full items-center rounded-md px-4 py-4 text-sm transition-colors  group`}
+                    className={`group flex w-full items-center rounded-md bg-surface-800 p-4 text-sm transition-colors hover:bg-surface-950`}
                     onClick={item.onClick}
                   >
-                    <span className='block group-hover:text-primary-500 shrink-0'>
+                    <span className='block shrink-0 group-hover:text-primary-500'>
                       {item.icon}
                     </span>
                     {item.label}

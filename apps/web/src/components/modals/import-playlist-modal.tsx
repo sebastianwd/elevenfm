@@ -53,8 +53,8 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
   }
 
   return (
-    <div className='w-96 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] max-w-full p-8 pb-12'>
-      <span className='text-sm mb-2 block'>
+    <div className='w-96 max-w-full p-8 pb-12 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)]'>
+      <span className='mb-2 block text-sm'>
         Formats accepted:
         <ul className='list-disc pl-4 text-xs text-neutral-400'>
           <li>https://open.spotify.com/playlist/...</li>
@@ -67,17 +67,18 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
         </ul>
       </span>
       <div className='flex gap-2'>
-        <div className='flex items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2 grow'>
+        <div className='flex grow items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
           <input
             onChange={(e) => setImportUrl(e.target.value)}
-            className='text-md border-0 bg-transparent w-full h-9 py-2 outline-none ring-0'
+            className='h-9 w-full border-0 bg-transparent py-2 text-base outline-none ring-0'
             value={importUrl}
             placeholder='https://open.spotify.com/playlist/...'
           />
-          <LinkIcon className='h-4 w-4' />
+          <LinkIcon className='size-4' />
         </div>
         <button
-          className='h-9 text-center px-2 text-surface-950 bg-neutral-200 text-sm rounded-md shrink-0 font-medium disabled:opacity-80 disabled:cursor-default'
+          type='button'
+          className='h-9 shrink-0 rounded-md bg-neutral-200 px-2 text-center text-sm font-medium text-surface-950 disabled:cursor-default disabled:opacity-80'
           disabled={importPlaylist.isPending || !importUrl}
           onClick={importFromUrl}
         >

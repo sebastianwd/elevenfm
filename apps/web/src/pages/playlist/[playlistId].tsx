@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { ClientError } from 'graphql-request'
+import type { ClientError } from 'graphql-request'
 import { isEmpty, orderBy } from 'lodash'
-import { NextPage } from 'next'
+import type { NextPage } from 'next'
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import React, { useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -101,7 +101,7 @@ const PlaylistPage: NextPage = () => {
   const renderSongList = () => {
     if (playlist.isPending) {
       return (
-        <div className='flex justify-center mt-[10%]'>
+        <div className='mt-[10%] flex justify-center'>
           <WavesLoader className='h-5' />
         </div>
       )
@@ -109,7 +109,7 @@ const PlaylistPage: NextPage = () => {
 
     if (playlist.isError) {
       return (
-        <div className='flex justify-center mt-[10%]'>
+        <div className='mt-[10%] flex justify-center'>
           <p>
             {getError(playlist.error as ClientError) || 'Something went wrong'}{' '}
           </p>
@@ -119,7 +119,7 @@ const PlaylistPage: NextPage = () => {
 
     if (isEmpty(currentPlaylist)) {
       return (
-        <div className='flex justify-center mt-[10%]'>
+        <div className='mt-[10%] flex justify-center'>
           <p className='text-neutral-300'>This playlist is empty</p>
         </div>
       )
@@ -145,15 +145,15 @@ const PlaylistPage: NextPage = () => {
   const { theaterMode } = useLayoutState()
 
   return (
-    <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
+    <div className='container mx-auto flex min-h-full w-full max-w-[1920px] flex-col'>
       <Seo />
       {theaterMode ? (
         <TheaterMode />
       ) : (
         <>
-          <div className='grid lg:grid-cols-3 relative bg-gradient-blend-primary bg-no-repeat bg-top'>
+          <div className='bg-gradient-blend-primary relative grid bg-top bg-no-repeat lg:grid-cols-3'>
             <header className='col-span-2 flex h-48 md:h-72'>
-              <div className='z-10 mt-auto flex w-full items-center gap-7 px-8 mb-16 flex-col md:flex-row'>
+              <div className='z-10 mb-16 mt-auto flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
                 <ArtistHeader
                   subtitle={
                     playlist.isPending
@@ -167,7 +167,7 @@ const PlaylistPage: NextPage = () => {
                 />
               </div>
             </header>
-            <div className='flex justify-center lg:justify-end col-span-2 lg:col-span-1 z-10'>
+            <div className='z-10 col-span-2 flex justify-center lg:col-span-1 lg:justify-end'>
               <VideoPlayerPortalContainer
                 position='playlist-page'
                 className='aspect-video max-w-full [&_iframe]:rounded-2xl'

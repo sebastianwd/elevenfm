@@ -16,6 +16,11 @@ export const Toast = (props: ToastProps) => {
       onClick={() => {
         toast.dismiss()
       }}
+      onKeyDown={() => {
+        toast.dismiss()
+      }}
+      role='button'
+      tabIndex={0}
     >
       {props.message}
     </div>

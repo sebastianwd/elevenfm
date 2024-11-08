@@ -24,7 +24,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
 
   const [selectedAlbum, setSelectedAlbum] = useState<string>()
 
-  const onAlbumSelect = async (album: string) => {
+  const onAlbumSelect = (album: string) => {
     setSelectedAlbum(album)
   }
 
@@ -55,7 +55,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
         image={data?.artist.image || undefined}
         path={`/artist/${data?.artist.name}`}
       />
-      <div className='container mx-auto w-full max-w-[1920px] flex flex-col min-h-full'>
+      <div className='container mx-auto flex min-h-full w-full max-w-[1920px] flex-col'>
         {theaterMode ? (
           <TheaterMode />
         ) : (
@@ -74,7 +74,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                     : undefined,
                 }}
               >
-                <div className='z-10 mt-auto flex w-full items-center gap-7 px-8 mb-16 flex-col md:flex-row'>
+                <div className='z-10 mb-16 mt-auto flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
                   {data?.artist.image && (
                     <Image
                       alt='artist'
@@ -82,7 +82,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                       height={200}
                       quality={100}
                       src={data?.artist.image}
-                      className='h-40 w-40 rounded-md object-cover'
+                      className='size-40 rounded-md object-cover'
                     />
                   )}
                   <ArtistHeader
@@ -94,7 +94,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                   />
                 </div>
               </header>
-              <div className='flex justify-center col-span-2 lg:col-span-1'>
+              <div className='col-span-2 flex justify-center lg:col-span-1'>
                 <VideoPlayerPortalContainer
                   position='artist-page'
                   className='aspect-video max-w-full'
@@ -151,7 +151,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                     </TabPanel>
                     <TabPanel>
                       <div className='p-4 pt-6'>
-                        <h3 className='text-xl font-semibold mb-3'>
+                        <h3 className='mb-3 text-xl font-semibold'>
                           Biography
                         </h3>
 
@@ -187,7 +187,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                 </TabGroup>
               </div>
               <div className='mt-5 px-4 md:pl-12 lg:px-0'>
-                <h3 className='text-xl font-semibold mb-4'>Similar artists</h3>
+                <h3 className='mb-4 text-xl font-semibold'>Similar artists</h3>
                 <SimilarArtists artist={artist} />
               </div>
             </div>

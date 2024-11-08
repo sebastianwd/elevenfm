@@ -14,8 +14,8 @@ export const ArtistHeader = (props: ArtistHeaderProps) => {
   const { externalUrls, title, subtitle, className } = props
   return (
     <div className={className}>
-      <div className='flex items-center gap-4 justify-center md:justify-start'>
-        <h1 className='text-2xl md:text-3xl lg:text-5xl text-gray-50'>
+      <div className='flex items-center justify-center gap-4 md:justify-start'>
+        <h1 className='text-2xl text-gray-50 md:text-3xl lg:text-5xl'>
           {title}
         </h1>
         {externalUrls
@@ -30,7 +30,7 @@ export const ArtistHeader = (props: ArtistHeaderProps) => {
             )
           : null}
       </div>
-      <h5 className='text-sm font-thin md:text-left text-center text-gray-300 mt-1'>
+      <h5 className='mt-1 text-center text-sm font-thin text-gray-300 md:text-left'>
         {subtitle}
       </h5>
     </div>

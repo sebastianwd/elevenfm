@@ -1,9 +1,10 @@
-import Axios, { AxiosError, AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
+import Axios, { AxiosError } from 'axios'
 
 import { cache } from '~/server/cache'
 import { logger } from '~/server/logger'
 
-import {
+import type {
   GetMixesResponse,
   GetPlaylistById,
   GetVideoById,
@@ -55,7 +56,7 @@ const invidious = async <T>(method: InvidiousMethods) => {
         }
         continue
       }
-      logger.info(`Invidious error: ${invidiousUrl} - ${e}`)
+      logger.info(`Invidious error: ${invidiousUrl} - ${String(e)}`)
       continue
     }
   }

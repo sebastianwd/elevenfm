@@ -3,7 +3,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { ClientError } from 'graphql-request'
 import { isEmpty } from 'lodash'
 import { useSession } from 'next-auth/react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import type { SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as v from 'valibot'
 
@@ -125,13 +126,13 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
         email: data.email,
       })
 
-      me.refetch()
-
       reset({}, { keepValues: true })
 
       toast.custom(() => <Toast message='✔ User updated' />, {
         duration: 3000,
       })
+
+      await me.refetch()
     } catch (error) {
       console.error(error)
       if (error instanceof ClientError) {
@@ -228,9 +229,9 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   }
 
   return (
-    <div className='w-96 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] max-w-full p-8 pb-8'>
-      <p className='text-base mb-1'>Manage your personal information</p>
-      <p className='text-sm mb-5 text-neutral-300'>
+    <div className='w-96 max-w-full p-8 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)]'>
+      <p className='mb-1 text-base'>Manage your personal information</p>
+      <p className='mb-5 text-sm text-neutral-300'>
         Logged in as: {session.data?.user?.name}
       </p>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
@@ -280,7 +281,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
         </div>
         <div>{renderPasswordSection()}</div>
         <div>{renderAccountsSection()}</div>
-        <div className='flex gap-4 justify-end mt-6'>
+        <div className='mt-6 flex justify-end gap-4'>
           <Button onClick={onClose} variant='secondary' className='h-9 px-4'>
             Cancel
           </Button>

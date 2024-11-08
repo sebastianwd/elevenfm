@@ -19,7 +19,7 @@ import { sanitizeSongTitle } from '~/utils/song-title-utils'
 import { SongInput } from '../song/song'
 import { getLastRankInPlaylist, Playlist } from './playlist'
 
-const { getTracks } = spotifyFetch(fetch)
+const spotifyRequest = spotifyFetch(fetch)
 
 const createId = init({
   length: 6,
@@ -67,7 +67,7 @@ const getExternalPlaylistTracks = async (
   source: 'spotify' | 'youtube' | 'soundcloud'
 ): Promise<{ title: string; artist: string; url?: string }[]> => {
   if (source === 'spotify') {
-    return (await getTracks(url)).map((track) => ({
+    return (await spotifyRequest.getTracks(url)).map((track) => ({
       title: track.name,
       artist: track.artist,
     }))

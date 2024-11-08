@@ -15,5 +15,13 @@
     "dev": {
       "dependsOn": ["^build"]
     }
-  }
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    }
+  ]
 }

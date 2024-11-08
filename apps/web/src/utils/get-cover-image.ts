@@ -1,6 +1,6 @@
 import { groupBy } from 'lodash'
 
-import { TrackGetInfo } from '~/server/modules/lastfm/types'
+import type { TrackGetInfo } from '~/server/modules/lastfm/types'
 import { coalesce } from '~/utils/coalesce'
 
 export const getCoverImage = (

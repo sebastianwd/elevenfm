@@ -23,13 +23,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
         {iconDirection === 'left' && icon}
         <input
           ref={ref}
-          className='text-md border-0 bg-transparent w-full h-full py-2 outline-none ring-0'
+          className='size-full border-0 bg-transparent py-2 text-base outline-none ring-0'
           {...rest}
         />
         {iconDirection === 'right' && icon}
       </div>
       {error ? (
-        <p className='text-red-500 text-xs min-h-4 text-wrap'>{error}</p>
+        <p className='min-h-4 text-wrap text-xs text-red-500'>{error}</p>
       ) : null}
     </>
   )

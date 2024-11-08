@@ -3,7 +3,7 @@ import { oneLineTrim } from 'common-tags'
 
 import { createQueryParam } from '~/utils/create-query-param'
 
-import { SearchAlbums, SearchArtist } from './types'
+import type { SearchAlbums, SearchArtist } from './types'
 
 type AudioDBMethods = 'searchalbum' | 'search'
 

@@ -8,6 +8,7 @@
     "dev": "nx dev elevenfm-web",
     "build": "nx build elevenfm-web",
     "start": "nx start elevenfm-web",
+    "lint": "nx lint elevenfm-web",
     "release": "changeset",
     "release:publish": "pnpm shared build && changeset publish --provenance --access public",
     "gen": "graphql-codegen",
@@ -36,8 +37,10 @@
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@graphql-codegen/typescript-operations": "^4.2.0",
     "@graphql-codegen/typescript-react-query": "^6.1.0",
+    "@nx/eslint": "20.0.8",
+    "eslint": "^9.14.0",
     "npm-check-updates": "^16.14.20",
-    "nx": "^19.1.0",
+    "nx": "20.0.8",
     "prettier": "^3.3.2",
     "typescript": "^5.4.5"
   }

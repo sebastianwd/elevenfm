@@ -227,7 +227,7 @@ export class ArtistResolver {
             coverImage,
             description,
             tracks: trackNames || [],
-            name: fallbackAlbum!.name,
+            name: fallbackAlbum.name,
             genre: matchedAlbum?.strGenre,
             year: matchedAlbum?.intYearReleased,
           } as Album

@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { LRUCache } from 'lru-cache'
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 class Cache<K extends {} = string, V extends {} = string> {
   private cache: LRUCache<K, V>
   constructor() {

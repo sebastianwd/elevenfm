@@ -43,16 +43,22 @@ const ArtistSearchCommandPalette = () => {
 
   useEffect(() => {
     if (search) {
-      delayedSearch(search)
+      delayedSearch(search)?.catch((e) => {
+        console.error('Error searching artist', e)
+      })
     }
   }, [delayedSearch, search])
+
+  const onSelect = async (value: string) => {
+    if (!value) return
+    setIsOpen(false)
+    await router.push(`/artist/${value}`)
+  }
 
   return isOpen ? (
     <CommandPalette
       onSelect={(value) => {
-        if (!value) return
-        setIsOpen(false)
-        router.push(`/artist/${value}`)
+        void onSelect(value)
       }}
       commands={results}
       value={search}

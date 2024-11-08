@@ -10,14 +10,14 @@ import { twMerge } from 'tailwind-merge'
 import { getLyricsQuery } from '~/api'
 import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
+import { useLocalSettings } from '~/store/use-local-settings'
+import type { Song as SongType } from '~/store/use-player'
 import {
-  Song as SongType,
   usePlayerInstance,
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
-import { useLocalSettings } from '~/store/use-local-settings'
-import { PlayableSong } from '~/types'
+import type { PlayableSong } from '~/types'
 import { sanitizeSongTitle, splitArtist } from '~/utils/song-title-utils'
 
 import { Button } from '../button'
@@ -65,7 +65,7 @@ const QueueList = (props: QueueListProps) => {
   const renderContent = () => {
     if (queue.length === 0) {
       return (
-        <div className='flex justify-center items-center h-[36rem]'>
+        <div className='flex h-[36rem] items-center justify-center'>
           <p className='text-gray-400'>Queue is empty</p>
         </div>
       )
@@ -99,13 +99,13 @@ const QueueList = (props: QueueListProps) => {
 
   return (
     <motion.div
-      className='bg-surface-950 rounded-lg'
+      className='rounded-lg bg-surface-950'
       initial='hidden'
       exit='hidden'
       animate='show'
       variants={container}
     >
-      <h3 className='font-semibold text-lg px-5 py-3'>Queue</h3>
+      <h3 className='px-5 py-3 text-lg font-semibold'>Queue</h3>
       <SimpleBar
         className='h-[36rem] overflow-auto pr-4'
         classNames={{
@@ -167,7 +167,7 @@ export const Lyrics = (props: LyricsProps) => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className='flex justify-center items-center h-[36rem]'>
+        <div className='flex h-[36rem] items-center justify-center'>
           <WavesLoader />
         </div>
       )
@@ -175,7 +175,7 @@ export const Lyrics = (props: LyricsProps) => {
 
     if (!lyrics) {
       return (
-        <div className='flex justify-center items-center h-[36rem]'>
+        <div className='flex h-[36rem] items-center justify-center'>
           <p className='text-gray-300'>
             {song && artist ? 'Lyrics not found' : 'Play a song to view lyrics'}
           </p>
@@ -184,7 +184,7 @@ export const Lyrics = (props: LyricsProps) => {
     }
 
     return (
-      <pre className='whitespace-pre-line px-4 py-2 text-lg overflow-auto'>
+      <pre className='overflow-auto whitespace-pre-line px-4 py-2 text-lg'>
         {lyrics}
       </pre>
     )
@@ -192,13 +192,13 @@ export const Lyrics = (props: LyricsProps) => {
 
   return (
     <motion.div
-      className='bg-surface-950 rounded-lg h-full'
+      className='h-full rounded-lg bg-surface-950'
       initial='hidden'
       exit='hidden'
       animate='show'
       variants={container}
     >
-      <h3 className='font-semibold text-lg px-5 py-3'>{song}</h3>
+      <h3 className='px-5 py-3 text-lg font-semibold'>{song}</h3>
       <SimpleBar
         className={twMerge(`h-[36rem] overflow-auto pr-4`, props.className)}
         classNames={{
@@ -269,7 +269,7 @@ export const FooterPlayer = () => {
 
   return (
     <>
-      <div className='fixed bottom-28 left-0 mx-auto md:right-4 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
+      <div className='fixed bottom-28 left-0 z-40 mx-auto max-h-screen w-full md:right-4 md:w-1/2 lg:w-1/3'>
         <AnimatePresence>
           {showLyrics ? (
             <Lyrics
@@ -279,17 +279,17 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <div className='fixed bottom-28 right-0 max-h-screen w-full md:w-1/2 lg:w-1/3 z-40'>
+      <div className='fixed bottom-28 right-0 z-40 max-h-screen w-full md:w-1/2 lg:w-1/3'>
         <AnimatePresence>
           {showQueue ? (
             <QueueList queue={currentQueue} onPlay={onPlaySong} />
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='fixed bottom-0 mt-auto h-28 w-full bg-surface-800 bg-opacity-20 backdrop-blur-lg z-40'>
-        <div className='mx-auto p-4 md:p-5 pb-0 md:pb-5 text-white grid grid-cols-3 relative'>
-          <div className='flex gap-2 md:gap-4 col-span-1'>
-            <div className='flex items-center shrink-0'>
+      <footer className='fixed bottom-0 z-40 mt-auto h-28 w-full bg-surface-800/20 backdrop-blur-lg'>
+        <div className='relative mx-auto grid grid-cols-3 p-4 pb-0 text-white md:p-5'>
+          <div className='col-span-1 flex gap-2 md:gap-4'>
+            <div className='flex shrink-0 items-center'>
               {currentSong ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -297,15 +297,15 @@ export const FooterPlayer = () => {
                   width={56}
                   height={56}
                   alt='album cover'
-                  className='object-cover rounded-md w-9 md:w-14 md:h-14 grow'
+                  className='w-9 grow rounded-md object-cover md:size-14'
                 />
               ) : null}
             </div>
-            <div className='flex justify-center flex-col'>
-              <h1 className='text-gray-100 text-sm md:text-base font-medium mb-0.5 line-clamp-1'>
+            <div className='flex flex-col justify-center'>
+              <h1 className='mb-0.5 line-clamp-1 text-sm font-medium text-gray-100 md:text-base'>
                 {currentSong?.title}
               </h1>
-              <div className='flex text-xs md:text-sm text-zinc-300'>
+              <div className='flex text-xs text-zinc-300 md:text-sm'>
                 {splitArtist(currentSong?.artist || '').map(
                   (artist, index, artists) => (
                     <Fragment key={artist}>
@@ -323,7 +323,7 @@ export const FooterPlayer = () => {
             </div>
           </div>
           <div className='col-span-2 md:col-span-1'>
-            <div className='flex items-center justify-end md:justify-center gap-1 md:gap-4 mb-3'>
+            <div className='mb-3 flex items-center justify-end gap-1 md:justify-center md:gap-4'>
               <Button
                 variant='ghost'
                 className='p-0'
@@ -346,7 +346,7 @@ export const FooterPlayer = () => {
                   playPrevious()
                 }}
               >
-                <PreviousIcon className='h-8 w-8' />
+                <PreviousIcon className='size-8' />
               </Button>
               <Button
                 variant='ghost'
@@ -362,9 +362,9 @@ export const FooterPlayer = () => {
                 }}
               >
                 {isPlaying ? (
-                  <PauseCircleIcon className='h-12 w-12 text-primary-500' />
+                  <PauseCircleIcon className='size-12 text-primary-500' />
                 ) : (
-                  <PlayCircleIcon className='h-12 w-12' />
+                  <PlayCircleIcon className='size-12' />
                 )}
               </Button>
               <Button
@@ -379,7 +379,7 @@ export const FooterPlayer = () => {
                   playNext()
                 }}
               >
-                <NextIcon className='h-8 w-8' />
+                <NextIcon className='size-8' />
               </Button>
               <Button
                 onClick={() => {
@@ -398,9 +398,9 @@ export const FooterPlayer = () => {
                 {repeatMode === 'none' ? (
                   <RepeatIcon className='size-5 md:size-6' />
                 ) : repeatMode === 'all' ? (
-                  <RepeatIcon className='size-5 md:size-6 text-primary-500' />
+                  <RepeatIcon className='size-5 text-primary-500 md:size-6' />
                 ) : (
-                  <RepeatOneIcon className='size-5 md:size-6 text-primary-500' />
+                  <RepeatOneIcon className='size-5 text-primary-500 md:size-6' />
                 )}
               </Button>
               <div className='w-2' />
@@ -408,24 +408,25 @@ export const FooterPlayer = () => {
                 onClick={() => {
                   setShowLyrics(!showLyrics)
                 }}
-                className='md:hidden inline-flex'
+                className='inline-flex md:hidden'
                 title='Lyrics'
                 type='button'
               >
                 <LyricsIcon
-                  className={`h-6 w-6 ${
+                  className={`size-6 ${
                     showLyrics ? 'text-primary-500' : 'text-gray-200'
                   }`}
                 />
               </button>
               <button
+                type='button'
                 onClick={() => {
                   setShowQueue(!showQueue)
                 }}
-                className='md:hidden inline-flex'
+                className='inline-flex md:hidden'
               >
                 <QueueListIcon
-                  className={`h-6 w-6 ${
+                  className={`size-6 ${
                     showQueue ? 'text-primary-500' : 'text-gray-200'
                   }`}
                 />
@@ -439,10 +440,10 @@ export const FooterPlayer = () => {
               onChange={onChange}
               minLabel={`${formatSeconds(progress.playedSeconds)}`}
               maxLabel={`${formatSeconds(duration)}`}
-              className='absolute md:relative w-full left-0 md:w-auto md:left-auto md:px-0 px-4'
+              className='absolute left-0 w-full px-4 md:relative md:left-auto md:w-auto md:px-0'
             />
           </div>
-          <div className='hidden items-center justify-end md:flex gap-3'>
+          <div className='hidden items-center justify-end gap-3 md:flex'>
             <button
               onClick={() => {
                 setTheaterMode(!theaterMode)
@@ -452,7 +453,7 @@ export const FooterPlayer = () => {
               type='button'
             >
               <TheaterModeIcon
-                className={`h-5 w-5 ${
+                className={`size-5 ${
                   theaterMode ? 'text-primary-500' : 'text-gray-200'
                 }`}
               />
@@ -466,7 +467,7 @@ export const FooterPlayer = () => {
               type='button'
             >
               <LyricsIcon
-                className={`h-6 w-6 ${
+                className={`size-6 ${
                   showLyrics ? 'text-primary-500' : 'text-gray-200'
                 }`}
               />
@@ -480,7 +481,7 @@ export const FooterPlayer = () => {
               type='button'
             >
               <QueueListIcon
-                className={`h-6 w-6 ${
+                className={`size-6 ${
                   showQueue ? 'text-primary-500' : 'text-gray-200'
                 }`}
               />

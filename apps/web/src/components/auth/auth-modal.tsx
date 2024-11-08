@@ -3,7 +3,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
 import { getProviders, signIn } from 'next-auth/react'
 import { useState } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import type { SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
 
 import { GithubIcon } from '../icons'
@@ -77,7 +78,7 @@ export const AuthModal = (props: AuthModalProps) => {
   const renderProviders = () => {
     if (providers.isPending) {
       return (
-        <div className='flex items-center justify-center h-full'>
+        <div className='flex h-full items-center justify-center'>
           <WavesLoader className='h-5' />
         </div>
       )
@@ -85,7 +86,7 @@ export const AuthModal = (props: AuthModalProps) => {
 
     if (providers.isError) {
       return (
-        <div className='flex items-center justify-center h-full'>
+        <div className='flex h-full items-center justify-center'>
           <p>An error occurred. Please try again later.</p>
         </div>
       )
@@ -94,22 +95,22 @@ export const AuthModal = (props: AuthModalProps) => {
     return (
       <>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <label className='text-sm mb-1 block' htmlFor='username'>
+          <label className='mb-1 block text-sm' htmlFor='username'>
             Username
           </label>
           <Input
             className='h-12'
             placeholder='bob'
             type='text'
-            icon={<UserIcon className='h-6 w-6' />}
+            icon={<UserIcon className='size-6' />}
             id='username'
             {...register('username', { required: 'Username is required' })}
           />
-          <label className='text-sm mb-1 block mt-3' htmlFor='password'>
+          <label className='mb-1 mt-3 block text-sm' htmlFor='password'>
             Password
           </label>
           <Input
-            className='h-12 mb-2'
+            className='mb-2 h-12'
             placeholder='••••••••••••••'
             type={showPassword ? 'text' : 'password'}
             icon={
@@ -119,16 +120,16 @@ export const AuthModal = (props: AuthModalProps) => {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeIcon className='h-6 w-6' />
+                  <EyeIcon className='size-6' />
                 ) : (
-                  <EyeSlashIcon className='h-6 w-6' />
+                  <EyeSlashIcon className='size-6' />
                 )}
               </button>
             }
             id='password'
             {...register('password', { required: 'Password is required' })}
           />
-          <span className='text-neutral-300 text-sm'>
+          <span className='text-sm text-neutral-300'>
             {authType === 'login' ? 'No account?' : 'Already registered?'}
           </span>{' '}
           <button
@@ -137,7 +138,7 @@ export const AuthModal = (props: AuthModalProps) => {
               setAuthType(authType === 'login' ? 'signup' : 'login')
               credentialsSignIn.reset()
             }}
-            className='text-primary-500 cursor-pointer hover:underline'
+            className='cursor-pointer text-primary-500 hover:underline'
           >
             {authType === 'login' ? 'Register' : 'Log in'}
           </button>
@@ -166,9 +167,10 @@ export const AuthModal = (props: AuthModalProps) => {
               '&nbsp;'}
           </span>
         </form>
-        <span className='w-fit mx-auto block mb-6 mt-2'>Or</span>
-        <div className='rounded-md p-[1px] bg-gradient-to-br from-primary-500  to-blue-600'>
+        <span className='mx-auto mb-6 mt-2 block w-fit'>Or</span>
+        <div className='rounded-md bg-gradient-to-br from-primary-500 to-blue-600  p-px'>
           <button
+            type='button'
             key={providers.data?.github.id}
             onClick={() =>
               signIn(providers.data?.github.id, {
@@ -191,7 +193,7 @@ export const AuthModal = (props: AuthModalProps) => {
   }
 
   return (
-    <div className='w-96 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] max-w-full py-8 lg:max-w-md px-12'>
+    <div className='w-96 max-w-full px-12 py-8 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] lg:max-w-md'>
       {renderProviders()}
     </div>
   )

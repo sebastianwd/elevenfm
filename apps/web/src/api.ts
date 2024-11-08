@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { QueryClient } from '@tanstack/react-query'
 import { getSdk } from 'elevenfm-shared'
 import { GraphQLClient } from 'graphql-request'

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { RefObject, useEffect, useId, useState } from 'react'
+import type { RefObject } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export interface AnimatedBeamProps {

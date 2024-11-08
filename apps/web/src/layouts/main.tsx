@@ -1,13 +1,8 @@
-import {
-  Data,
-  DataRef,
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
+import type { Data, DataRef } from '@dnd-kit/core'
+import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { restrictToWindowEdges, snapCenterToCursor } from '@dnd-kit/modifiers'
-import { arrayMove, SortableData } from '@dnd-kit/sortable'
+import type { SortableData } from '@dnd-kit/sortable'
+import { arrayMove } from '@dnd-kit/sortable'
 import { Icon } from '@iconify/react'
 import { useMutation } from '@tanstack/react-query'
 import { ClientError } from 'graphql-request'
@@ -27,7 +22,7 @@ import { FooterPlayer } from '~/components/player'
 import { Toast } from '~/components/toast'
 import { VideoPlayer } from '~/components/video-player'
 import { useLayoutState } from '~/store/use-layout-state'
-import { PlayableSong } from '~/types'
+import type { PlayableSong } from '~/types'
 import { getError } from '~/utils/get-error'
 import { getBetweenRankAsc } from '~/utils/lexorank'
 
@@ -269,7 +264,7 @@ const Attribution = () => {
   const currentYear = new Date().getFullYear()
 
   return (
-    <div className='flex gap-1 items-center w-fit mx-auto py-4'>
+    <div className='mx-auto flex w-fit items-center gap-1 py-4'>
       <p className='text-xs text-gray-400'>
         Made with ❤️ for music | {currentYear} ElevenFM |
       </p>
@@ -277,7 +272,7 @@ const Attribution = () => {
         href='https://github.com/sebastianwd/elevenfm'
         target='_blank'
         rel='noreferrer noopener'
-        className='hover:text-primary-500 transition-colors'
+        className='transition-colors hover:text-primary-500'
       >
         <Icon icon='mdi:github' className='size-4 shrink-0' />
       </a>
@@ -288,10 +283,10 @@ const Attribution = () => {
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <div className='relative flex w-full flex-grow flex-col flex-wrap py-4 md:flex-row md:flex-nowrap md:py-0'>
+      <div className='relative flex w-full grow flex-col flex-wrap py-4 md:flex-row md:flex-nowrap md:py-0'>
         <AddToPlaylistDndContext>
           <Menu />
-          <main role='main' className='w-full flex-grow'>
+          <main role='main' className='w-full grow'>
             {children}
           </main>
         </AddToPlaylistDndContext>

@@ -6,8 +6,7 @@ dotenv.config({ path: ['.env.local', '.env'] })
 export default defineConfig({
   schema: './src/db/schema.ts',
   out: './migrations',
-  dialect: 'sqlite',
-  driver: 'turso',
+  dialect: 'turso',
   dbCredentials: {
     url:
       process.env.NODE_ENV === 'production'

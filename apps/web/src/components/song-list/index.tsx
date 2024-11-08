@@ -23,7 +23,7 @@ import {
   useLocalSettings,
 } from '~/store/use-local-settings'
 import { usePlayerState } from '~/store/use-player'
-import { PlayableSong } from '~/types'
+import type { PlayableSong } from '~/types'
 
 import { Button } from '../button'
 import { RandomIcon } from '../icons'
@@ -44,35 +44,35 @@ const SongListHeader = (props: SongListHeaderProps) => {
   const { columns } = props
 
   return (
-    <div className='flex cursor-default items-center justify-between rounded pl-4 transition-colors h-10'>
-      <div className='@container/songs flex grow h-full'>
-        <div className='flex items-center @2xl/songs:basis-1/2 h-full'>
-          <div className='text-sm font-medium text-gray-400 w-3 shrink-0'>
+    <div className='flex h-10 cursor-default items-center justify-between rounded pl-4 transition-colors'>
+      <div className='flex h-full grow @container/songs'>
+        <div className='flex h-full items-center @2xl/songs:basis-1/2'>
+          <div className='w-3 shrink-0 text-sm font-medium text-gray-400'>
             <span>#</span>
           </div>
-          <button className='flex items-center h-full'>
+          <div className='flex h-full items-center'>
             <div className='ml-4'>
               <p
-                className={`text-sm font-medium text-gray-400 line-clamp-1 text-left`}
+                className={`line-clamp-1 text-left text-sm font-medium text-gray-400`}
               >
                 Title
               </p>
             </div>
-          </button>
+          </div>
         </div>
-        <div className='flex items-center grow'>
+        <div className='flex grow items-center'>
           {columns.playcount && (
-            <div className='text-sm text-gray-400 mr-8 hidden @2xl/songs:inline-block'>
+            <div className='mr-8 hidden text-sm text-gray-400 @2xl/songs:inline-block'>
               Scrobbles
             </div>
           )}
           {columns.artist && (
-            <div className='mr-8 @2xl/songs:block basis-1/2 hidden text-sm text-gray-400'>
+            <div className='mr-8 hidden basis-1/2 text-sm text-gray-400 @2xl/songs:block'>
               Artist
             </div>
           )}
           {columns.dateAdded && (
-            <div className='mr-8 @2xl/songs:block hidden text-sm text-gray-400'>
+            <div className='mr-8 hidden text-sm text-gray-400 @2xl/songs:block'>
               Date added
             </div>
           )}
@@ -130,15 +130,15 @@ const SongsDragOverlay = () => {
   const sample = draggingToPlaylistData.items[0]
 
   return (
-    <div className='px-4 py-2 bg-surface-900 w-fit min-w-96 flex gap-4 opacity-85 border-solid border border-surface-300 rounded items-center'>
+    <div className='flex w-fit min-w-96 items-center gap-4 rounded border border-solid border-surface-300 bg-surface-900 px-4 py-2 opacity-85'>
       <div className={twMerge(!isDraggingMultiple && 'flex gap-4')}>
         <p
-          className={`text-sm font-medium text-gray-300 line-clamp-1 text-left`}
+          className={`line-clamp-1 text-left text-sm font-medium text-gray-300`}
         >
           {sample.title}
         </p>
         {sample.artist && (
-          <p className='text-sm text-gray-400 text-left @2xl/songs:hidden block'>
+          <p className='block text-left text-sm text-gray-400 @2xl/songs:hidden'>
             {sample.artist}
           </p>
         )}
@@ -318,10 +318,10 @@ export const SongList = (props: SongListProps) => {
 
   return (
     <>
-      <div className='flex px-2 py-2 flex-wrap justify-center gap-2'>
-        <div className='flex gap-2 grow justify-center'>
+      <div className='flex flex-wrap justify-center gap-2 p-2'>
+        <div className='flex grow justify-center gap-2'>
           <Button
-            onClick={() => {
+            onClick={async () => {
               if (queueIdentifier === identifier) {
                 toggleIsPlaying()
                 return
@@ -330,12 +330,12 @@ export const SongList = (props: SongListProps) => {
               if (isShuffled) {
                 const randomSong = sample(filteredSongs)
                 if (randomSong) {
-                  onPlaySong(randomSong)
+                  await onPlaySong(randomSong)
                   return
                 }
               }
 
-              onPlaySong(filteredSongs[0])
+              await onPlaySong(filteredSongs[0])
             }}
             title='Play all'
             variant='primary'
@@ -343,14 +343,14 @@ export const SongList = (props: SongListProps) => {
             disabled={!filteredSongs.length}
           >
             {queueIdentifier === identifier && isPlaying ? (
-              <PauseIcon className='h-5 w-5' />
+              <PauseIcon className='size-5' />
             ) : (
-              <PlayIcon className='h-5 w-5' />
+              <PlayIcon className='size-5' />
             )}
           </Button>
           <Input
-            className='mt-auto lg:min-w-96 w-48'
-            icon={<MagnifyingGlassIcon className='h-4 w-4' />}
+            className='mt-auto w-48 lg:min-w-96'
+            icon={<MagnifyingGlassIcon className='size-4' />}
             onChange={(e) => onInputChange(e.target.value)}
             value={listSearchValue}
           />
@@ -361,7 +361,7 @@ export const SongList = (props: SongListProps) => {
               variant='secondary'
               className='p-2'
             >
-              <LinkIcon className='h-5 w-5' />
+              <LinkIcon className='size-5' />
             </Button>
           )}
           {identifier && (
@@ -371,7 +371,7 @@ export const SongList = (props: SongListProps) => {
               variant='secondary'
               className={twMerge('p-2', isShuffled && 'text-primary-500')}
             >
-              <RandomIcon className='h-5 w-5' />
+              <RandomIcon className='size-5' />
             </Button>
           )}
         </div>
@@ -379,7 +379,7 @@ export const SongList = (props: SongListProps) => {
           <Button
             title='Sort by:'
             variant='ghost'
-            className='p-2 font-normal text-neutral-300 ml-auto'
+            className='ml-auto p-2 font-normal text-neutral-300'
             onClick={() => {
               toggleSortedPlaylist({
                 identifier: identifier ?? '',
@@ -390,8 +390,8 @@ export const SongList = (props: SongListProps) => {
               })
             }}
           >
-            <ListBulletIcon className='shrink-0 h-5' />
-            <span className='text-sm ml-1 my-auto '>
+            <ListBulletIcon className='h-5 shrink-0' />
+            <span className='my-auto ml-1 text-sm '>
               {sortableProrpertiesLabels[currentSortingProperty]}
             </span>
           </Button>
@@ -420,9 +420,9 @@ export const SongList = (props: SongListProps) => {
               }}
             >
               {sortingSettings?.direction === 'asc' ? (
-                <ArrowUpIcon className='shrink-0 h-5' />
+                <ArrowUpIcon className='h-5 shrink-0' />
               ) : (
-                <ArrowDownIcon className='shrink-0 h-5' />
+                <ArrowDownIcon className='h-5 shrink-0' />
               )}
             </Button>
           </div>
@@ -506,7 +506,7 @@ export const SongList = (props: SongListProps) => {
       </div>
       <DragOverlay
         dropAnimation={null}
-        className='w-fit min-w-96 select-none cursor-grabbing'
+        className='w-fit min-w-96 cursor-grabbing select-none'
       >
         <SongsDragOverlay />
       </DragOverlay>

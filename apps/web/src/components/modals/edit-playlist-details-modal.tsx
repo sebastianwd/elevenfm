@@ -1,6 +1,9 @@
 import { LinkIcon } from '@heroicons/react/24/outline'
 import { useMutation } from '@tanstack/react-query'
-import { PlaylistQueryQuery, UserPlaylistsQueryQuery } from 'elevenfm-shared'
+import type {
+  PlaylistQueryQuery,
+  UserPlaylistsQueryQuery,
+} from 'elevenfm-shared'
 import { type ClientError } from 'graphql-request'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
@@ -37,7 +40,7 @@ export const EditPlaylistDetailsModal = (
     try {
       await updatePlaylist.mutateAsync()
 
-      await queryClient.setQueryData<UserPlaylistsQueryQuery>(
+      queryClient.setQueryData<UserPlaylistsQueryQuery>(
         ['userPlaylists', session.data?.user?.id],
         (data) => {
           if (!data) return undefined
@@ -51,7 +54,7 @@ export const EditPlaylistDetailsModal = (
           }
         }
       )
-      await queryClient.setQueryData<PlaylistQueryQuery>(
+      queryClient.setQueryData<PlaylistQueryQuery>(
         ['userPlaylist', playlistId],
         (data) => {
           if (!data) return undefined
@@ -69,20 +72,21 @@ export const EditPlaylistDetailsModal = (
   }
 
   return (
-    <div className='w-96 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)] max-w-full p-8 pb-12'>
-      <span className='text-sm mb-2 block'>Playlist name</span>
+    <div className='w-96 max-w-full p-8 pb-12 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)]'>
+      <span className='mb-2 block text-sm'>Playlist name</span>
       <div className='flex gap-2'>
-        <div className='flex items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2 grow'>
+        <div className='flex grow items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
           <input
             onChange={(e) => setNewName(e.target.value)}
-            className='text-md border-0 bg-transparent w-full h-9 py-2 outline-none ring-0'
+            className='h-9 w-full border-0 bg-transparent py-2 text-base outline-none ring-0'
             value={newName}
             placeholder={playlistName}
           />
-          <LinkIcon className='h-4 w-4' />
+          <LinkIcon className='size-4' />
         </div>
         <button
-          className='h-9 text-center px-2 text-surface-950 bg-neutral-200 text-sm rounded-md shrink-0 font-medium disabled:opacity-80 disabled:cursor-default'
+          type='button'
+          className='h-9 shrink-0 rounded-md bg-neutral-200 px-2 text-center text-sm font-medium text-surface-950 disabled:cursor-default disabled:opacity-80'
           disabled={
             updatePlaylist.isPending || !newName || newName === playlistName
           }

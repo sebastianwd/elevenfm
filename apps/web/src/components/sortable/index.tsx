@@ -1,7 +1,8 @@
-import { UseDraggableArguments } from '@dnd-kit/core'
+import type { UseDraggableArguments } from '@dnd-kit/core'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import React, { useMemo } from 'react'
+import type React from 'react'
+import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 interface SortableProps extends UseDraggableArguments {

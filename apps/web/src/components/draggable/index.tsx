@@ -1,6 +1,7 @@
 import { useDraggable, type UseDraggableArguments } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import React, { useMemo } from 'react'
+import type React from 'react'
+import { useMemo } from 'react'
 
 interface DraggableProps extends UseDraggableArguments {
   children: React.ReactNode

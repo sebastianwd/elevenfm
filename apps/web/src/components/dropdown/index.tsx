@@ -83,6 +83,7 @@ export default function Dropdown(props: DropdownProps) {
                     onClick={() => {
                       item.onClick()
                     }}
+                    type='button'
                   >
                     {focus ? (
                       <div className='text-primary-500'>{item.icon}</div>

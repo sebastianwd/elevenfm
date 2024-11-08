@@ -8,7 +8,7 @@ import {
   Transition,
 } from '@headlessui/react'
 import { CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
-import React, { Fragment } from 'react'
+import { Fragment } from 'react'
 
 import { SpinnerIcon } from '../icons'
 
@@ -39,7 +39,7 @@ export const CommandPalette = ({
         className='fixed inset-0 z-50 overflow-y-auto p-4 pt-[15vh]'
       >
         <div
-          className='fixed inset-0 bg-surface-900/75 w-screen overflow-y-auto'
+          className='fixed inset-0 w-screen overflow-y-auto bg-surface-900/75'
           aria-hidden='true'
         />
         <DialogPanel>
@@ -53,17 +53,18 @@ export const CommandPalette = ({
           >
             <div className='flex items-center rounded-xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
               <ComboboxInput
+                // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
                 onChange={(e) => {
                   onInputChange(e.target.value)
                 }}
-                className=' text-md w-full border-0 bg-transparent py-4 outline-none ring-0'
+                className='w-full border-0 bg-transparent py-4 text-base outline-none ring-0'
                 placeholder='Search...'
               />
               {isLoading ? (
                 <SpinnerIcon />
               ) : (
-                <MagnifyingGlassIcon className='h-6 w-6' />
+                <MagnifyingGlassIcon className='size-6' />
               )}
             </div>
             <ComboboxOptions className='absolute mt-1 max-h-64 w-full overflow-auto rounded-md'>

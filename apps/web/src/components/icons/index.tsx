@@ -1,9 +1,9 @@
-import { SVGProps } from 'react'
+import type { SVGProps } from 'react'
 
 export const SpinnerIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
-    className='-ml-1 h-5 w-5 animate-spin text-white'
+    className='-ml-1 size-5 animate-spin text-white'
     fill='none'
     viewBox='0 0 24 24'
     {...props}
@@ -193,7 +193,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
       <g id='audio-wave' data-name='audio-wave' className='[&>*]:[y:11px]'>
         <rect
           id='wave-5'
-          className='wave animate-pulse-size animation-delay-[0.4s]'
+          className='animate-pulse-size animation-delay-[0.4s]'
           x='32'
           width='4'
           height='0'
@@ -203,7 +203,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
         />
         <rect
           id='wave-4'
-          className='wave animate-pulse-size duration-1000 animation-delay-700'
+          className='animate-pulse-size duration-1000 animation-delay-700'
           x='24'
           y='2'
           width='4'
@@ -214,7 +214,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
         />
         <rect
           id='wave-3'
-          className='wave animate-pulse-size duration-1000 animation-delay-[600ms]'
+          className='animate-pulse-size duration-1000 animation-delay-[600ms]'
           x='16'
           width='4'
           height='0'
@@ -224,7 +224,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
         />
         <rect
           id='wave-2'
-          className='wave animate-pulse-size duration-1000 delay-1000'
+          className='animate-pulse-size delay-1000 duration-1000'
           x='8'
           y='5'
           width='4'
@@ -235,7 +235,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
         />
         <rect
           id='wave-1'
-          className='wave animate-pulse-size duration-1000 delay-200'
+          className='animate-pulse-size delay-200 duration-1000'
           y='9'
           width='4'
           height='0'

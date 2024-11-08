@@ -13,6 +13,7 @@ import { ClientError } from 'graphql-request'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import type React from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
@@ -152,13 +153,13 @@ export const Song = (props: SongProps) => {
       () => [
         {
           label: 'Remove from queue',
-          icon: <MinusCircleIcon className='h-5 mr-2 shrink-0' />,
+          icon: <MinusCircleIcon className='mr-2 h-5 shrink-0' />,
           hidden: !props.isQueue,
           onClick: removeFromQueue,
         },
         {
           label: 'Remove from playlist',
-          icon: <XMarkIcon className='h-5 mr-2 shrink-0' />,
+          icon: <XMarkIcon className='mr-2 h-5 shrink-0' />,
           hidden: !props.isEditable,
           onClick: async () => {
             await removeFromPlaylist.mutateAsync({
@@ -177,19 +178,19 @@ export const Song = (props: SongProps) => {
         },
         {
           label: 'Add to playlist',
-          icon: <SquaresPlusIcon className='h-5 mr-2 shrink-0' />,
+          icon: <SquaresPlusIcon className='mr-2 h-5 shrink-0' />,
           onClick: openAddToPlaylistModal,
         },
         {
           label: 'Add to queue',
-          icon: <PlusIcon className='h-5 mr-2 shrink-0' />,
+          icon: <PlusIcon className='mr-2 h-5 shrink-0' />,
           hidden: props.isQueue,
           onClick: addToQueue,
         },
 
         {
           label: 'Go to song radio',
-          icon: <MusicalNoteIcon className='h-5 mr-2 shrink-0' />,
+          icon: <MusicalNoteIcon className='mr-2 h-5 shrink-0' />,
           onClick: async () => {
             try {
               const response = await createSongRadio.mutateAsync({
@@ -199,7 +200,7 @@ export const Song = (props: SongProps) => {
               })
 
               if (response.createSongRadio) {
-                router.push(`/playlist/${response.createSongRadio.id}`)
+                await router.push(`/playlist/${response.createSongRadio.id}`)
               }
             } catch (error) {
               console.error(error)
@@ -242,21 +243,24 @@ export const Song = (props: SongProps) => {
       )}
       role='row'
       onClick={onSelect}
+      onKeyDown={() => {}}
       aria-selected={isSelected}
+      tabIndex={0}
     >
-      <div className='@container/songs flex grow h-full'>
-        <div className='flex items-center @2xl/songs:basis-1/2 h-full'>
+      <div className='flex h-full grow @container/songs'>
+        <div className='flex h-full items-center @2xl/songs:basis-1/2'>
           {props.position && (
-            <div className='text-sm font-medium text-gray-400 w-3 shrink-0'>
+            <div className='w-3 shrink-0 text-sm font-medium text-gray-400'>
               <span>{props.position}</span>
             </div>
           )}
           <button
+            type='button'
             onClick={(e) => {
               e.stopPropagation()
               props.onClick?.(e)
             }}
-            className='flex items-center h-full hover:text-primary-500'
+            className='flex h-full items-center hover:text-primary-500'
           >
             <div
               className={twMerge(
@@ -272,28 +276,28 @@ export const Song = (props: SongProps) => {
             </div>
             <div className='ml-4'>
               <p
-                className={`text-sm font-medium text-gray-300 line-clamp-1 text-left ${
+                className={`line-clamp-1 text-left text-sm font-medium text-gray-300 ${
                   props.isPlaying ? 'text-primary-500' : ''
                 } `}
               >
                 {props.song}
               </p>
               {props.artist && showArtist && (
-                <p className='text-sm text-gray-400 text-left @2xl/songs:hidden block'>
+                <p className='block text-left text-sm text-gray-400 @2xl/songs:hidden'>
                   {props.artist}
                 </p>
               )}
             </div>
           </button>
         </div>
-        <div className='flex items-center grow'>
+        <div className='flex grow items-center'>
           {props.playcount && (
-            <div className='text-sm text-gray-400 mr-8 hidden @2xl/songs:inline-block'>
+            <div className='mr-8 hidden text-sm text-gray-400 @2xl/songs:inline-block'>
               {props.playcount}
             </div>
           )}
           {props.artist && showArtist && (
-            <div className='mr-8 @2xl/songs:block hidden basis-1/2 text-gray-400 truncate text-sm'>
+            <div className='mr-8 hidden basis-1/2 truncate text-sm text-gray-400 @2xl/songs:block'>
               {splitArtist(props.artist).map((artist, index, artists) => (
                 <Fragment key={artist}>
                   <Link
@@ -309,7 +313,7 @@ export const Song = (props: SongProps) => {
             </div>
           )}
           {props.dateAdded && (
-            <div className='mr-8 @2xl/songs:block hidden'>
+            <div className='mr-8 hidden @2xl/songs:block'>
               <p className='text-sm text-gray-400'>
                 {format(new Date(Number(props.dateAdded)), 'MMM d, yyyy')}
               </p>

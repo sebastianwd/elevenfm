@@ -9,10 +9,8 @@ import { getAlbumsQuery } from '~/api'
 import { WavesLoader } from '~/components/loader'
 import { SongList } from '~/components/song-list'
 import { sortablePropertiesMapping } from '~/constants'
-import {
-  ArtistSortableProperties,
-  useLocalSettings,
-} from '~/store/use-local-settings'
+import type { ArtistSortableProperties } from '~/store/use-local-settings'
+import { useLocalSettings } from '~/store/use-local-settings'
 
 interface ArtistAlbumProps {
   album: string
@@ -60,8 +58,8 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
 
   return (
     <div>
-      <div className='flex mb-4 flex-col md:flex-row'>
-        <div className='shrink-0 mx-auto md:mx-0'>
+      <div className='mb-4 flex flex-col md:flex-row'>
+        <div className='mx-auto shrink-0 md:mx-0'>
           <Image
             alt={album}
             width={136}
@@ -71,9 +69,9 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
             className='rounded-md object-cover'
           />
         </div>
-        <div className='py-3 px-4 flex flex-col'>
+        <div className='flex flex-col px-4 py-3'>
           <h3
-            className={` font-semibold block mb-2 ${
+            className={` mb-2 block font-semibold ${
               description
                 ? 'text-xl md:text-2xl'
                 : 'mt-auto text-2xl md:text-3xl'
@@ -92,7 +90,8 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
               </p>
               {description.split(' ').length > 50 && (
                 <button
-                  className='text-primary-500 hover:underline text-sm w-fit'
+                  type='button'
+                  className='w-fit text-sm text-primary-500 hover:underline'
                   onClick={() => setReadMore(!readMore)}
                 >
                   {readMore ? 'Read less' : 'Read more'}
@@ -132,12 +131,13 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
       return (
         <>
           <button
-            className='flex items-center mb-4'
+            type='button'
+            className='mb-4 flex items-center'
             onClick={() => {
               onAlbumSelect('')
             }}
           >
-            <ArrowLeftIcon className='h-6 inline-block mr-2 text-primary-500' />
+            <ArrowLeftIcon className='mr-2 inline-block h-6 text-primary-500' />
             <h3 className='text-xl font-semibold'>Albums</h3>
           </button>
           <ArtistAlbum
@@ -153,10 +153,10 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
 
     return (
       <>
-        <h3 className='text-xl font-semibold mb-4'>Albums</h3>
-        <div className='flex flex-wrap -mx-2 -mr-1'>
+        <h3 className='mb-4 text-xl font-semibold'>Albums</h3>
+        <div className='-mx-2 -mr-1 flex flex-wrap'>
           {getAlbums.isLoading ? (
-            <div className='w-full flex justify-center h-28 md:h-56'>
+            <div className='flex h-28 w-full justify-center md:h-56'>
               <WavesLoader />
             </div>
           ) : (
@@ -164,14 +164,15 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
               return (
                 <div
                   key={album.name + i}
-                  className='w-1/2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 flex flex-col px-2 mb-5'
+                  className='mb-5 flex w-1/2 flex-col px-2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6'
                 >
                   <button
+                    type='button'
                     onClick={() => {
                       onAlbumSelect(album.name)
                     }}
                   >
-                    <div className='relative group'>
+                    <div className='group relative'>
                       <Image
                         alt={album.name}
                         width={164}
@@ -180,8 +181,8 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
                         src={album.coverImage || '/cover-placeholder.png'}
                         className='w-full rounded-md object-cover'
                       />
-                      <div className='group-hover:visible invisible absolute group-hover:bg-black/30 w-full h-full top-0 left-0 transition-colors flex items-center justify-center'>
-                        <PlayIcon className='group-hover:text-primary-500 w-10 h-10 text-transparent transition-colors' />
+                      <div className='invisible absolute left-0 top-0 flex size-full items-center justify-center transition-colors group-hover:visible group-hover:bg-black/30'>
+                        <PlayIcon className='size-10 text-transparent transition-colors group-hover:text-primary-500' />
                       </div>
                     </div>
                     <span className='text-center text-sm'>

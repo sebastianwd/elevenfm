@@ -8,14 +8,13 @@ import {
 import { PlusIcon } from '@heroicons/react/24/solid'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { ClientError } from 'graphql-request'
+import type { ClientError } from 'graphql-request'
 import { head, isEmpty } from 'lodash'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
-import React from 'react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
@@ -87,9 +86,9 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
       )}
       ref={setNodeRef}
     >
-      <Link className='py-1 px-3 grow' href={`/playlist/${playlist.id}`}>
+      <Link className='grow px-3 py-1' href={`/playlist/${playlist.id}`}>
         <p>{playlist.name}</p>
-        <p className='text-xs text-gray-400 mt-0.5'>
+        <p className='mt-0.5 text-xs text-gray-400'>
           {format(new Date(Number(playlist.createdAt!)), 'MM/dd/yyyy')}
         </p>
       </Link>
@@ -104,14 +103,14 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
         menuItems={[
           {
             label: 'Edit details',
-            icon: <PencilIcon className='h-3.5 mr-2 shrink-0' />,
+            icon: <PencilIcon className='mr-2 h-3.5 shrink-0' />,
             onClick: () => {
               openModal({
                 content: (
                   <EditPlaylistDetailsModal
                     playlistId={playlist.id}
                     playlistName={playlist.name}
-                    onActionEnd={async () => {
+                    onActionEnd={() => {
                       toast.custom(
                         () => <Toast message='✔ Playlist updated' />,
                         { duration: 3000 }
@@ -126,8 +125,8 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
           },
           {
             label: 'Import into playlist',
-            icon: <LinkIcon className='h-3.5 mr-2 shrink-0' />,
-            onClick: async () => {
+            icon: <LinkIcon className='mr-2 h-3.5 shrink-0' />,
+            onClick: () => {
               openModal({
                 content: (
                   <ImportPlaylistModal
@@ -147,26 +146,26 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
           },
           {
             label: 'Delete',
-            icon: <TrashIcon className='h-3.5 mr-2 shrink-0' />,
+            icon: <TrashIcon className='mr-2 h-3.5 shrink-0' />,
             onClick: async () => {
               await deletePlaylist.mutateAsync(playlist.id)
               const updatedPlaylists = await userPlaylists.refetch()
 
+              toast.custom(() => <Toast message='✔ Playlist deleted' />, {
+                duration: 3000,
+              })
+
               if (isActive) {
                 if (!isEmpty(updatedPlaylists.data?.userPlaylists)) {
-                  router.replace(
+                  await router.replace(
                     `/playlist/${head(updatedPlaylists.data?.userPlaylists)?.id}`,
                     undefined,
                     { shallow: true }
                   )
                 } else {
-                  router.replace('/', undefined, { shallow: true })
+                  await router.replace('/', undefined, { shallow: true })
                 }
               }
-
-              toast.custom(() => <Toast message='✔ Playlist deleted' />, {
-                duration: 3000,
-              })
             },
           },
         ]}
@@ -193,8 +192,8 @@ export const PlaylistMenu = () => {
   const renderPlaylists = () => {
     if (session.status !== 'authenticated') {
       return (
-        <div className='flex items-center h-full'>
-          <p className='text-sm text-gray-300 text-balance text-center'>
+        <div className='flex h-full items-center'>
+          <p className='text-balance text-center text-sm text-gray-300'>
             Sign in to see your playlists
           </p>
         </div>
@@ -203,7 +202,7 @@ export const PlaylistMenu = () => {
 
     if (userPlaylists.isLoading) {
       return (
-        <div className='flex items-center justify-center h-full'>
+        <div className='flex h-full items-center justify-center'>
           <WavesLoader className='h-5' />
         </div>
       )
@@ -220,8 +219,8 @@ export const PlaylistMenu = () => {
     }
 
     return (
-      <div className='flex items-center h-full'>
-        <p className='text-sm text-gray-300 text-balance text-center'>
+      <div className='flex h-full items-center'>
+        <p className='text-balance text-center text-sm text-gray-300'>
           You have no playlists. Create one!
         </p>
       </div>
@@ -229,19 +228,19 @@ export const PlaylistMenu = () => {
   }
 
   return (
-    <div className='px-4 py-7 h-full'>
+    <div className='h-full px-4 py-7'>
       <div className='flex justify-between'>
-        <h1 className='text-gray-300 font-semibold text-xl'>Your playlists</h1>
+        <h1 className='text-xl font-semibold text-gray-300'>Your playlists</h1>
         {session.status === 'authenticated' && (
           <DynamicDropdown
             direction='right'
             menuLabel={
-              <PlusIcon className='size-6 shrink-0 hover:text-primary-500 transition-colors' />
+              <PlusIcon className='size-6 shrink-0 transition-colors hover:text-primary-500' />
             }
             menuItems={[
               {
                 label: 'Create playlist',
-                icon: <PlusIcon className='h-3.5 mr-2 shrink-0' />,
+                icon: <PlusIcon className='mr-2 h-3.5 shrink-0' />,
                 onClick: async () => {
                   await createPlaylistMutation()
                   await userPlaylists.refetch()
@@ -249,7 +248,7 @@ export const PlaylistMenu = () => {
               },
               {
                 label: 'Import from URL',
-                icon: <LinkIcon className='h-3.5 mr-2 shrink-0' />,
+                icon: <LinkIcon className='mr-2 h-3.5 shrink-0' />,
                 onClick: () => {
                   openModal({
                     content: (

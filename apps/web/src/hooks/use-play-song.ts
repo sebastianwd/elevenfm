@@ -5,7 +5,7 @@ import { getVideoInfoQuery, queryClient } from '~/api'
 import { queryKeys } from '~/constants'
 import { useLocalSettings } from '~/store/use-local-settings'
 import { usePlayerState } from '~/store/use-player'
-import { PlayableSong } from '~/types'
+import type { PlayableSong } from '~/types'
 import { getMainArtist } from '~/utils/song-title-utils'
 
 interface UsePlaySongOptions {
@@ -60,13 +60,13 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
           urls,
           videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
           albumCoverUrl: song.albumCoverUrl || undefined,
-        })
+        }).catch((err) => console.error('Error setting current song', err))
       } else {
         setCurrentSong({
           artist,
           title,
           urls: [songUrl],
-        })
+        }).catch((err) => console.error('Error setting current song', err))
       }
 
       if (identifier) {
