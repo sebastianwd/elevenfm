@@ -17,21 +17,21 @@ A music streaming webapp that uses YouTube to get the audio and video. The artis
 
 ## Features
 
-- Search for artists.
+- **Search** for artists.
 - View artist details and discography.
-- Play albums and tracks.
+- **Play** albums and tracks.
 - Autoplay artist's tracks.
-- Add tracks to queue.
-- View lyrics.
+- Add tracks to **queue**.
+- View **lyrics**.
 - Randomize the queue.
 - Manage playlists.
-- Import playlists from Spotify, YouTube and SoundCloud. (100 max at a time)
+- **Import** playlists from Spotify, YouTube and SoundCloud. (100 max at a time)
 - Simple account creation with no email required.
 - Fully responsive design.
 
-  | Add songs to your playlists by dragging and dropping:                        | Reorder tracks in your playlists:                                    |
-  | ---------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-  | <video controls src="resources/dd.mp4" title="Drag and drop" width="100%" /> | <video controls src="resources/reorder.mp4" title="Title"  ></video> |
+  | Add songs to your playlists by dragging and dropping: | Reorder tracks in your playlists:          |
+  | ----------------------------------------------------- | ------------------------------------------ |
+  | ![drag to playlist](resources/dd.gif)                 | ![reorder playlist](resources/reorder.gif) |
 
 ## Installation
 
