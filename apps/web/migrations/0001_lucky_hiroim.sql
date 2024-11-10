@@ -6,3 +6,4 @@
 
  Due to that we don't generate migration automatically and it has to be done manually
 */
+SELECT 1;
