@@ -11,7 +11,7 @@ export const Users = sqliteTable('users', {
     .primaryKey()
     .$defaultFn(() => createId()),
   name: text('name').notNull(),
-  username: text('username').unique().notNull(),
+  username: text('username').unique().notNull().default(''),
   email: text('email').unique(),
   password: text('password'),
   createdAt: integer('createdAt', { mode: 'timestamp' })
@@ -94,6 +94,7 @@ export const PlaylistsToSongs = sqliteTable(
     createdAt: integer('createdAt', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
+    updatedAt: integer('updatedAt', { mode: 'timestamp' }),
   },
   (s) => ({
     unq: unique().on(s.playlistId, s.songId),

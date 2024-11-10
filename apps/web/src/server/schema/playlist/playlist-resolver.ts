@@ -526,18 +526,29 @@ export class PlaylistResolver {
                 ? LexoRank.parse(lastRank.rank).genNext()
                 : LexoRank.middle()
 
-              await tx.insert(PlaylistsToSongs).values(
-                createdSongs.map((createdSong) => {
-                  const song = {
-                    playlistId,
-                    songId: createdSong.insertedId,
-                    rank: currentRank.toString(),
-                  }
-                  currentRank = currentRank.genNext()
+              await tx
+                .insert(PlaylistsToSongs)
+                .values(
+                  createdSongs.map((createdSong) => {
+                    const song = {
+                      playlistId,
+                      songId: createdSong.insertedId,
+                      rank: currentRank.toString(),
+                    }
+                    currentRank = currentRank.genNext()
 
-                  return song
+                    return song
+                  })
+                )
+                .onConflictDoUpdate({
+                  target: [
+                    PlaylistsToSongs.playlistId,
+                    PlaylistsToSongs.songId,
+                  ],
+                  set: {
+                    updatedAt: new Date(),
+                  },
                 })
-              )
             })
           )
         }

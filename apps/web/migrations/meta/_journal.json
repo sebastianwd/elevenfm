@@ -15,6 +15,13 @@
       "when": 1727826599097,
       "tag": "0001_lucky_hiroim",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1731200697419,
+      "tag": "0002_round_arclight",
+      "breakpoints": true
     }
   ]
 }
