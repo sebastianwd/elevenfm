@@ -25,10 +25,13 @@ A music streaming webapp that uses YouTube to get the audio and video. The artis
 - View lyrics.
 - Randomize the queue.
 - Manage playlists.
-- Reorder tracks.
 - Import playlists from Spotify, YouTube and SoundCloud. (100 max at a time)
 - Simple account creation with no email required.
 - Fully responsive design.
+
+  | Add songs to your playlists by dragging and dropping:                        | Reorder tracks in your playlists:                                    |
+  | ---------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+  | <video controls src="resources/dd.mp4" title="Drag and drop" width="100%" /> | <video controls src="resources/reorder.mp4" title="Title"  ></video> |
 
 ## Installation
 
