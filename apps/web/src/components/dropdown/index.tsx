@@ -69,6 +69,9 @@ export default function Dropdown(props: DropdownProps) {
             direction === 'right' ? 'left-0' : 'right-0',
             initialOpenUpwards ? 'md:bottom-full' : ''
           )}
+          anchor={{
+            to: 'bottom start',
+          }}
         >
           {map(menuItems, (item, index) => {
             if (item.hidden) return null

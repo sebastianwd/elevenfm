@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'framer-motion'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
@@ -18,7 +19,7 @@ interface ArtistSongsProps {
 export const ArtistSongs = (props: ArtistSongsProps) => {
   const { artist } = props
 
-  const { data: topsongsByArtist } = useQuery({
+  const { data: topsongsByArtist, isPending } = useQuery({
     queryKey: ['topsongsByArtist', artist],
     queryFn: () => topsongsByArtistQuery({ artist }),
     staleTime: Infinity,
@@ -56,5 +57,24 @@ export const ArtistSongs = (props: ArtistSongsProps) => {
     sortBySetting,
   ])
 
-  return <SongList identifier={artist} songs={sortedSongs} />
+  return (
+    <AnimatePresence>
+      {isPending ? null : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{
+            opacity: 0,
+            transition: {
+              ease: [0.445, 0.05, 0.55, 0.95],
+            },
+            z: -200,
+            y: 10,
+          }}
+        >
+          <SongList identifier={artist} songs={sortedSongs} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
 }

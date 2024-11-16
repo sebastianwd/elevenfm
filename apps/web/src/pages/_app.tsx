@@ -55,7 +55,7 @@ const ArtistSearchCommandPalette = () => {
     await router.push(`/artist/${value}`)
   }
 
-  return isOpen ? (
+  return (
     <CommandPalette
       onSelect={(value) => {
         void onSelect(value)
@@ -67,9 +67,13 @@ const ArtistSearchCommandPalette = () => {
         setSearch(value)
       }}
       isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={() => {
+        setSearch('')
+        setResults([])
+        setIsOpen(false)
+      }}
     />
-  ) : null
+  )
 }
 
 const MyApp = (props: AppProps) => {

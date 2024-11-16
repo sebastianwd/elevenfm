@@ -19,6 +19,7 @@ import { useModalStore } from '~/store/use-modal'
 
 import { AuthModal } from '../auth/auth-modal'
 import { MyAccountModal } from '../modals/my-account-modal'
+import { Skeleton } from '../skeleton/skeleton'
 import { PlaylistMenu } from './playlist-menu'
 
 interface MenuItemProps {
@@ -109,7 +110,10 @@ export const Menu = () => {
   const closeModal = useModalStore((state) => state.closeModal)
   const theaterMode = useLayoutState((state) => state.theaterMode)
 
-  const [isPlaylistMenuOpen, setIsPlaylistMenuOpen] = React.useState(false)
+  const isPlaylistMenuOpen = useLayoutState((state) => state.playlistMenuOpen)
+  const setIsPlaylistMenuOpen = useLayoutState(
+    (state) => state.setPlaylistMenuOpen
+  )
 
   const session = useSession()
 
@@ -118,6 +122,14 @@ export const Menu = () => {
   }
 
   const renderAccountOption = () => {
+    if (session.status === 'loading') {
+      return (
+        <MenuItem className='mt-auto' loading icon={<UserIcon />}>
+          <Skeleton className='mt-1 h-4 w-14' />
+        </MenuItem>
+      )
+    }
+
     if (session.status === 'authenticated')
       return (
         <DynamicPopover
@@ -158,7 +170,6 @@ export const Menu = () => {
     return (
       <MenuItem
         className='mt-auto'
-        loading={session.status === 'loading'}
         onClick={() => {
           openModal({
             content: <AuthModal onClose={closeModal} />,
@@ -212,7 +223,7 @@ export const Menu = () => {
                 Search
               </MenuItem>
               <MenuItem
-                onClick={() => setIsPlaylistMenuOpen((prev) => !prev)}
+                onClick={() => setIsPlaylistMenuOpen(!isPlaylistMenuOpen)}
                 icon={<MusicalNoteIcon />}
                 active={isPlaylistMenuOpen}
               >

@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
+import SimpleBar from 'simplebar-react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
@@ -82,11 +83,17 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
       className={twMerge(
         `bg-surface-800 rounded-lg text-left flex items-center transition-colors`,
         isOver &&
-          'text-primary-500 bg-surface-900 outline-primary-500 outline outline-1'
+          'text-primary-500 bg-surface-900 border-primary-500 border border-solid'
       )}
       ref={setNodeRef}
     >
-      <Link className='grow px-3 py-1' href={`/playlist/${playlist.id}`}>
+      <Link
+        className='relative grow px-3 py-1'
+        href={`/playlist/${playlist.id}`}
+      >
+        {isActive ? (
+          <div className='absolute left-0 top-0 h-full w-1 rounded-l-lg bg-primary-500' />
+        ) : null}
         <p>{playlist.name}</p>
         <p className='mt-0.5 text-xs text-gray-400'>
           {format(new Date(Number(playlist.createdAt!)), 'MM/dd/yyyy')}
@@ -94,7 +101,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
       </Link>
       <DynamicDropdown
         direction='right'
-        className='ml-auto self-stretch '
+        className='ml-auto self-stretch'
         triggerClassName={twMerge(
           'hover:text-primary-500 h-full transition-colors px-3',
           isActive && 'text-primary-500'
@@ -210,11 +217,20 @@ export const PlaylistMenu = () => {
 
     if (hasPlaylists) {
       return (
-        <div className='mt-12 flex flex-col gap-2'>
-          {userPlaylists.data?.userPlaylists.map((playlist) => (
-            <PlaylistMenuItem key={playlist.id} playlist={playlist} />
-          ))}
-        </div>
+        <SimpleBar
+          className={twMerge(
+            `overflow-auto mt-8 [&.simplebar-scrollable-y]:pr-4 h-full`
+          )}
+          classNames={{
+            scrollbar: 'bg-primary-500 w-1 rounded',
+          }}
+        >
+          <div className='flex flex-col gap-2'>
+            {userPlaylists.data?.userPlaylists.map((playlist) => (
+              <PlaylistMenuItem key={playlist.id} playlist={playlist} />
+            ))}
+          </div>
+        </SimpleBar>
       )
     }
 
@@ -228,7 +244,7 @@ export const PlaylistMenu = () => {
   }
 
   return (
-    <div className='h-full px-4 py-7'>
+    <div className='flex h-full flex-col px-4 py-7'>
       <div className='flex justify-between'>
         <h1 className='text-xl font-semibold text-gray-300'>Your playlists</h1>
         {session.status === 'authenticated' && (

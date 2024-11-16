@@ -82,7 +82,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                       height={200}
                       quality={100}
                       src={data?.artist.image}
-                      className='size-40 rounded-md object-cover'
+                      className='size-40 rounded-md object-cover [box-shadow:rgb(0,0,0)_0px_0px_20rem]'
                     />
                   )}
                   <ArtistHeader

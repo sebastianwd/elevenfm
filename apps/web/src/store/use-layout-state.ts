@@ -1,6 +1,6 @@
 import type { UniqueIdentifier } from '@dnd-kit/core'
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
 import type { PlayableSong } from '~/types'
@@ -24,33 +24,51 @@ interface LayoutState {
     }[]
   } | null
   setDraggingToPlaylistEl: (el: LayoutState['draggingToPlaylistData']) => void
+  playlistMenuOpen: boolean
+  setPlaylistMenuOpen: (playlistMenuOpen: boolean) => void
+  // for reordering logic
   currentPlaylist: PlayableSong[]
   setCurrentPlaylist: (playlist: PlayableSong[]) => void
 }
 
 export const useLayoutState = create<LayoutState>()(
   devtools(
-    immer((set) => ({
-      videoPosition: 'artist-page',
-      setVideoPosition: (videoPosition) =>
-        set((state) => {
-          state.videoPosition = videoPosition
+    immer(
+      persist(
+        (set) => ({
+          videoPosition: 'artist-page',
+          setVideoPosition: (videoPosition) =>
+            set((state) => {
+              state.videoPosition = videoPosition
+            }),
+          theaterMode: false,
+          setTheaterMode: (theaterMode) =>
+            set((state) => {
+              state.theaterMode = theaterMode
+            }),
+          draggingToPlaylistData: null,
+          setDraggingToPlaylistEl: (el) =>
+            set((state) => {
+              state.draggingToPlaylistData = el
+            }),
+          playlistMenuOpen: false,
+          setPlaylistMenuOpen: (playlistMenuOpen) =>
+            set((state) => {
+              state.playlistMenuOpen = playlistMenuOpen
+            }),
+          currentPlaylist: [],
+          setCurrentPlaylist: (playlist) =>
+            set((state) => {
+              state.currentPlaylist = playlist
+            }),
         }),
-      theaterMode: false,
-      setTheaterMode: (theaterMode) =>
-        set((state) => {
-          state.theaterMode = theaterMode
-        }),
-      draggingToPlaylistData: null,
-      setDraggingToPlaylistEl: (el) =>
-        set((state) => {
-          state.draggingToPlaylistData = el
-        }),
-      currentPlaylist: [],
-      setCurrentPlaylist: (playlist) =>
-        set((state) => {
-          state.currentPlaylist = playlist
-        }),
-    }))
+        {
+          name: 'layout-state',
+          partialize: (state) => ({
+            playlistMenuOpen: state.playlistMenuOpen,
+          }),
+        }
+      )
+    )
   )
 )

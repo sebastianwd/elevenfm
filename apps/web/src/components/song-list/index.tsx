@@ -28,6 +28,7 @@ import type { PlayableSong } from '~/types'
 import { Button } from '../button'
 import { RandomIcon } from '../icons'
 import { Input } from '../input'
+import { Skeleton } from '../skeleton/skeleton'
 import { Song } from '../song'
 import { Sortable } from '../sortable'
 
@@ -88,6 +89,7 @@ interface SongListProps {
   showArtist?: boolean
   identifier?: string
   isEditable?: boolean
+  isLoading?: boolean
   onImportFromUrl?: () => void
 }
 
@@ -161,6 +163,7 @@ export const SongList = (props: SongListProps) => {
     identifier,
     isEditable = false,
     onImportFromUrl,
+    isLoading,
   } = props
 
   const [listSearchValue, setListSearchValue] = React.useState('')
@@ -316,6 +319,69 @@ export const SongList = (props: SongListProps) => {
     [filteredSongs, selectedSongIds]
   )
 
+  const renderSongList = () => {
+    if (isLoading) {
+      return Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className='mb-2 h-[3.25rem] rounded pl-4'>
+          <Skeleton className='size-full overflow-hidden' />
+        </div>
+      ))
+    }
+
+    return filteredSongs?.map((song, index) => {
+      const songIdentifier = song.id || `${song.title}-${song.artist}`
+
+      const hasOtherSelectedSongs =
+        selectedSongIds.length > 0 && !selectedSongIds.includes(songIdentifier)
+
+      const dndData = {
+        items:
+          selectedSongIds.length === 0 || hasOtherSelectedSongs
+            ? [
+                {
+                  title: song.title,
+                  artist: song.artist,
+                  id: song.id,
+                  songUrl: song.songUrl,
+                },
+              ]
+            : draggableData,
+      } as const
+
+      return (
+        <Sortable
+          id={songIdentifier}
+          disabled={isMobile()}
+          data={dndData}
+          key={songIdentifier}
+        >
+          <Song
+            isSortHighlight={
+              !!song.id && song.id === draggingToPlaylistData?.id
+            }
+            position={index + 1}
+            isPlaying={
+              currentSong?.title === song.title &&
+              currentSong?.artist === song.artist
+            }
+            onClick={() => onPlaySong(song)}
+            song={song.title}
+            playcount={song.playcount ? Number(song.playcount) : undefined}
+            artist={song.artist}
+            showArtist={showArtist}
+            isEditable={isEditable}
+            playlistId={isEditable ? identifier : undefined}
+            dateAdded={song.createdAt}
+            songId={song.id}
+            songUrl={song.songUrl}
+            onSelect={() => onSelect(song)}
+            isSelected={selectedSongIds.includes(songIdentifier)}
+          />
+        </Sortable>
+      )
+    })
+  }
+
   return (
     <>
       <div className='flex flex-wrap justify-center gap-2 p-2'>
@@ -447,61 +513,7 @@ export const SongList = (props: SongListProps) => {
           }
           strategy={verticalListSortingStrategy}
         >
-          {filteredSongs?.map((song, index) => {
-            const songIdentifier = song.id || `${song.title}-${song.artist}`
-
-            const hasOtherSelectedSongs =
-              selectedSongIds.length > 0 &&
-              !selectedSongIds.includes(songIdentifier)
-
-            const dndData = {
-              items:
-                selectedSongIds.length === 0 || hasOtherSelectedSongs
-                  ? [
-                      {
-                        title: song.title,
-                        artist: song.artist,
-                        id: song.id,
-                        songUrl: song.songUrl,
-                      },
-                    ]
-                  : draggableData,
-            } as const
-
-            return (
-              <Sortable
-                id={songIdentifier}
-                disabled={isMobile()}
-                data={dndData}
-                key={songIdentifier}
-              >
-                <Song
-                  isSortHighlight={
-                    !!song.id && song.id === draggingToPlaylistData?.id
-                  }
-                  position={index + 1}
-                  isPlaying={
-                    currentSong?.title === song.title &&
-                    currentSong?.artist === song.artist
-                  }
-                  onClick={() => onPlaySong(song)}
-                  song={song.title}
-                  playcount={
-                    song.playcount ? Number(song.playcount) : undefined
-                  }
-                  artist={song.artist}
-                  showArtist={showArtist}
-                  isEditable={isEditable}
-                  playlistId={isEditable ? identifier : undefined}
-                  dateAdded={song.createdAt}
-                  songId={song.id}
-                  songUrl={song.songUrl}
-                  onSelect={() => onSelect(song)}
-                  isSelected={selectedSongIds.includes(songIdentifier)}
-                />
-              </Sortable>
-            )
-          })}
+          {renderSongList()}
         </SortableContext>
       </div>
       <DragOverlay
