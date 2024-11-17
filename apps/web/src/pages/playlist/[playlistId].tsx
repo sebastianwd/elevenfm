@@ -151,7 +151,7 @@ const PlaylistPage: NextPage = () => {
         <TheaterMode />
       ) : (
         <>
-          <div className='bg-gradient-blend-primary relative grid bg-top bg-no-repeat lg:grid-cols-3'>
+          <div className='bg-gradient-blend-surface relative grid bg-top bg-no-repeat lg:grid-cols-3'>
             <header className='col-span-2 flex h-48 md:h-72'>
               <div className='z-10 mb-16 mt-auto flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
                 <ArtistHeader

@@ -66,7 +66,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                   `relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top`,
                   data?.artist.bannerImage
                     ? 'bg-gradient-blend'
-                    : 'bg-gradient-blend-primary'
+                    : 'bg-gradient-blend-surface'
                 )}
                 style={{
                   backgroundImage: data?.artist.bannerImage
@@ -82,7 +82,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                       height={200}
                       quality={100}
                       src={data?.artist.image}
-                      className='size-40 rounded-md object-cover [box-shadow:rgb(0,0,0)_0px_0px_20rem]'
+                      className='size-40 rounded-lg object-cover [box-shadow:rgb(0,0,0)_0px_0px_20rem]'
                     />
                   )}
                   <ArtistHeader

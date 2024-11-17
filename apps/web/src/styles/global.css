@@ -25,12 +25,12 @@ body,
       );
   }
 
-  .bg-gradient-blend-primary::before {
+  .bg-gradient-blend-surface::before {
     @apply absolute top-0 left-0 h-full w-full;
     content: '';
     background: linear-gradient(
         to bottom,
-        theme('colors.primary.500') -80%,
+        theme('colors.surface.100') -80%,
         theme('colors.surface.900') 100%
       ),
       linear-gradient(
