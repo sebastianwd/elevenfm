@@ -5,6 +5,7 @@ import { debounce } from 'lodash'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import Script from 'next/script'
 import { useCallback, useEffect, useState } from 'react'
 
 import { searchArtistQuery } from '~/api'
@@ -80,18 +81,27 @@ const MyApp = (props: AppProps) => {
   const { Component, pageProps } = props
 
   return (
-    <AppProvider pageProps={pageProps}>
-      <Head>
-        <meta
-          name='viewport'
-          content='minimum-scale=1, initial-scale=1, width=device-width'
+    <>
+      <AppProvider pageProps={pageProps}>
+        <Head>
+          <meta
+            name='viewport'
+            content='minimum-scale=1, initial-scale=1, width=device-width'
+          />
+        </Head>
+        <MainLayout>
+          <Component {...pageProps} />
+        </MainLayout>
+        <ArtistSearchCommandPalette />
+      </AppProvider>
+      {process.env.NODE_ENV === 'development' ? null : (
+        <Script
+          defer
+          data-site-id='elevenfm.com'
+          src='https://assets.onedollarstats.com/tracker.js'
         />
-      </Head>
-      <MainLayout>
-        <Component {...pageProps} />
-      </MainLayout>
-      <ArtistSearchCommandPalette />
-    </AppProvider>
+      )}
+    </>
   )
 }
 

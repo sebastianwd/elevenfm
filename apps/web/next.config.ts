@@ -1,6 +1,10 @@
-const externalImageUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS.split(',')
+import type { NextConfig } from 'next'
+import type { RemotePattern } from 'next/dist/shared/lib/image-config'
 
-/** @type {import('next').NextConfig} */
+const invidiousUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS ?? ''
+
+const externalImageUrls = invidiousUrls.split(',')
+
 const nextConfig = {
   // https://github.com/nextauthjs/next-auth/discussions/9385
   transpilePackages: ['next-auth'],
@@ -29,7 +33,10 @@ const nextConfig = {
       ...externalImageUrls.map((url) => {
         const { protocol, hostname } = new URL(url)
 
-        return { protocol: protocol.replace(':', ''), hostname }
+        return {
+          protocol: protocol.replace(':', '') as RemotePattern['protocol'],
+          hostname,
+        }
       }),
     ],
   },
@@ -37,13 +44,16 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    optimizeCss: true,
+  },
   webpack: (config) => {
     if (!config.experiments) {
       config.experiments = {}
     }
     config.experiments.topLevelAwait = true
-    return config
+    return config as unknown
   },
-}
+} satisfies NextConfig
 
 export default nextConfig

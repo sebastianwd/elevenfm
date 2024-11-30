@@ -47,7 +47,7 @@
     "tailwind.config.ts",
     "postcss.config.js",
     "src",
-    "next.config.mjs",
+    "next.config.ts",
     "codegen.yml",
     "codegen.ts",
     "eslint.config.mjs",
