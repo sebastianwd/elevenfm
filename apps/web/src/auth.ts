@@ -12,8 +12,8 @@ import { db } from './db/db'
 import { Accounts, Users } from './db/schema'
 import { redis } from './server/redis'
 
-const validateCsrfToken = (tokenValue: string) => {
-  const csrfCookie = cookies().get(
+const validateCsrfToken = async (tokenValue: string) => {
+  const csrfCookie = (await cookies()).get(
     process.env.NODE_ENV === 'production'
       ? '__Host-authjs.csrf-token'
       : 'authjs.csrf-token'
@@ -49,7 +49,9 @@ export const { handlers, auth } = NextAuth({
 
         const { username, password, action } = credentials
 
-        const isTokenValid = validateCsrfToken(credentials.csrfToken as string)
+        const isTokenValid = await validateCsrfToken(
+          credentials.csrfToken as string
+        )
         if (!isTokenValid) {
           throw new AccessDenied('CSRF token mismatch')
         }

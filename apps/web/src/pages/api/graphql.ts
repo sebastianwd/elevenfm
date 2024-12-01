@@ -82,3 +82,5 @@ export const config: PageConfig = {
     bodyParser: false,
   },
 }
+
+export const maxDuration = 40

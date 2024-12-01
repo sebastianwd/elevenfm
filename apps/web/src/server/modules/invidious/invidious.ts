@@ -36,7 +36,9 @@ const invidious = async <T>(method: InvidiousMethods) => {
       if (response.status === 200) break
     } catch (e) {
       if (e instanceof AxiosError) {
-        logger.info(`Invidious error: ${invidiousUrl} - ${e.response?.data}`)
+        logger.info(
+          `Invidious error: ${invidiousUrl} - ${JSON.stringify(e.response?.data)}`
+        )
         if (
           e.response?.data &&
           (String(e.response?.data).includes('Too Many Requests') ||
