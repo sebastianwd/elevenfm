@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
-import { getAlbumsQuery } from '~/api'
+import { getAlbumsQuery, getAlbumTracksQuery } from '~/api'
 import { WavesLoader } from '~/components/loader'
 import { SongList } from '~/components/song-list'
 import { sortablePropertiesMapping } from '~/constants'
@@ -18,24 +18,37 @@ interface ArtistAlbumProps {
   songs: string[]
   artist: string
   description?: string
+  albumId?: string
 }
 
 const ArtistAlbum = (props: ArtistAlbumProps) => {
-  const { album, coverImage, songs, artist, description } = props
+  const { album, coverImage, songs, artist, description, albumId } = props
 
   const [readMore, setReadMore] = useState(false)
 
+  console.log(albumId)
+
+  const getAlbumTracks = useQuery({
+    queryKey: ['getAlbumTracks', albumId],
+    queryFn: () => getAlbumTracksQuery({ albumId: albumId ?? '' }),
+    enabled: !!albumId,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
+
+  const albumSongs = getAlbumTracks.data?.albumSongs.tracks
+
   const identifier = `${artist}-${album}`
 
-  const playableSongs = useMemo(
-    () =>
-      songs.map((song) => ({
-        title: song,
-        artist: artist,
-        albumCoverUrl: coverImage,
-      })),
-    [songs, artist, coverImage]
-  )
+  const playableSongs = useMemo(() => {
+    const hasExternalSongs = albumSongs && albumSongs.length > 0
+
+    return (hasExternalSongs ? albumSongs : songs).map((song) => ({
+      title: song,
+      artist: artist,
+      albumCoverUrl: coverImage,
+    }))
+  }, [albumSongs, songs, artist, coverImage])
 
   const { sortedPlaylists } = useLocalSettings(
     useShallow((state) => ({
@@ -101,7 +114,11 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
           )}
         </div>
       </div>
-      <SongList identifier={identifier} songs={sortedPlayableSongs} />
+      <SongList
+        identifier={identifier}
+        songs={sortedPlayableSongs}
+        isLoading={getAlbumTracks.isLoading}
+      />
     </div>
   )
 }
@@ -146,6 +163,7 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
             songs={selectedAlbum?.tracks || []}
             coverImage={selectedAlbum?.coverImage || undefined}
             description={selectedAlbum?.description || undefined}
+            albumId={selectedAlbum?.albumId || undefined}
           />
         </>
       )

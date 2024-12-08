@@ -8,8 +8,9 @@ import {
   PauseIcon,
   PlayIcon,
 } from '@heroicons/react/24/solid'
+import { AnimatePresence, motion } from 'framer-motion'
 import isMobile from 'is-mobile'
-import { find, sample, size } from 'lodash'
+import { find, isEmpty, sample, size } from 'lodash'
 import React, { useCallback, useMemo, useRef } from 'react'
 import { isHotkeyPressed } from 'react-hotkeys-hook'
 import { twMerge } from 'tailwind-merge'
@@ -91,6 +92,7 @@ interface SongListProps {
   isEditable?: boolean
   isLoading?: boolean
   onImportFromUrl?: () => void
+  emptyMessage?: string
 }
 
 const sortableProrpertiesLabels = {
@@ -164,6 +166,7 @@ export const SongList = (props: SongListProps) => {
     isEditable = false,
     onImportFromUrl,
     isLoading,
+    emptyMessage,
   } = props
 
   const [listSearchValue, setListSearchValue] = React.useState('')
@@ -328,6 +331,14 @@ export const SongList = (props: SongListProps) => {
       ))
     }
 
+    if (!isLoading && isEmpty(filteredSongs)) {
+      return (
+        <div className='mt-[10%] flex justify-center rounded pl-4'>
+          <p className='text-neutral-300'>{emptyMessage || 'No songs found'}</p>
+        </div>
+      )
+    }
+
     return filteredSongs?.map((song, index) => {
       const songIdentifier = song.id || `${song.title}-${song.artist}`
 
@@ -406,7 +417,7 @@ export const SongList = (props: SongListProps) => {
             title='Play all'
             variant='primary'
             className='p-2'
-            disabled={!filteredSongs.length}
+            disabled={!filteredSongs.length || isLoading}
           >
             {queueIdentifier === identifier && isPlaying ? (
               <PauseIcon className='size-5' />
@@ -436,6 +447,7 @@ export const SongList = (props: SongListProps) => {
               title='Shuffle songs'
               variant='secondary'
               className={twMerge('p-2', isShuffled && 'text-primary-500')}
+              disabled={isLoading}
             >
               <RandomIcon className='size-5' />
             </Button>
@@ -455,6 +467,7 @@ export const SongList = (props: SongListProps) => {
                 ),
               })
             }}
+            disabled={isLoading}
           >
             <ListBulletIcon className='h-5 shrink-0' />
             <span className='my-auto ml-1 text-sm '>
@@ -469,7 +482,7 @@ export const SongList = (props: SongListProps) => {
             <Button
               variant='ghost'
               className='p-2 font-light text-neutral-300'
-              disabled={isCustomSorting || isDefaultSorting}
+              disabled={isCustomSorting || isDefaultSorting || isLoading}
               onClick={() => {
                 if (!sortingSettings?.direction) {
                   toggleSortedPlaylist({
@@ -502,20 +515,22 @@ export const SongList = (props: SongListProps) => {
           dateAdded: !!find(songs, (song) => song.createdAt),
         }}
       />
-      <div ref={ref}>
-        <SortableContext
-          items={
-            isEditable && isCustomSorting && selectedSongIds.length <= 1
-              ? filteredSongs.map((song) => ({
-                  id: song.id || `${song.title}-${song.artist}`,
-                }))
-              : []
-          }
-          strategy={verticalListSortingStrategy}
-        >
-          {renderSongList()}
-        </SortableContext>
-      </div>
+      <PresenceWrapper isLoading={isLoading}>
+        <div ref={ref}>
+          <SortableContext
+            items={
+              isEditable && isCustomSorting && selectedSongIds.length <= 1
+                ? filteredSongs.map((song) => ({
+                    id: song.id || `${song.title}-${song.artist}`,
+                  }))
+                : []
+            }
+            strategy={verticalListSortingStrategy}
+          >
+            {renderSongList()}
+          </SortableContext>
+        </div>
+      </PresenceWrapper>
       <DragOverlay
         dropAnimation={null}
         className='w-fit min-w-96 cursor-grabbing select-none'
@@ -523,5 +538,69 @@ export const SongList = (props: SongListProps) => {
         <SongsDragOverlay />
       </DragOverlay>
     </>
+  )
+}
+
+export const SongList2 = (props: SongListProps) => {
+  const { isLoading, ...rest } = props
+
+  return (
+    <PresenceWrapper isLoading={isLoading}>
+      <SongList {...rest} isLoading={isLoading} />
+    </PresenceWrapper>
+  )
+}
+
+interface PresenceWrapperProps {
+  isLoading?: boolean
+  children: React.ReactNode
+}
+
+const PresenceWrapper = (props: PresenceWrapperProps) => {
+  const { isLoading, children } = props
+  return (
+    <AnimatePresence>
+      {isLoading ? (
+        <motion.div
+          key='loading'
+          initial={{
+            opacity: 0,
+            y: 10,
+          }}
+          transition={{
+            duration: 0.4,
+            delay: 0.2,
+            ease: 'easeOut',
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          exit={{
+            opacity: 0,
+          }}
+        >
+          {children}
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{
+            opacity: 0,
+          }}
+          animate={{ opacity: 1 }}
+          transition={{
+            ease: [0.445, 0.05, 0.55, 0.95],
+            duration: 0.2,
+          }}
+          exit={{
+            opacity: 0,
+            y: 10,
+            z: -200,
+          }}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

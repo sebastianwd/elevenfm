@@ -230,6 +230,7 @@ export class ArtistResolver {
             name: fallbackAlbum.name,
             genre: matchedAlbum?.strGenre,
             year: matchedAlbum?.intYearReleased,
+            albumId: matchedAlbum?.idAlbum,
           } as Album
         } catch {
           return undefined

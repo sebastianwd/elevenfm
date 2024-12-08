@@ -28,6 +28,7 @@ export const {
   updatePlaylistSongRankMutation,
   meQuery,
   updateUserMutation,
+  getAlbumTracksQuery,
 } = getSdk(gqlClient)
 
 export const queryClient = new QueryClient({

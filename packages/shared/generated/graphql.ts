@@ -91,6 +91,7 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   __typename?: "Query";
+  albumSongs: AlbumTracks;
   artist: Artist;
   getAlbumBySong: SongAlbum;
   getAlbums: Maybe<Array<Album>>;
@@ -102,6 +103,10 @@ export type Query = {
   similarArtists: Array<Artist>;
   topsongsByArtist: Array<Song>;
   userPlaylists: Array<Playlist>;
+};
+
+export type QueryAlbumSongsArgs = {
+  albumId: Scalars["String"]["input"];
 };
 
 export type QueryArtistArgs = {
@@ -156,6 +161,7 @@ export type Account = {
 
 export type Album = {
   __typename?: "album";
+  albumId: Maybe<Scalars["String"]["output"]>;
   artist: Scalars["String"]["output"];
   coverImage: Maybe<Scalars["String"]["output"]>;
   description: Maybe<Scalars["String"]["output"]>;
@@ -163,6 +169,11 @@ export type Album = {
   name: Scalars["String"]["output"];
   tracks: Maybe<Array<Scalars["String"]["output"]>>;
   year: Maybe<Scalars["String"]["output"]>;
+};
+
+export type AlbumTracks = {
+  __typename?: "albumTracks";
+  tracks: Maybe<Array<Scalars["String"]["output"]>>;
 };
 
 export type Artist = {
@@ -359,6 +370,15 @@ export type GetAlbumBySongQueryQuery = {
   };
 };
 
+export type GetAlbumTracksQueryQueryVariables = Exact<{
+  albumId: Scalars["String"]["input"];
+}>;
+
+export type GetAlbumTracksQueryQuery = {
+  __typename?: "Query";
+  albumSongs: { __typename?: "albumTracks"; tracks: Array<string> | null };
+};
+
 export type GetAlbumsQueryQueryVariables = Exact<{
   artist: Scalars["String"]["input"];
   limit: Scalars["Int"]["input"];
@@ -375,6 +395,7 @@ export type GetAlbumsQueryQuery = {
     name: string;
     tracks: Array<string> | null;
     year: string | null;
+    albumId: string | null;
   }> | null;
 };
 
@@ -630,6 +651,13 @@ export const GetAlbumBySongQueryDocument = gql`
     }
   }
 `;
+export const GetAlbumTracksQueryDocument = gql`
+  query getAlbumTracksQuery($albumId: String!) {
+    albumSongs(albumId: $albumId) {
+      tracks
+    }
+  }
+`;
 export const GetAlbumsQueryDocument = gql`
   query getAlbumsQuery($artist: String!, $limit: Int!) {
     getAlbums(artist: $artist, limit: $limit, page: 1) {
@@ -640,6 +668,7 @@ export const GetAlbumsQueryDocument = gql`
       name
       tracks
       year
+      albumId
     }
   }
 `;
@@ -900,6 +929,22 @@ export function getSdk(
             { ...requestHeaders, ...wrappedRequestHeaders },
           ),
         "getAlbumBySongQuery",
+        "query",
+        variables,
+      );
+    },
+    getAlbumTracksQuery(
+      variables: GetAlbumTracksQueryQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+    ): Promise<GetAlbumTracksQueryQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetAlbumTracksQueryQuery>(
+            GetAlbumTracksQueryDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders },
+          ),
+        "getAlbumTracksQuery",
         "query",
         variables,
       );

@@ -10,7 +10,6 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { playlistQuery } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
-import { WavesLoader } from '~/components/loader'
 import { ImportPlaylistModal } from '~/components/modals/import-playlist-modal'
 import { Seo } from '~/components/seo'
 import { SongList } from '~/components/song-list'
@@ -99,14 +98,6 @@ const PlaylistPage: NextPage = () => {
   }, [openModal, closeModal, params?.playlistId, playlist.data?.playlist?.name])
 
   const renderSongList = () => {
-    if (playlist.isPending) {
-      return (
-        <div className='mt-[10%] flex justify-center'>
-          <WavesLoader className='h-5' />
-        </div>
-      )
-    }
-
     if (playlist.isError) {
       return (
         <div className='mt-[10%] flex justify-center'>
@@ -117,18 +108,10 @@ const PlaylistPage: NextPage = () => {
       )
     }
 
-    if (isEmpty(currentPlaylist)) {
-      return (
-        <div className='mt-[10%] flex justify-center'>
-          <p className='text-neutral-300'>This playlist is empty</p>
-        </div>
-      )
-    }
-
     return (
       <SongList
         isEditable={
-          playlist.data.playlist.type === playlistType.PLAYLIST &&
+          playlist.data?.playlist.type === playlistType.PLAYLIST &&
           !!playlist.data.playlist.user?.id &&
           playlist.data.playlist.user.id === session.data?.user.id
         }
@@ -136,6 +119,8 @@ const PlaylistPage: NextPage = () => {
         identifier={params?.playlistId ?? ''}
         songs={currentPlaylist}
         showArtist
+        isLoading={playlist.isPending}
+        emptyMessage='This playlist is empty'
       />
     )
   }

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { AnimatePresence, motion } from 'framer-motion'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
@@ -58,23 +57,6 @@ export const ArtistSongs = (props: ArtistSongsProps) => {
   ])
 
   return (
-    <AnimatePresence>
-      {isPending ? null : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{
-            opacity: 0,
-            transition: {
-              ease: [0.445, 0.05, 0.55, 0.95],
-            },
-            z: -200,
-            y: 10,
-          }}
-        >
-          <SongList identifier={artist} songs={sortedSongs} />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <SongList identifier={artist} songs={sortedSongs} isLoading={isPending} />
   )
 }

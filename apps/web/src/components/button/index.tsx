@@ -5,9 +5,9 @@ import { twMerge } from 'tailwind-merge'
 
 const buttonVariants = cva(
   [
-    'flex items-center text-center disabled:pointer-events-none disabled:cursor-default disabled:opacity-80',
-    'active:scale-95 active:opacity-90',
-    'hover:brightness-105',
+    'flex items-center text-center disabled:cursor-not-allowed disabled:opacity-80',
+    'active:enabled:scale-95 active:enabled:opacity-90',
+    'hover:enabled:brightness-105',
     'flex size-fit shrink-0 rounded-md px-2 text-center text-sm font-medium transition-all',
   ],
   {

@@ -117,3 +117,62 @@ export type SearchAlbums = {
     strDescriptionEN?: string
   }>
 }
+
+export type AlbumTracks = {
+  track: Array<{
+    idTrack: string
+    idAlbum: string
+    idArtist: string
+    idLyric: string | null
+    idIMVDB: string | null
+    strTrack: string
+    strAlbum: string
+    strArtist: string
+    strArtistAlternate: string | null
+    intCD: string | null
+    intDuration: string
+    strGenre: string | null
+    strMood: string | null
+    strStyle: string | null
+    strTheme: string | null
+    strDescriptionEN: string | null
+    strDescriptionDE: string | null
+    strDescriptionFR: string | null
+    strDescriptionCN: string | null
+    strDescriptionIT: string | null
+    strDescriptionJP: string | null
+    strDescriptionRU: string | null
+    strDescriptionES: string | null
+    strDescriptionPT: string | null
+    strDescriptionSE: string | null
+    strDescriptionNL: string | null
+    strDescriptionHU: string | null
+    strDescriptionNO: string | null
+    strDescriptionIL: string | null
+    strDescriptionPL: string | null
+    strTrackThumb: string | null
+    strTrack3DCase: string | null
+    strTrackLyrics: string | null
+    strMusicVid: string | null
+    strMusicVidDirector: string | null
+    strMusicVidCompany: string | null
+    strMusicVidScreen1: string | null
+    strMusicVidScreen2: string | null
+    strMusicVidScreen3: string | null
+    intMusicVidViews: string | null
+    intMusicVidLikes: string | null
+    intMusicVidDislikes: string | null
+    intMusicVidFavorites: string | null
+    intMusicVidComments: string | null
+    intTrackNumber: string
+    intLoved: string
+    intScore: string | null
+    intScoreVotes: string | null
+    intTotalListeners: string | null
+    intTotalPlays: string | null
+    strMusicBrainzID: string
+    strMusicBrainzAlbumID: string
+    strMusicBrainzArtistID: string
+    strLocked: string
+  }>
+}

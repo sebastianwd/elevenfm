@@ -11,6 +11,7 @@ import { buildSchema } from 'type-graphql'
 
 import { auth } from '~/auth'
 import { ErrorInterceptor } from '~/server/middleware/error-interceptor'
+import { AlbumResolver } from '~/server/schema/album/album-resolver'
 import { ArtistResolver } from '~/server/schema/artist/artist-resolver'
 import { PlaylistResolver } from '~/server/schema/playlist/playlist-resolver'
 import { SongResolver } from '~/server/schema/song/song-resolver'
@@ -18,7 +19,13 @@ import { UserResolver } from '~/server/schema/user/user-resolver'
 import type { Context } from '~/types'
 
 const schema = await buildSchema({
-  resolvers: [ArtistResolver, SongResolver, PlaylistResolver, UserResolver],
+  resolvers: [
+    ArtistResolver,
+    SongResolver,
+    PlaylistResolver,
+    UserResolver,
+    AlbumResolver,
+  ],
   globalMiddlewares: [ErrorInterceptor],
 })
 

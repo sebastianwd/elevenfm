@@ -7,5 +7,6 @@ query getAlbumsQuery($artist: String!, $limit: Int!) {
     name
     tracks
     year
+    albumId
   }
 }

@@ -6,6 +6,7 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
+import { PagesProgressBar as ProgressBar } from 'next-nprogress-bar'
 import { useCallback, useEffect, useState } from 'react'
 
 import { searchArtistQuery } from '~/api'
@@ -89,6 +90,7 @@ const MyApp = (props: AppProps) => {
             content='minimum-scale=1, initial-scale=1, width=device-width'
           />
         </Head>
+        <ProgressBar color='#FC3967' options={{ showSpinner: false }} />
         <MainLayout>
           <Component {...pageProps} />
         </MainLayout>
