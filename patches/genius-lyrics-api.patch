@@ -1,0 +1,13 @@
+diff --git a/lib/utils/extractLyrics.js b/lib/utils/extractLyrics.js
+index 9d401533121caa3c238b226778c9802f91d3e1cd..35ea950e89550fc545f01d5b728832cb096e56a1 100644
+--- a/lib/utils/extractLyrics.js
++++ b/lib/utils/extractLyrics.js
+@@ -11,7 +11,7 @@ module.exports = async function (url) {
+ 		let lyrics = $('div[class="lyrics"]').text().trim();
+ 		if (!lyrics) {
+ 			lyrics = '';
+-			$('div[class^="Lyrics__Container"]').each((i, elem) => {
++			$('div[data-lyrics-container]').each((i, elem) => {
+ 				if ($(elem).text().length !== 0) {
+ 					let snippet = $(elem)
+ 						.html()

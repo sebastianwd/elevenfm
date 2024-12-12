@@ -15,6 +15,8 @@ const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
     .trim()
     .split('▲')
 
+  console.log('sdfsdf', title)
+  console.log('sdfsdf2', artist)
   return getLyricsRequest({
     ...args,
     title,

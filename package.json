@@ -26,6 +26,9 @@
       "next": ">=14.1.4",
       "graphql": "^16.6.0",
       "@auth/core": ">=0.30.0"
+    },
+    "patchedDependencies": {
+      "genius-lyrics-api": "patches/genius-lyrics-api.patch"
     }
   },
   "devDependencies": {

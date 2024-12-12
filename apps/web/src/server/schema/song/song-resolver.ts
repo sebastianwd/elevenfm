@@ -74,6 +74,8 @@ export class SongResolver {
       title: song,
     })
 
+    console.log('lyrics', lyrics)
+
     if (isEmpty(lyrics)) {
       return {
         artist,

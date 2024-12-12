@@ -15,6 +15,7 @@ import MainLayout from '~/layouts/main'
 import { AppProvider } from '~/providers/app-provider'
 import { useGlobalSearchStore } from '~/store/use-global-search'
 
+// todo, use command palette from https://motion.dev/docs/react-transitions
 const ArtistSearchCommandPalette = () => {
   const { isOpen, setIsOpen, search, setSearch, setResults, results } =
     useGlobalSearchStore()
