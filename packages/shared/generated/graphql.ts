@@ -91,7 +91,7 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   __typename?: "Query";
-  albumSongs: AlbumTracks;
+  albumDetails: AlbumDetails;
   artist: Artist;
   getAlbumBySong: SongAlbum;
   getAlbums: Maybe<Array<Album>>;
@@ -105,8 +105,10 @@ export type Query = {
   userPlaylists: Array<Playlist>;
 };
 
-export type QueryAlbumSongsArgs = {
+export type QueryAlbumDetailsArgs = {
+  album: Scalars["String"]["input"];
   albumId: Scalars["String"]["input"];
+  artist: Scalars["String"]["input"];
 };
 
 export type QueryArtistArgs = {
@@ -171,8 +173,9 @@ export type Album = {
   year: Maybe<Scalars["String"]["output"]>;
 };
 
-export type AlbumTracks = {
-  __typename?: "albumTracks";
+export type AlbumDetails = {
+  __typename?: "albumDetails";
+  description: Maybe<Scalars["String"]["output"]>;
   tracks: Maybe<Array<Scalars["String"]["output"]>>;
 };
 
@@ -370,13 +373,19 @@ export type GetAlbumBySongQueryQuery = {
   };
 };
 
-export type GetAlbumTracksQueryQueryVariables = Exact<{
+export type GetAlbumDetailsQueryQueryVariables = Exact<{
   albumId: Scalars["String"]["input"];
+  album: Scalars["String"]["input"];
+  artist: Scalars["String"]["input"];
 }>;
 
-export type GetAlbumTracksQueryQuery = {
+export type GetAlbumDetailsQueryQuery = {
   __typename?: "Query";
-  albumSongs: { __typename?: "albumTracks"; tracks: Array<string> | null };
+  albumDetails: {
+    __typename?: "albumDetails";
+    tracks: Array<string> | null;
+    description: string | null;
+  };
 };
 
 export type GetAlbumsQueryQueryVariables = Exact<{
@@ -651,10 +660,15 @@ export const GetAlbumBySongQueryDocument = gql`
     }
   }
 `;
-export const GetAlbumTracksQueryDocument = gql`
-  query getAlbumTracksQuery($albumId: String!) {
-    albumSongs(albumId: $albumId) {
+export const GetAlbumDetailsQueryDocument = gql`
+  query getAlbumDetailsQuery(
+    $albumId: String!
+    $album: String!
+    $artist: String!
+  ) {
+    albumDetails(albumId: $albumId, album: $album, artist: $artist) {
       tracks
+      description
     }
   }
 `;
@@ -933,18 +947,18 @@ export function getSdk(
         variables,
       );
     },
-    getAlbumTracksQuery(
-      variables: GetAlbumTracksQueryQueryVariables,
+    getAlbumDetailsQuery(
+      variables: GetAlbumDetailsQueryQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
-    ): Promise<GetAlbumTracksQueryQuery> {
+    ): Promise<GetAlbumDetailsQueryQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<GetAlbumTracksQueryQuery>(
-            GetAlbumTracksQueryDocument,
+          client.request<GetAlbumDetailsQueryQuery>(
+            GetAlbumDetailsQueryDocument,
             variables,
             { ...requestHeaders, ...wrappedRequestHeaders },
           ),
-        "getAlbumTracksQuery",
+        "getAlbumDetailsQuery",
         "query",
         variables,
       );

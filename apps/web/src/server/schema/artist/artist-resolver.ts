@@ -1,6 +1,7 @@
-import { compact, find, isEmpty, map, sortBy, toLower } from 'lodash'
+import { compact, find, isEmpty, map, orderBy, toLower } from 'lodash'
 import { Arg, Int, Query, Resolver } from 'type-graphql'
 
+import { logger } from '~/server/logger'
 import { audioDB } from '~/server/modules/audiodb/audiodb'
 import { lastFM } from '~/server/modules/lastfm/lastfm'
 import { getCoverImage } from '~/utils/get-cover-image'
@@ -73,7 +74,7 @@ export class ArtistResolver {
   @CacheControl({ maxAge: 60 * 60 * 24 })
   async topsongsByArtist(
     @Arg('artist') artist: string,
-    @Arg('limit', () => Int, { defaultValue: 20 }) limit: number,
+    @Arg('limit', () => Int, { defaultValue: 30 }) limit: number,
     @Arg('page', () => Int, { nullable: true }) page?: number
   ): Promise<Pick<Song, 'title' | 'artist' | 'playcount'>[]> {
     const { data } = await lastFM.getArtistSongs({
@@ -185,30 +186,31 @@ export class ArtistResolver {
       return []
     }
 
-    const albums = await Promise.all(
-      map(fallbackAlbums, async (fallbackAlbum) => {
+    const albums = compact(
+      map(fallbackAlbums, (fallbackAlbum) => {
         try {
           const albumArtistName = fallbackAlbum?.artist.name
 
-          const {
+          /*    const {
             data: { album: albumInfo },
           } = await lastFM.getAlbum({
             album: fallbackAlbum.name,
             artist: albumArtistName,
-          })
+          }) */
 
           if (
-            (isEmpty(albumInfo?.tracks?.track) && !albumInfo?.name) ||
-            albumInfo.name === '(null)'
+            isEmpty(fallbackAlbum.name) ||
+            fallbackAlbum.name === '(null)' ||
+            fallbackAlbum.name === 'undefined'
           ) {
             return undefined
           }
 
-          const tracks = albumInfo?.tracks?.track ?? { name: albumInfo?.name }
+          /*const tracks = albumInfo?.tracks?.track ?? { name: albumInfo?.name }
 
           const trackNames = Array.isArray(tracks)
             ? map(tracks, (track) => track.name)
-            : [tracks.name]
+            : [tracks.name]*/
 
           const matchedAlbum = find(
             baseAlbums,
@@ -217,31 +219,54 @@ export class ArtistResolver {
           )
 
           const coverImage =
-            matchedAlbum?.strAlbumThumb || getCoverImage(albumInfo?.image)
+            matchedAlbum?.strAlbumThumb || getCoverImage(fallbackAlbum?.image)
 
-          const description =
-            matchedAlbum?.strDescription || albumInfo?.wiki?.content
+          const description = matchedAlbum?.strDescription // || albumInfo?.wiki?.content
 
           return {
             artist: albumArtistName,
             coverImage,
             description,
-            tracks: trackNames || [],
             name: fallbackAlbum.name,
             genre: matchedAlbum?.strGenre,
-            year: matchedAlbum?.intYearReleased,
+            year: matchedAlbum?.intYearReleased.toString(),
             albumId: matchedAlbum?.idAlbum,
-          } as Album
+          } satisfies Album
         } catch {
           return undefined
         }
       })
     )
 
-    const albumsByYear = sortBy(compact(albums), (item) =>
-      item.year ? Number(item.year) : 0
-    ).reverse()
+    const missingAlbums = (baseAlbums ?? [])
+      .filter(
+        (baseAlbum) =>
+          !albums.find(
+            (album) =>
+              album.name.toLowerCase() === baseAlbum.strAlbum.toLowerCase()
+          )
+      )
+      .map(
+        (baseAlbum) =>
+          ({
+            artist: baseAlbum.strArtist,
+            coverImage: baseAlbum.strAlbumThumb,
+            description: baseAlbum.strDescription,
+            name: baseAlbum.strAlbum,
+            genre: baseAlbum.strGenre,
+            year: baseAlbum.intYearReleased.toString(),
+            albumId: baseAlbum.idAlbum,
+          }) satisfies Album
+      )
 
-    return albumsByYear
+    const albumsSorted = orderBy(
+      albums.concat(missingAlbums),
+      [
+        (item) => (item.year ? Number(item.year) : 0),
+        (item) => (item.coverImage?.length ? 1 : 2),
+      ],
+      ['desc', 'asc']
+    )
+    return albumsSorted
   }
 }

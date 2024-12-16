@@ -1,5 +1,0 @@
-query getAlbumTracksQuery($albumId: String!) {
-  albumSongs(albumId: $albumId) {
-    tracks
-  }
-}
