@@ -324,7 +324,7 @@ export const SongList = (props: SongListProps) => {
 
   const renderSongList = () => {
     if (isLoading) {
-      return Array.from({ length: 20 }).map((_, i) => (
+      return Array.from({ length: 16 }).map((_, i) => (
         <div key={i} className='mb-2 h-[3.25rem] rounded pl-4'>
           <Skeleton className='size-full overflow-hidden' />
         </div>
@@ -559,9 +559,10 @@ interface PresenceWrapperProps {
 const PresenceWrapper = (props: PresenceWrapperProps) => {
   const { isLoading, children } = props
   return (
-    <AnimatePresence>
+    <AnimatePresence mode='popLayout'>
       {isLoading ? (
         <motion.div
+          className='pointer-events-none'
           key='loading'
           initial={{
             opacity: 0,

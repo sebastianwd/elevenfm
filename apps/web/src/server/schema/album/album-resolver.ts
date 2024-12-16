@@ -1,25 +1,53 @@
+import { map } from 'lodash'
 import { Arg, Query, Resolver } from 'type-graphql'
 
 import { audioDB } from '~/server/modules/audiodb/audiodb'
+import { lastFM } from '~/server/modules/lastfm/lastfm'
 
 import { CacheControl } from '../cache-control'
-import { Album, AlbumTracks } from './album'
+import { Album, AlbumDetails } from './album'
 
 @Resolver(Album)
 export class AlbumResolver {
-  @Query(() => AlbumTracks)
+  @Query(() => AlbumDetails)
   @CacheControl({ maxAge: 60 * 60 * 24 * 7 })
-  async albumSongs(@Arg('albumId') albumId: string): Promise<AlbumTracks> {
-    const getAlbumTracks = await audioDB.getAlbumTracks({ albumId })
+  async albumDetails(
+    @Arg('albumId') albumId: string,
+    @Arg('album') album: string,
+    @Arg('artist') artist: string
+  ): Promise<AlbumDetails> {
+    const [
+      getAlbumTracks,
+      {
+        data: { album: albumInfo },
+      },
+    ] = await Promise.all([
+      audioDB.getAlbumTracks({ albumId }),
+      lastFM.getAlbum({ album, artist }),
+    ])
 
-    if (!getAlbumTracks.data?.track) {
-      throw new Error('Tracks not found')
+    const audioDBTracks = map(
+      getAlbumTracks.data.track,
+      (track) => track.strTrack
+    )
+
+    const getTracks = () => {
+      if (audioDBTracks.length > 0) {
+        return audioDBTracks
+      }
+
+      const tracks = albumInfo?.tracks?.track ?? { name: albumInfo?.name }
+
+      return Array.isArray(tracks)
+        ? map(tracks, (track) => track.name)
+        : [tracks.name]
     }
 
-    const tracks = getAlbumTracks.data.track.map((track) => track.strTrack)
+    const tracks = getTracks()
 
     return {
       tracks,
+      description: albumInfo?.wiki?.content,
     }
   }
 }

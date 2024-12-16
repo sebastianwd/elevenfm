@@ -1,6 +1,7 @@
 import { isEmpty } from 'lodash'
 import { Arg, Query, Resolver } from 'type-graphql'
 
+import { logger } from '~/server/logger'
 import { invidious } from '~/server/modules/invidious/invidious'
 import { lastFM } from '~/server/modules/lastfm/lastfm'
 import { getLyrics } from '~/server/modules/lyrics/lyrics'

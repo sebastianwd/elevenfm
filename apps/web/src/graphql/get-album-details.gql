@@ -1,0 +1,10 @@
+query getAlbumDetailsQuery(
+  $albumId: String!
+  $album: String!
+  $artist: String!
+) {
+  albumDetails(albumId: $albumId, album: $album, artist: $artist) {
+    tracks
+    description
+  }
+}
