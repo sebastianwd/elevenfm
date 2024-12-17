@@ -2,6 +2,8 @@
 // @ts-ignore-next-line
 import { getLyrics as getLyricsRequest } from 'genius-lyrics-api'
 
+import { logger } from '~/server/logger'
+
 import type { GetLyricsOptions } from './types'
 
 const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
@@ -14,6 +16,10 @@ const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
     .replace('<3', '')
     .trim()
     .split('▲')
+
+  logger.info(
+    `Fetching lyrics for ${title} by ${artist} with token ${process.env.GENIUS_ACCESS_TOKEN}`
+  )
 
   return getLyricsRequest({
     ...args,
