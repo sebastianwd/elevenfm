@@ -8,6 +8,26 @@ index 27ea64ab694e9e4364732241ddeff9dcd43636c1..3f8bd1912f8fbe21dece3992fd44fc2c
  exports.getSongById = require('./lib/getSongById');
 +exports.extractLyrics = require('./lib/utils/extractLyrics');
 \ No newline at end of file
+diff --git a/lib/getLyrics.js b/lib/getLyrics.js
+index 1d9e5ee38e7a1d30d0266fe2995b3e8c5fe14b70..a3d12ff4aef38457f987de819f7a9a450a3fb4fc 100644
+--- a/lib/getLyrics.js
++++ b/lib/getLyrics.js
+@@ -14,7 +14,14 @@ module.exports = async function (arg) {
+ 			checkOptions(arg);
+ 			let results = await searchSong(arg);
+ 			if (!results) return null;
+-			let lyrics = await extractLyrics(results[0].url);
++
++			let url = results[0].url
++
++			if(arg.reverseProxy) {
++				url = `${arg.reverseProxy}${url}`
++			}
++			console.log(`Requesting: ${url}`)
++			let lyrics = await extractLyrics(url);
+ 			return lyrics;
+ 		} else {
+ 			throw 'Invalid argument';
 diff --git a/lib/utils/extractLyrics.js b/lib/utils/extractLyrics.js
 index 9d401533121caa3c238b226778c9802f91d3e1cd..22f6ceb64e30008289397a4d093a79d5c9c68b10 100644
 --- a/lib/utils/extractLyrics.js
