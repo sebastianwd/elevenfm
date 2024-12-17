@@ -1,13 +1,16 @@
 import { Field, ObjectType } from 'type-graphql'
 
-@ObjectType('albumTracks')
-export class AlbumTracks {
+@ObjectType('albumDetails')
+export class AlbumDetails {
   @Field(() => [String], { nullable: true })
   tracks?: string[]
+
+  @Field({ nullable: true })
+  description?: string
 }
 
 @ObjectType('album')
-export class Album extends AlbumTracks {
+export class Album extends AlbumDetails {
   @Field()
   name: string
 
@@ -19,9 +22,6 @@ export class Album extends AlbumTracks {
 
   @Field({ nullable: true })
   genre?: string
-
-  @Field({ nullable: true })
-  description?: string
 
   @Field({ nullable: true })
   year?: string

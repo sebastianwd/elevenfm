@@ -31,7 +31,13 @@ const invidious = async <T>(method: InvidiousMethods) => {
     if (cache.has(cacheKey)) continue
 
     try {
-      response = await Axios.get<T>(getEndpoint(invidiousUrl, method))
+      response = await Axios.get<T>(getEndpoint(invidiousUrl, method), {
+        timeout: 15000,
+      })
+
+      if (response.headers['content-type'] === 'text/html') {
+        throw new Error('Bad Response')
+      }
 
       if (response.status === 200) break
     } catch (e) {
@@ -41,8 +47,9 @@ const invidious = async <T>(method: InvidiousMethods) => {
         )
         if (
           e.response?.data &&
-          (String(e.response?.data).includes('Too Many Requests') ||
-            String(e.response?.data).includes('502 Bad Gateway'))
+          ['Too Many Requests', 'Gateway', 'Bad Response'].some((error) =>
+            String(e.response?.data).includes(error)
+          )
         ) {
           cache.set(cacheKey, 'true')
 

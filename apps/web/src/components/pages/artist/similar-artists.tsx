@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -12,16 +12,24 @@ interface SimilarArtistsProps {
 export const SimilarArtists = (props: SimilarArtistsProps) => {
   const { artist } = props
 
-  const { data: similarArtists, isLoading } = useQuery({
+  const { data: similarArtists, isPending } = useQuery({
     queryKey: ['similarArtists', artist],
     queryFn: () =>
       similarArtistsQuery({ artist: artist, limit: 9, onlyNames: false }),
     staleTime: Infinity,
   })
 
+  if (!isPending && !similarArtists?.similarArtists.length) {
+    return (
+      <p className='my-20 text-center text-sm text-gray-300'>
+        No similar artists found
+      </p>
+    )
+  }
+
   return (
     <div className='flex flex-wrap'>
-      {isLoading
+      {isPending
         ? Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
