@@ -137,6 +137,7 @@ export const Lyrics = (props: LyricsProps) => {
     staleTime: Infinity,
     gcTime: Infinity,
     enabled: Boolean(song && artist),
+    retry: 2,
   })
 
   const lyrics = data?.getLyrics?.lyrics
