@@ -107,7 +107,7 @@ const VideoPlayer = memo(() => {
     const isVideoUrlBlocked = !videoUrl
 
     if (isVideoUrlBlocked) {
-      return `${sample(invidiousUrls)}/latest_version?id=${ytGetId(currentSong?.urls?.[0] ?? '')?.id}`
+      return `${sample(invidiousUrls)}/latest_version?id=${ytGetId(currentSong?.urls?.[0] ?? '')?.id}&itag=18`
     }
 
     return videoUrl
