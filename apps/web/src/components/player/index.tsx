@@ -99,7 +99,7 @@ const QueueList = (props: QueueListProps) => {
 
   return (
     <motion.div
-      className='rounded-lg bg-surface-950'
+      className='rounded-lg border border-b-0 border-solid border-surface-700 bg-surface-950'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -193,7 +193,7 @@ export const Lyrics = (props: LyricsProps) => {
 
   return (
     <motion.div
-      className='h-full rounded-lg bg-surface-950'
+      className='h-full rounded-lg border border-b-0 border-solid border-surface-700 bg-surface-950'
       initial='hidden'
       exit='hidden'
       animate='show'

@@ -1,7 +1,6 @@
 import { compact, find, isEmpty, map, orderBy, toLower } from 'lodash'
 import { Arg, Int, Query, Resolver } from 'type-graphql'
 
-import { logger } from '~/server/logger'
 import { audioDB } from '~/server/modules/audiodb/audiodb'
 import { lastFM } from '~/server/modules/lastfm/lastfm'
 import { getCoverImage } from '~/utils/get-cover-image'
@@ -221,7 +220,8 @@ export class ArtistResolver {
           const coverImage =
             matchedAlbum?.strAlbumThumb || getCoverImage(fallbackAlbum?.image)
 
-          const description = matchedAlbum?.strDescription // || albumInfo?.wiki?.content
+          const description =
+            matchedAlbum?.strDescription || matchedAlbum?.strDescriptionEN // || albumInfo?.wiki?.content
 
           return {
             artist: albumArtistName,

@@ -9,7 +9,6 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { getAlbumDetailsQuery, getAlbumsQuery } from '~/api'
 import { Button } from '~/components/button'
-import { WavesLoader } from '~/components/loader'
 import { Skeleton } from '~/components/skeleton/skeleton'
 import { SongList } from '~/components/song-list'
 import {
@@ -55,6 +54,8 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
   const albumSongs = getAlbumDetails.data?.albumDetails.tracks
   const description =
     defaultDescription || getAlbumDetails.data?.albumDetails.description
+
+  console.log(defaultDescription, getAlbumDetails.data?.albumDetails)
 
   const identifier = `${artist}-${album}`
 

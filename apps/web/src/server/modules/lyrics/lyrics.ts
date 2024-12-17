@@ -17,9 +17,7 @@ const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
     .trim()
     .split('▲')
 
-  logger.info(
-    `Fetching lyrics for ${title} by ${artist} with token ${process.env.GENIUS_ACCESS_TOKEN}`
-  )
+  logger.info(`Fetching lyrics for ${title} by ${artist}`)
 
   return getLyricsRequest({
     ...args,
