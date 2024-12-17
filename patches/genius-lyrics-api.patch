@@ -1,8 +1,26 @@
+diff --git a/index.js b/index.js
+index 27ea64ab694e9e4364732241ddeff9dcd43636c1..3f8bd1912f8fbe21dece3992fd44fc2c976675ba 100644
+--- a/index.js
++++ b/index.js
+@@ -3,3 +3,4 @@ exports.getAlbumArt = require('./lib/getAlbumArt');
+ exports.getSong = require('./lib/getSong');
+ exports.searchSong = require('./lib/searchSong');
+ exports.getSongById = require('./lib/getSongById');
++exports.extractLyrics = require('./lib/utils/extractLyrics');
+\ No newline at end of file
 diff --git a/lib/utils/extractLyrics.js b/lib/utils/extractLyrics.js
-index 9d401533121caa3c238b226778c9802f91d3e1cd..35ea950e89550fc545f01d5b728832cb096e56a1 100644
+index 9d401533121caa3c238b226778c9802f91d3e1cd..22f6ceb64e30008289397a4d093a79d5c9c68b10 100644
 --- a/lib/utils/extractLyrics.js
 +++ b/lib/utils/extractLyrics.js
-@@ -11,7 +11,7 @@ module.exports = async function (url) {
+@@ -6,12 +6,14 @@ const cheerio = require('cheerio-without-node-native');
+  */
+ module.exports = async function (url) {
+ 	try {
+-		let { data } = await axios.get(url);
++		let { data } = await axios.get(url, {headers: {
++			  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0"
++		}});
+ 		const $ = cheerio.load(data);
  		let lyrics = $('div[class="lyrics"]').text().trim();
  		if (!lyrics) {
  			lyrics = '';

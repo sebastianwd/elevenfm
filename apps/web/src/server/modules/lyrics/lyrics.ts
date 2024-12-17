@@ -27,6 +27,7 @@ const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>) => {
     artist,
     apiKey: process.env.GENIUS_ACCESS_TOKEN!,
     optimizeQuery: false,
+    authHeader: true,
   } satisfies GetLyricsOptions) as Promise<string>
 }
 
