@@ -1,5 +1,11 @@
 # elevenfm-shared
 
+## 1.1.0
+
+### Minor Changes
+
+- 7e0a441: add account support
+
 ## 1.0.8
 
 ### Patch Changes
