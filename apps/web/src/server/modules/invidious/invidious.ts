@@ -47,8 +47,8 @@ const invidious = async <T>(method: InvidiousMethods) => {
         )
         if (
           e.response?.data &&
-          ['Too Many Requests', 'Gateway', 'Bad Response'].some((error) =>
-            String(e.response?.data).includes(error)
+          ['Too Many Requests', 'Gateway', 'Bad Response', 'API disabled'].some(
+            (error) => String(e.response?.data).includes(error)
           )
         ) {
           cache.set(cacheKey, 'true')
@@ -58,6 +58,7 @@ const invidious = async <T>(method: InvidiousMethods) => {
 
         if (
           e.response?.data &&
+          typeof e.response?.data === 'object' &&
           'error' in e.response.data &&
           String(e.response?.data.error).includes('Could not create mix')
         ) {
@@ -65,7 +66,7 @@ const invidious = async <T>(method: InvidiousMethods) => {
         }
         continue
       }
-      logger.info(`Invidious error: ${invidiousUrl} - ${String(e)}`)
+      logger.info(`Unexpected Invidious error: ${invidiousUrl} - ${String(e)}`)
       continue
     }
   }
