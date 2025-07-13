@@ -195,22 +195,25 @@ export class PlaylistResolver {
               ? LexoRank.parse(lastRank.rank).genNext()
               : LexoRank.middle()
 
-            await tx.insert(PlaylistsToSongs).values(
-              createdSongs.map((createdSong) => {
-                const song = {
-                  playlistId: createdPlaylist.insertedId,
-                  songId: createdSong.insertedId,
-                  songUrl:
-                    songsByTitleArtist[
-                      `${createdSong.insertedArtist}${createdSong.insertedTitle}`
-                    ]?.url || null,
-                  rank: currentRank.toString(),
-                }
-                currentRank = currentRank.genNext()
+            await tx
+              .insert(PlaylistsToSongs)
+              .values(
+                createdSongs.map((createdSong) => {
+                  const song = {
+                    playlistId: createdPlaylist.insertedId,
+                    songId: createdSong.insertedId,
+                    songUrl:
+                      songsByTitleArtist[
+                        `${createdSong.insertedArtist}${createdSong.insertedTitle}`
+                      ]?.url || null,
+                    rank: currentRank.toString(),
+                  }
+                  currentRank = currentRank.genNext()
 
-                return song
-              })
-            )
+                  return song
+                })
+              )
+              .onConflictDoNothing()
           })
         )
       } catch (error) {

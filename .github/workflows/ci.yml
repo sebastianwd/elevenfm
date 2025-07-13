@@ -11,9 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Read pnpm version from package.json
+        id: pnpm-version
+        run: |
+          echo "version=$(jq -r '.packageManager | split("@")[1]' package.json)" >> $GITHUB_OUTPUT
+        working-directory: ${{ github.workspace }}
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ steps.pnpm-version.outputs.version }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x

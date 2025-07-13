@@ -29,7 +29,15 @@
     },
     "patchedDependencies": {
       "genius-lyrics-api": "patches/genius-lyrics-api.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@apollo/protobufjs",
+      "argon2",
+      "esbuild",
+      "nx",
+      "protobufjs",
+      "sharp"
+    ]
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.3",
@@ -46,5 +54,6 @@
     "nx": "20.0.8",
     "prettier": "^3.3.2",
     "typescript": "^5.4.5"
-  }
+  },
+  "packageManager": "pnpm@10.12.4"
 }
