@@ -3,16 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "web": "pnpm --filter elevenfm-web",
-    "shared": "pnpm --filter elevenfm-shared",
-    "dev": "nx dev elevenfm-web",
-    "build": "nx build elevenfm-web",
-    "start": "nx start elevenfm-web",
-    "lint": "nx lint elevenfm-web",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "tsc": "turbo run tsc",
+    "ui:add": "turbo ui:add -F @repo/ui --",
     "release": "changeset",
     "release:publish": "pnpm shared build && changeset publish --provenance --access public",
-    "gen": "graphql-codegen",
-    "update": "ncu -i"
+    "gen": "graphql-codegen"
   },
   "keywords": [],
   "author": "sebastianwd",
@@ -40,6 +38,7 @@
     ]
   },
   "devDependencies": {
+    "eslint-plugin-react-hooks": "^5.2.0",
     "@changesets/cli": "^2.27.3",
     "@graphql-codegen/add": "^5.0.2",
     "@graphql-codegen/cli": "^5.0.2",
@@ -48,11 +47,10 @@
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@graphql-codegen/typescript-operations": "^4.2.0",
     "@graphql-codegen/typescript-react-query": "^6.1.0",
-    "@nx/eslint": "20.0.8",
-    "eslint": "^9.14.0",
+    "eslint": "catalog:",
     "npm-check-updates": "^16.14.20",
-    "nx": "20.0.8",
     "prettier": "^3.3.2",
+    "turbo": "^2.5.6",
     "typescript": "^5.4.5"
   },
   "packageManager": "pnpm@10.12.4"

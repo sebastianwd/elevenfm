@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "allowJs": true,
+    "composite": true,
+    "incremental": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "inlineSources": true,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2022",
+    "rootDir": "${configDir}",
+    "tsBuildInfoFile": "${configDir}/dist/.tsbuildinfo",
+    "outDir": "${configDir}/dist",
+    "resolveJsonModule": true
+  },
+  "exclude": [
+    "${configDir}/dist",
+    "${configDir}/node_modules"
+  ],
+  "include": [
+    "${configDir}/*.ts",
+    "${configDir}/**/*.ts"
+  ],
+  "files": [
+    "./types.d.ts"
+  ]
+}

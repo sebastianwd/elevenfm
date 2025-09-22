@@ -99,7 +99,7 @@ const QueueList = (props: QueueListProps) => {
 
   return (
     <motion.div
-      className='rounded-lg border border-b-0 border-solid border-surface-700 bg-surface-950'
+      className='border-surface-700 bg-surface-950 rounded-lg border border-b-0 border-solid'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -140,7 +140,7 @@ export const Lyrics = (props: LyricsProps) => {
     retry: 2,
   })
 
-  const lyrics = data?.getLyrics?.lyrics
+  const lyrics = data?.getLyrics.lyrics
 
   //const scrollableNodeRef = useRef<SimpleBarCore>(null)
 
@@ -185,7 +185,7 @@ export const Lyrics = (props: LyricsProps) => {
     }
 
     return (
-      <pre className='overflow-auto whitespace-pre-line px-4 py-2 text-lg'>
+      <pre className='overflow-auto px-4 py-2 text-lg whitespace-pre-line'>
         {lyrics}
       </pre>
     )
@@ -193,7 +193,7 @@ export const Lyrics = (props: LyricsProps) => {
 
   return (
     <motion.div
-      className='h-full rounded-lg border border-b-0 border-solid border-surface-700 bg-surface-950'
+      className='border-surface-700 bg-surface-950 h-full rounded-lg border border-b-0 border-solid'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -280,19 +280,18 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <div className='fixed bottom-28 right-0 z-40 max-h-screen w-full md:w-1/2 lg:w-1/3'>
+      <div className='fixed right-0 bottom-28 z-40 max-h-screen w-full md:w-1/2 lg:w-1/3'>
         <AnimatePresence>
           {showQueue ? (
             <QueueList queue={currentQueue} onPlay={onPlaySong} />
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='fixed bottom-0 z-40 mt-auto h-28 w-full bg-surface-800/20 backdrop-blur-lg'>
+      <footer className='bg-surface-800/20 fixed bottom-0 z-40 mt-auto h-28 w-full backdrop-blur-lg'>
         <div className='relative mx-auto grid grid-cols-3 p-4 pb-0 text-white md:p-5'>
           <div className='col-span-1 flex gap-2 md:gap-4'>
             <div className='flex shrink-0 items-center'>
               {currentSong ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={currentSong?.albumCoverUrl || '/cover-placeholder.png'}
                   width={56}
@@ -312,7 +311,7 @@ export const FooterPlayer = () => {
                     <Fragment key={artist}>
                       <Link
                         href={`/artist/${artist.trim()}`}
-                        className='hover:underline '
+                        className='hover:underline'
                       >
                         {artist.trim()}
                       </Link>
@@ -363,7 +362,7 @@ export const FooterPlayer = () => {
                 }}
               >
                 {isPlaying ? (
-                  <PauseCircleIcon className='size-12 text-primary-500' />
+                  <PauseCircleIcon className='text-primary-500 size-12' />
                 ) : (
                   <PlayCircleIcon className='size-12' />
                 )}
@@ -399,9 +398,9 @@ export const FooterPlayer = () => {
                 {repeatMode === 'none' ? (
                   <RepeatIcon className='size-5 md:size-6' />
                 ) : repeatMode === 'all' ? (
-                  <RepeatIcon className='size-5 text-primary-500 md:size-6' />
+                  <RepeatIcon className='text-primary-500 size-5 md:size-6' />
                 ) : (
-                  <RepeatOneIcon className='size-5 text-primary-500 md:size-6' />
+                  <RepeatOneIcon className='text-primary-500 size-5 md:size-6' />
                 )}
               </Button>
               <div className='w-2' />

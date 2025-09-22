@@ -50,7 +50,7 @@
     "next.config.ts",
     "codegen.yml",
     "codegen.ts",
-    "eslint.config.mjs",
+    "eslint.config.ts",
     "apollo.config.js",
     "prettier.config.mjs",
     ".next/types/**/*.ts",
