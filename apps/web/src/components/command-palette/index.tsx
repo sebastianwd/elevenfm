@@ -39,7 +39,7 @@ export const CommandPalette = ({
       className='fixed inset-0 z-50 overflow-y-auto p-4 pt-[15vh] transition data-[closed]:opacity-0'
     >
       <div
-        className='bg-surface-900/75 fixed inset-0 w-screen overflow-y-auto'
+        className='fixed inset-0 w-screen overflow-y-auto bg-surface-900/75'
         aria-hidden='true'
       />
       <DialogPanel>
@@ -51,7 +51,7 @@ export const CommandPalette = ({
             onSelect(command ?? '')
           }}
         >
-          <div className='bg-surface-800 ring-surface-800/70 flex items-center rounded-xl px-4 shadow-2xl focus-within:ring-2'>
+          <div className='flex items-center rounded-xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
             <ComboboxInput
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus

@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;700&display=swap');
 @import 'tailwindcss' source('../src');
 @import 'simplebar-react/dist/simplebar.min.css';
 @import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-primary-500: #fc3967;
@@ -68,11 +72,8 @@ body,
   left: 0;
   height: 100%;
   width: 100%;
-  background: linear-gradient(
-      to bottom,
-      transparent -80%,
-      var(--color-surface-900) 100%
-    ),
+  background:
+    linear-gradient(to bottom, transparent -80%, var(--color-surface-900) 100%),
     linear-gradient(to left, transparent 99%, var(--color-surface-900) 100%);
 }
 
@@ -83,7 +84,8 @@ body,
   left: 0;
   height: 100%;
   width: 100%;
-  background: linear-gradient(
+  background:
+    linear-gradient(
       to bottom,
       var(--color-surface-100) -80%,
       var(--color-surface-900) 100%
@@ -112,7 +114,8 @@ body,
   background: var(--gradient) center center / var(--bg-size) var(--bg-size);
   border-radius: calc(var(--radius) * 1px);
   border: calc(var(--border) * 1px) solid transparent;
-  mask: linear-gradient(
+  mask:
+    linear-gradient(
       hsl(0 0% 100% / var(--alpha)),
       hsl(0 0% 100% / var(--alpha))
     ),

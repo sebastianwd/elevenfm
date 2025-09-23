@@ -1,7 +1,6 @@
 import { useSession } from '@repo/api/auth/auth.client'
 import { orpc } from '@repo/api/lib/orpc.client'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientError } from 'graphql-request'
 import { orderBy } from 'es-toolkit'
 import type { NextPage } from 'next'
 import { useParams } from 'next/navigation'
@@ -20,7 +19,6 @@ import { playlistType } from '~/constants'
 import { useLayoutState } from '~/store/use-layout-state'
 import { useLocalSettings } from '~/store/use-local-settings'
 import { useModalStore } from '~/store/use-modal'
-import { getError } from '~/utils/get-error'
 import { sortByLexoRankAsc } from '~/utils/lexorank'
 
 const PlaylistPage: NextPage = () => {
@@ -63,12 +61,12 @@ const PlaylistPage: NextPage = () => {
         orderBy(
           playlist.data?.songs ?? [],
           [
-            // @ts-ignore
-            sortingSettings?.sortBy === 'dateAdded'
+            // @ts-expect-error TODO: fix this
+            sortingSettings.sortBy === 'dateAdded'
               ? 'createdAt'
-              : sortingSettings?.sortBy,
+              : sortingSettings.sortBy,
           ],
-          [sortingSettings?.direction || 'desc']
+          [sortingSettings.direction || 'desc']
         )
       )
     }
@@ -105,10 +103,7 @@ const PlaylistPage: NextPage = () => {
     if (playlist.isError) {
       return (
         <div className='mt-[10%] flex justify-center'>
-          <p>
-            {getError(playlist.error as ClientError) ||
-              'Something went wrong'}{' '}
-          </p>
+          <p>{playlist.error.message || 'Something went wrong'} </p>
         </div>
       )
     }
@@ -117,7 +112,7 @@ const PlaylistPage: NextPage = () => {
       <SongList
         isEditable={
           playlist.data?.type === playlistType.PLAYLIST &&
-          !!playlist.data.user?.id &&
+          !!playlist.data.user.id &&
           playlist.data.user.id === session.data?.user.id
         }
         onImportFromUrl={onImportFromUrl}
@@ -130,7 +125,7 @@ const PlaylistPage: NextPage = () => {
     )
   }
 
-  const playlistUser = playlist.data?.user?.name
+  const playlistUser = playlist.data?.user.name
 
   const { theaterMode } = useLayoutState()
 
@@ -143,7 +138,7 @@ const PlaylistPage: NextPage = () => {
         <>
           <div className='bg-gradient-blend-surface relative grid bg-top bg-no-repeat lg:grid-cols-3'>
             <header className='col-span-2 flex h-48 md:h-72'>
-              <div className='z-10 mb-16 mt-auto flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
+              <div className='z-10 mt-auto mb-16 flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
                 <ArtistHeader
                   subtitle={
                     playlist.isPending

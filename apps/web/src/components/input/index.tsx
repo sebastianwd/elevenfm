@@ -15,21 +15,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
     <>
       <div
         className={twMerge(
-          'flex items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2 h-9',
-          error && 'border-red-500 border border-solid',
+          'flex h-9 items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2',
+          error && 'border border-solid border-red-500',
           className
         )}
       >
         {iconDirection === 'left' && icon}
         <input
           ref={ref}
-          className='size-full border-0 bg-transparent py-2 text-base outline-none ring-0'
+          className='size-full border-0 bg-transparent py-2 text-base ring-0 outline-none'
           {...rest}
         />
         {iconDirection === 'right' && icon}
       </div>
       {error ? (
-        <p className='min-h-4 text-wrap text-xs text-red-500'>{error}</p>
+        <p className='min-h-4 text-xs text-wrap text-red-500'>{error}</p>
       ) : null}
     </>
   )

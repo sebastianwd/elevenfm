@@ -6,13 +6,15 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline'
 import { HomeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
+import { signOut, useSession } from '@repo/api/auth/auth.client'
 import type { Variants } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { cloneElement } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { signOut, useSession } from '@repo/api/auth/auth.client'
+import { Popover } from '~/components/popover'
 import { useGlobalSearchStore } from '~/store/use-global-search'
 import { useLayoutState } from '~/store/use-layout-state'
 import { useModalStore } from '~/store/use-modal'
@@ -21,8 +23,6 @@ import { AuthModal } from '../auth/auth-modal'
 import { MyAccountModal } from '../modals/my-account-modal'
 import { Skeleton } from '../skeleton/skeleton'
 import { PlaylistMenu } from './playlist-menu'
-import { cloneElement } from 'react'
-import { Popover } from '~/components/popover'
 
 interface MenuItemProps {
   children: React.ReactNode

@@ -1,20 +1,17 @@
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useSession } from '@repo/api/auth/auth.client'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ClientError } from 'graphql-request'
 import { isEmpty } from 'es-toolkit/compat'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as v from 'valibot'
 
-import { getError } from '~/utils/get-error'
-
 import { Button } from '../button'
 import { GithubIcon } from '../icons'
 import { Input } from '../input'
 import { Toast } from '../toast'
-import { useSession } from '@repo/api/auth/auth.client'
-import { orpc } from '@repo/api/lib/orpc.client'
 
 interface MyAccountModalProps {
   onClose?: () => void
@@ -82,7 +79,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
 
   const me = useQuery(
     orpc.user.me.queryOptions({
-      enabled: !!session.data?.user?.id,
+      enabled: !!session.data?.user.id,
       staleTime: Infinity,
     })
   )
@@ -116,7 +113,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
         newPassword: data.newPassword,
       })
 
-      await session.refetch()
+      session.refetch()
 
       reset({}, { keepValues: true })
 
@@ -127,11 +124,11 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
       await me.refetch()
     } catch (error) {
       console.error(error)
-      if (error instanceof ClientError) {
+      if (error instanceof Error) {
         toast.custom(
           () => (
             <Toast
-              message={`❌ ${getError(error)}`}
+              message={`❌ ${error.message}`}
               className='bg-red-700 text-neutral-100'
             />
           ),
@@ -208,7 +205,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
               <div className='flex items-center space-x-4'>
                 <GithubIcon className='w-6' />
                 <div>
-                  <p className='text-sm font-medium leading-none'>
+                  <p className='text-sm leading-none font-medium'>
                     {account.providerId}
                   </p>
                 </div>
@@ -224,7 +221,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
     <div className='w-96 max-w-full p-8 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)]'>
       <p className='mb-1 text-base'>Manage your personal information</p>
       <p className='mb-5 text-sm text-neutral-300'>
-        Logged in as: {session.data?.user?.name}
+        Logged in as: {session.data?.user.name}
       </p>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
         {/*

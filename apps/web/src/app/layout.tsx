@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 
 import { AppProvider } from '~/providers/app-provider'
+
 import { ArtistSearchCommand } from '../components/artist-search-command'
 import MainLayout from '../layouts/main'
 
@@ -28,17 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en' className='dark'>
-      <head>
-        <link
-          rel='stylesheet'
-          href='https://fonts.googleapis.com/css?family=Roboto:200,400,500,700&display=swap'
-        />
-        <link
-          href='https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;700&display=swap'
-          rel='stylesheet'
-        />
-      </head>
-      <body className='font-poppins dark:prose-invert'>
+      <body className='font-family-poppins'>
         <AppProvider>
           <MainLayout>{children}</MainLayout>
           <ArtistSearchCommand />

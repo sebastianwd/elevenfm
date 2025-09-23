@@ -1,12 +1,12 @@
-import { RPCHandler } from '@orpc/server/fetch'
 import { onError } from '@orpc/server'
-import { NextRequest } from 'next/server'
-import { router } from '@repo/api/routers/index'
+import { RPCHandler } from '@orpc/server/fetch'
 import { createContext } from '@repo/api/context'
+import { router } from '@repo/api/routers/index'
+import type { NextRequest } from 'next/server'
 
 const rpcHandler = new RPCHandler(router, {
   interceptors: [
-    onError((error: any) => {
+    onError((error: unknown) => {
       console.error(error)
     }),
   ],

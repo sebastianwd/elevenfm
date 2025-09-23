@@ -6,7 +6,7 @@ class Cache<K extends {} = string, V extends {} = string> {
   constructor() {
     this.cache = new LRUCache({
       max: 50,
-      ttl: 1000 * 60 * 60 * 12,
+      ttl: 1000 * 60 * 60 * 12
     })
   }
 

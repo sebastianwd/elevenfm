@@ -1,4 +1,5 @@
 import { EyeIcon, EyeSlashIcon, UserIcon } from '@heroicons/react/24/outline'
+import { authClient } from '@repo/api/auth/auth.client'
 import { useMutation } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -8,7 +9,6 @@ import { twMerge } from 'tailwind-merge'
 
 import { GithubIcon } from '../icons'
 import { Input } from '../input'
-import { authClient } from '@repo/api/auth/auth.client'
 
 type Inputs = {
   username: string
@@ -62,7 +62,7 @@ export const AuthModal = (props: AuthModalProps) => {
             id='username'
             {...register('username', { required: 'Username is required' })}
           />
-          <label className='mb-1 mt-3 block text-sm' htmlFor='password'>
+          <label className='mt-3 mb-1 block text-sm' htmlFor='password'>
             Password
           </label>
           <Input
@@ -101,7 +101,7 @@ export const AuthModal = (props: AuthModalProps) => {
           <button
             type='submit'
             className={twMerge(
-              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-neutral-200 font-medium h-12 text-surface-900 mt-7 disabled:opacity-80'
+              'mt-7 flex h-12 w-full items-center justify-center gap-2 rounded-md bg-neutral-200 py-2 font-medium text-surface-900 transition-colors disabled:opacity-80'
             )}
             disabled={!isDirty || !isValid || isSubmitting}
           >
@@ -110,7 +110,7 @@ export const AuthModal = (props: AuthModalProps) => {
           </button>
           <span
             className={twMerge(
-              'text-red-500 text-sm invisible',
+              'invisible text-sm text-red-500',
               (errors.username?.message ||
                 errors.password?.message ||
                 credentialsSignIn.data?.error?.message) &&
@@ -123,8 +123,8 @@ export const AuthModal = (props: AuthModalProps) => {
               '&nbsp;'}
           </span>
         </form>
-        <span className='mx-auto mb-6 mt-2 block w-fit'>Or</span>
-        <div className='rounded-md bg-gradient-to-br from-primary-500 to-blue-600  p-px'>
+        <span className='mx-auto mt-2 mb-6 block w-fit'>Or</span>
+        <div className='rounded-md bg-gradient-to-br from-primary-500 to-blue-600 p-px'>
           <button
             type='button'
             key='github'
@@ -137,7 +137,7 @@ export const AuthModal = (props: AuthModalProps) => {
               })
             }
             className={twMerge(
-              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-surface-800 font-medium h-12'
+              'flex h-12 w-full items-center justify-center gap-2 rounded-md bg-surface-800 py-2 font-medium transition-colors'
             )}
           >
             <GithubIcon className='w-6' />

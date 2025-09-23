@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { ORPCError, os } from '@orpc/server'
 
 import type { Context } from '../context'

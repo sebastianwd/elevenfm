@@ -284,7 +284,7 @@ export const usePlayerState = create<PlayerState>()(
 
             const isSameAsCurrentSong =
               song.title === state.currentSong?.title &&
-              song.artist === state.currentSong?.artist
+              song.artist === state.currentSong.artist
 
             if (isSameAsCurrentSong) {
               toast.custom(
@@ -298,8 +298,8 @@ export const usePlayerState = create<PlayerState>()(
 
             const songAlreadyInQueueIndex = activeQueue.findIndex(
               (queueSong) =>
-                queueSong.title === song?.title &&
-                queueSong.artist === song?.artist
+                queueSong.title === song.title &&
+                queueSong.artist === song.artist
             )
 
             set((state) => {
@@ -311,7 +311,7 @@ export const usePlayerState = create<PlayerState>()(
               const currentSongIndex = updatedQueue.findIndex(
                 (song) =>
                   song.title === state.currentSong?.title &&
-                  song.artist === state.currentSong?.artist
+                  song.artist === state.currentSong.artist
               )
 
               state.queue = updatedQueue.toSpliced(
@@ -330,8 +330,8 @@ export const usePlayerState = create<PlayerState>()(
 
             const songToRemoveIndex = activeQueue.findIndex(
               (queueSong) =>
-                queueSong.title === song?.title &&
-                queueSong.artist === song?.artist
+                queueSong.title === song.title &&
+                queueSong.artist === song.artist
             )
 
             set((state) => {
@@ -385,10 +385,7 @@ export const usePlayerProgressState = create<PlayerProgressState>()(
   )
 )
 
-const instanceRef = createRef<Omit<
-  ReactPlayer,
-  'refs'
-> | null>() as React.RefObject<Omit<ReactPlayer, 'refs'> | null>
+const instanceRef = createRef<Omit<ReactPlayer, 'refs'> | null>()
 instanceRef.current = null
 
 export const usePlayerInstance = create<PlayerInstanceState>()(

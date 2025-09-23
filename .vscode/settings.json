@@ -4,7 +4,8 @@
     "./apps/web",
     "./packages/shared",
     "./packages/eslint-config",
-    "./packages/typescript-config"
+    "./packages/typescript-config",
+    "./packages/api"
   ],
   "tailwindCSS.experimental.classRegex": [
     "tw`([^`]*)",

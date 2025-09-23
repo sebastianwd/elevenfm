@@ -1,7 +1,7 @@
 import { GlobeAltIcon } from '@heroicons/react/24/outline'
 
 interface ArtistHeaderProps {
-  externalUrls: {
+  externalUrls?: {
     spotify?: string
     website?: string
   }

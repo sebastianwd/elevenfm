@@ -15,7 +15,7 @@ const Circle = forwardRef<
     <div
       ref={ref}
       className={twMerge(
-        'bg-surface-800 z-10 flex size-16 items-center justify-center rounded-full p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
+        'z-10 flex size-16 items-center justify-center rounded-full bg-surface-800 p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
         className
       )}
     >
@@ -54,7 +54,7 @@ export function AnimatedBeam({ className }: { className?: string }) {
           </Circle>
         </div>
         <div className='relative flex flex-col justify-center'>
-          <Circle ref={div6Ref} className='bg-primary-500/70 size-16'>
+          <Circle ref={div6Ref} className='size-16 bg-primary-500/70'>
             <Icon icon='entypo:folder-music' className='size-14' />
           </Circle>
         </div>

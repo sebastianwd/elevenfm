@@ -1,8 +1,8 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { orpc } from '@repo/api/lib/orpc.client'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { similarArtistsQuery } from '~/api'
 import { Skeleton } from '~/components/skeleton/skeleton'
 
 interface SimilarArtistsProps {
@@ -12,14 +12,13 @@ interface SimilarArtistsProps {
 export const SimilarArtists = (props: SimilarArtistsProps) => {
   const { artist } = props
 
-  const { data: similarArtists, isPending } = useQuery({
-    queryKey: ['similarArtists', artist],
-    queryFn: () =>
-      similarArtistsQuery({ artist: artist, limit: 9, onlyNames: false }),
-    staleTime: Infinity,
-  })
+  const { data: similarArtists, isPending } = useQuery(
+    orpc.artist.similar.queryOptions({
+      input: { artist, limit: 9, onlyNames: false },
+    })
+  )
 
-  if (!isPending && !similarArtists?.similarArtists.length) {
+  if (!isPending && !similarArtists?.length) {
     return (
       <p className='my-20 text-center text-sm text-gray-300'>
         No similar artists found
@@ -38,7 +37,7 @@ export const SimilarArtists = (props: SimilarArtistsProps) => {
               <Skeleton className='size-full overflow-hidden' />
             </div>
           ))
-        : similarArtists?.similarArtists.map((artist, i) => {
+        : similarArtists.map((artist, i) => {
             return (
               <div
                 key={artist.name + i}
@@ -56,7 +55,7 @@ export const SimilarArtists = (props: SimilarArtistsProps) => {
                     src={artist.image || '/cover-placeholder.png'}
                     className='size-full object-cover transition-all group-hover:scale-105 group-hover:blur-sm'
                   />
-                  <div className='absolute left-0 top-0 flex size-full items-center justify-center bg-black/50 transition-colors group-hover:bg-black/40'>
+                  <div className='absolute top-0 left-0 flex size-full items-center justify-center bg-black/50 transition-colors group-hover:bg-black/40'>
                     <span className='text-center text-slate-50'>
                       {artist.name}
                     </span>

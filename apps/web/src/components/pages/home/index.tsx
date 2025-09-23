@@ -22,11 +22,11 @@ export const HomePage = () => {
 
     return (
       <>
-        <div className='container relative mx-auto flex h-full flex-col items-center px-6 md:flex-row md:px-8 lg:gap-4 '>
+        <div className='relative container mx-auto flex h-full flex-col items-center px-6 md:flex-row md:px-8 lg:gap-4'>
           <Gradient />
           <div className='flex grow flex-col'>
             <h1
-              className='mb-4 mt-8 text-balance text-3xl text-gray-100 lg:-mt-4 lg:text-4xl'
+              className='mt-8 mb-4 text-3xl text-balance text-gray-100 lg:-mt-4 lg:text-4xl'
               id='home'
             >
               Listen to your favorite artists <br /> and create your own

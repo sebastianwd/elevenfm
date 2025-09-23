@@ -56,12 +56,6 @@ const AddToPlaylistDndContext = memo(
       (state) => state.setDraggingToPlaylistEl
     )
 
-    /* const { mutateAsync: updatePlaylistSongRank } = useMutation({
-      mutationKey: ['updatePlaylistSongRank'],
-      mutationFn: updatePlaylistSongRankMutation,
-      onError: (err: ClientError) => err,
-    })*/
-
     const { mutateAsync: updatePlaylistSongRank } = useMutation(
       orpc.playlist.updateSongRank.mutationOptions()
     )
@@ -90,12 +84,6 @@ const AddToPlaylistDndContext = memo(
     )
 
     const params = useParams<{ playlistId: string }>()
-
-    /*  const { mutateAsync: addToPlaylist } = useMutation({
-      mutationKey: ['addToPlaylist'],
-      mutationFn: addToPlaylistMutation,
-      onError: (err: ClientError) => err,
-    })*/
 
     const { mutateAsync: addToPlaylist } = useMutation(
       orpc.playlist.addSong.mutationOptions()

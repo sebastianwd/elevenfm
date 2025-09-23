@@ -65,7 +65,7 @@ export default function Dropdown(props: DropdownProps) {
         <MenuItems
           ref={(el) => setDropdownRefState(el)}
           className={twMerge(
-            'absolute w-56 origin-top-right transition divide-y divide-surface-900 rounded-md bg-surface-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 bottom-12 md:bottom-auto',
+            'ring-opacity-5 absolute bottom-12 z-50 w-56 origin-top-right divide-y divide-surface-900 rounded-md bg-surface-800 shadow-lg ring-1 ring-black transition focus:outline-none md:bottom-auto',
             direction === 'right' ? 'left-0' : 'right-0',
             initialOpenUpwards ? 'md:bottom-full' : ''
           )}

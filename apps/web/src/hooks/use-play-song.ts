@@ -17,7 +17,7 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
   const { songs, songsIdentifier: identifier } = options
 
   const isShuffled = useLocalSettings((state) =>
-    state.shuffledPlaylists.includes(identifier ?? '')
+    state.shuffledPlaylists.includes(identifier || '')
   )
 
   const setQueueIdentifier = usePlayerState((state) => state.setQueueIdentifier)
@@ -33,7 +33,7 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
         if (!isNil(isShuffled)) {
           setShuffle(isShuffled)
         }
-        setQueueIdentifier(identifier ?? '')
+        setQueueIdentifier(identifier || '')
       }
 
       if (!songUrl) {
@@ -70,7 +70,7 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
             artist: song.artist,
             title: song.title,
             urls: song.songUrl ? [song.songUrl] : undefined,
-          })) || []
+          }))
         )
       }
 

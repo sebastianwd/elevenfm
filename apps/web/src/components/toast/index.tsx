@@ -10,7 +10,7 @@ export const Toast = (props: ToastProps) => {
   return (
     <div
       className={twMerge(
-        'bg-neutral-200 text-surface-700 font-semibold py-4 px-3 rounded-md shadow-md w-fit',
+        'w-fit rounded-md bg-neutral-200 px-3 py-4 font-semibold text-surface-700 shadow-md',
         props.className
       )}
       onClick={() => {

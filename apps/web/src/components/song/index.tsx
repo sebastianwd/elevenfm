@@ -10,7 +10,6 @@ import { Icon } from '@iconify/react'
 import { orpc, queryClient } from '@repo/api/lib/orpc.client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { ClientError } from 'graphql-request'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -22,7 +21,6 @@ import { twMerge } from 'tailwind-merge'
 import { queryKeys } from '~/constants'
 import { useModalStore } from '~/store/use-modal'
 import { usePlayerState } from '~/store/use-player'
-import { getError } from '~/utils/get-error'
 import { getMainArtist, splitArtist } from '~/utils/song-title-utils'
 
 import { AudioWave } from '../icons'
@@ -42,7 +40,7 @@ interface SongProps {
   onShowLyrics?: () => void
   isEditable?: boolean
   isQueue?: boolean
-  dateAdded?: string | null
+  dateAdded?: Date | null
   songId?: string
   playlistId?: string
   isSortHighlight?: boolean
@@ -200,13 +198,10 @@ export const Song = (props: SongProps) => {
               }
             } catch (error) {
               console.error(error)
-              if (error instanceof ClientError) {
-                toast.custom(
-                  () => <Toast message={`❌ ${getError(error)}`} />,
-                  {
-                    duration: 3500,
-                  }
-                )
+              if (error instanceof Error) {
+                toast.custom(() => <Toast message={`❌ ${error.message}`} />, {
+                  duration: 3500,
+                })
 
                 return
               }

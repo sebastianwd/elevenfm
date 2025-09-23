@@ -18,8 +18,8 @@ export const TheaterMode = () => {
       />
       <div className='lg:col-span-1'>
         <Lyrics
-          artist={currentSong?.artist}
-          song={currentSong?.title}
+          artist={currentSong.artist}
+          song={currentSong.title}
           className='h-[calc(100svh/1.95)] lg:h-[calc(100svh-11rem)]'
         />
       </div>

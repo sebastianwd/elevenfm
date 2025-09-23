@@ -25,7 +25,7 @@ export const Sortable = (props: SortableProps) => {
   return (
     <div
       className={twMerge(
-        'cursor-grabbing focus-visible:outline-0 focus-visible:border-0 select-none',
+        'cursor-grabbing select-none focus-visible:border-0 focus-visible:outline-0',
         className
       )}
       style={style}

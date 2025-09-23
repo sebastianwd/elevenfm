@@ -41,3 +41,5 @@ local.db
 .nx
 
 dist
+
+.turbo
