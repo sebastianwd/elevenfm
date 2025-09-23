@@ -1,13 +1,16 @@
+'use client'
+
 import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { type ChangeEvent, Fragment, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
+import { useShallow } from 'zustand/react/shallow'
 
-import { getLyricsQuery } from '~/api'
 import { usePlaySong } from '~/hooks/use-play-song'
 import { useLayoutState } from '~/store/use-layout-state'
 import { useLocalSettings } from '~/store/use-local-settings'
@@ -82,7 +85,7 @@ const QueueList = (props: QueueListProps) => {
             isQueue
             isPlaying={
               currentSong?.title === song.title &&
-              currentSong?.artist === song.artist
+              currentSong.artist === song.artist
             }
             onClick={() =>
               onPlay({
@@ -99,7 +102,7 @@ const QueueList = (props: QueueListProps) => {
 
   return (
     <motion.div
-      className='border-surface-700 bg-surface-950 rounded-lg border border-b-0 border-solid'
+      className='rounded-lg border border-b-0 border-solid border-surface-700 bg-surface-950'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -127,7 +130,7 @@ interface LyricsProps {
 export const Lyrics = (props: LyricsProps) => {
   const { artist, song } = props
 
-  const { data, isLoading } = useQuery({
+  /*const { data, isLoading } = useQuery({
     queryKey: ['getLyricsQuery', song, artist],
     queryFn: () =>
       getLyricsQuery({
@@ -138,9 +141,22 @@ export const Lyrics = (props: LyricsProps) => {
     gcTime: Infinity,
     enabled: Boolean(song && artist),
     retry: 2,
-  })
+  })*/
 
-  const lyrics = data?.getLyrics.lyrics
+  const { data, isLoading } = useQuery(
+    orpc.song.lyrics.queryOptions({
+      input: {
+        artist: splitArtist(artist)[0]!.trim(),
+        song: sanitizeSongTitle(song),
+      },
+      retry: 2,
+      staleTime: Infinity,
+      gcTime: Infinity,
+      enabled: Boolean(song && artist),
+    })
+  )
+
+  const lyrics = data?.lyrics
 
   //const scrollableNodeRef = useRef<SimpleBarCore>(null)
 
@@ -193,7 +209,7 @@ export const Lyrics = (props: LyricsProps) => {
 
   return (
     <motion.div
-      className='border-surface-700 bg-surface-950 h-full rounded-lg border border-b-0 border-solid'
+      className='h-full rounded-lg border border-b-0 border-solid border-surface-700 bg-surface-950'
       initial='hidden'
       exit='hidden'
       animate='show'
@@ -228,10 +244,8 @@ export const FooterPlayer = () => {
 
   const { instance } = usePlayerInstance()
 
-  const { theaterMode, setTheaterMode } = useLayoutState((state) => ({
-    theaterMode: state.theaterMode,
-    setTheaterMode: state.setTheaterMode,
-  }))
+  const theaterMode = useLayoutState((state) => state.theaterMode)
+  const setTheaterMode = useLayoutState((state) => state.setTheaterMode)
 
   const onChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -241,16 +255,18 @@ export const FooterPlayer = () => {
   )
 
   const { queueIdentifier, currentQueue, repeatMode, setRepeatMode } =
-    usePlayerState((state) => ({
-      queueIdentifier: state.queueIdentifier,
-      currentQueue: state.isShuffled ? state.shuffledQueue : state.queue,
-      repeatMode: state.repeatMode,
-      setRepeatMode: state.setRepeatMode,
-    }))
+    usePlayerState(
+      useShallow((state) => ({
+        queueIdentifier: state.queueIdentifier,
+        currentQueue: state.isShuffled ? state.shuffledQueue : state.queue,
+        repeatMode: state.repeatMode,
+        setRepeatMode: state.setRepeatMode,
+      }))
+    )
 
-  const { toggleShuffledPlaylist } = useLocalSettings((state) => ({
-    toggleShuffledPlaylist: state.toggleShuffledPlaylist,
-  }))
+  const toggleShuffledPlaylist = useLocalSettings(
+    (state) => state.toggleShuffledPlaylist
+  )
 
   const [showQueue, setShowQueue] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
@@ -287,13 +303,13 @@ export const FooterPlayer = () => {
           ) : null}
         </AnimatePresence>
       </div>
-      <footer className='bg-surface-800/20 fixed bottom-0 z-40 mt-auto h-28 w-full backdrop-blur-lg'>
+      <footer className='fixed bottom-0 z-40 mt-auto h-28 w-full bg-surface-800/20 backdrop-blur-lg'>
         <div className='relative mx-auto grid grid-cols-3 p-4 pb-0 text-white md:p-5'>
           <div className='col-span-1 flex gap-2 md:gap-4'>
             <div className='flex shrink-0 items-center'>
               {currentSong ? (
                 <img
-                  src={currentSong?.albumCoverUrl || '/cover-placeholder.png'}
+                  src={currentSong.albumCoverUrl || '/cover-placeholder.png'}
                   width={56}
                   height={56}
                   alt='album cover'
@@ -362,7 +378,7 @@ export const FooterPlayer = () => {
                 }}
               >
                 {isPlaying ? (
-                  <PauseCircleIcon className='text-primary-500 size-12' />
+                  <PauseCircleIcon className='size-12 text-primary-500' />
                 ) : (
                   <PlayCircleIcon className='size-12' />
                 )}
@@ -398,9 +414,9 @@ export const FooterPlayer = () => {
                 {repeatMode === 'none' ? (
                   <RepeatIcon className='size-5 md:size-6' />
                 ) : repeatMode === 'all' ? (
-                  <RepeatIcon className='text-primary-500 size-5 md:size-6' />
+                  <RepeatIcon className='size-5 text-primary-500 md:size-6' />
                 ) : (
-                  <RepeatOneIcon className='text-primary-500 size-5 md:size-6' />
+                  <RepeatOneIcon className='size-5 text-primary-500 md:size-6' />
                 )}
               </Button>
               <div className='w-2' />

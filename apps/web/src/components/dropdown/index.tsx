@@ -5,19 +5,19 @@ import {
   MenuItems,
   Transition,
 } from '@headlessui/react'
-import { map } from 'lodash'
+import { map } from 'es-toolkit/compat'
 import { Fragment, useEffect, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export interface MenuItem {
   label: string
-  icon?: JSX.Element
+  icon?: React.ReactElement
   onClick: () => void
   hidden?: boolean
 }
 
 interface DropdownProps {
-  menuLabel: JSX.Element
+  menuLabel: React.ReactElement
   menuItems: MenuItem[]
   direction?: 'left' | 'right'
   className?: string

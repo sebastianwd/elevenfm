@@ -1,3 +1,5 @@
+'use client'
+
 import { SearchTrigger } from '~/components/search-trigger'
 import { Seo } from '~/components/seo'
 import { TheaterMode } from '~/components/theater-mode'

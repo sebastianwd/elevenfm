@@ -1,16 +1,9 @@
 import { LinkIcon } from '@heroicons/react/24/outline'
+import { useSession } from '@repo/api/auth/auth.client'
+import { orpc, queryClient } from '@repo/api/lib/orpc.client'
 import { useMutation } from '@tanstack/react-query'
-import type {
-  PlaylistQueryQuery,
-  UserPlaylistsQueryQuery,
-} from 'elevenfm-shared'
-import { type ClientError } from 'graphql-request'
-import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-
-import { queryClient, updatePlaylistMutation } from '~/api'
-import { getError } from '~/utils/get-error'
 
 interface EditPlaylistDetailsModalProps {
   playlistId: string
@@ -24,29 +17,26 @@ export const EditPlaylistDetailsModal = (
   const { playlistId, onActionEnd, playlistName } = props
   const [newName, setNewName] = useState(playlistName)
 
-  const updatePlaylist = useMutation({
-    mutationKey: ['updatePlaylist'],
-    mutationFn: () =>
-      updatePlaylistMutation({
-        name: newName,
-        playlistId,
-      }),
-    onError: (err: ClientError) => err,
-  })
+  const updatePlaylist = useMutation(orpc.playlist.update.mutationOptions())
 
   const session = useSession()
 
   const confirmUpdatePlaylist = async () => {
     try {
-      await updatePlaylist.mutateAsync()
+      await updatePlaylist.mutateAsync({
+        playlistId,
+        name: newName,
+      })
 
-      queryClient.setQueryData<UserPlaylistsQueryQuery>(
-        ['userPlaylists', session.data?.user?.id],
+      queryClient.setQueryData(
+        orpc.playlist.list.queryKey({
+          input: { userId: session.data?.user.id },
+        }),
         (data) => {
           if (!data) return undefined
           return {
             ...data,
-            userPlaylists: data.userPlaylists.map((playlist) =>
+            userPlaylists: data.map((playlist) =>
               playlist.id === playlistId
                 ? { ...playlist, name: newName }
                 : playlist
@@ -54,13 +44,15 @@ export const EditPlaylistDetailsModal = (
           }
         }
       )
-      queryClient.setQueryData<PlaylistQueryQuery>(
-        ['userPlaylist', playlistId],
+      queryClient.setQueryData(
+        orpc.playlist.get.queryKey({
+          input: { playlistId },
+        }),
         (data) => {
           if (!data) return undefined
           return {
             ...data,
-            playlist: { ...data.playlist, name: newName },
+            playlist: { ...data, name: newName },
           }
         }
       )
@@ -78,7 +70,7 @@ export const EditPlaylistDetailsModal = (
         <div className='flex grow items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
           <input
             onChange={(e) => setNewName(e.target.value)}
-            className='h-9 w-full border-0 bg-transparent py-2 text-base outline-none ring-0'
+            className='h-9 w-full border-0 bg-transparent py-2 text-base ring-0 outline-none'
             value={newName}
             placeholder={playlistName}
           />
@@ -98,11 +90,11 @@ export const EditPlaylistDetailsModal = (
 
       <span
         className={twMerge(
-          'text-primary-500 text-sm invisible',
+          'invisible text-sm text-primary-500',
           updatePlaylist.error && 'visible'
         )}
       >
-        Error: {getError(updatePlaylist.error)}
+        Error: {updatePlaylist.error?.message}
       </span>
     </div>
   )

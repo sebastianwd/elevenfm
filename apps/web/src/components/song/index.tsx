@@ -7,22 +7,18 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid'
 import { Icon } from '@iconify/react'
+import { orpc, queryClient } from '@repo/api/lib/orpc.client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { ClientError } from 'graphql-request'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
-import {
-  createSongRadioMutation,
-  queryClient,
-  removeFromPlaylistMutation,
-} from '~/api'
 import { queryKeys } from '~/constants'
 import { useModalStore } from '~/store/use-modal'
 import { usePlayerState } from '~/store/use-player'
@@ -115,10 +111,9 @@ export const Song = (props: SongProps) => {
     })
   }, [props.artist, props.song, removeFromQueueAction])
 
-  const createSongRadio = useMutation({
-    mutationFn: createSongRadioMutation,
-    mutationKey: ['createSongRadio'],
-  })
+  const { mutateAsync: createSongRadio } = useMutation(
+    orpc.playlist.createRadio.mutationOptions()
+  )
 
   const openAddToPlaylistModal = useCallback(() => {
     openModal({
@@ -143,10 +138,9 @@ export const Song = (props: SongProps) => {
     })
   }, [openModal, props.artist, props.song, closeModal])
 
-  const removeFromPlaylist = useMutation({
-    mutationKey: ['removeFromPlaylist', props.playlistId],
-    mutationFn: removeFromPlaylistMutation,
-  })
+  const { mutateAsync: removeFromPlaylist } = useMutation(
+    orpc.playlist.removeSong.mutationOptions()
+  )
 
   const menuOptions: React.ComponentProps<typeof DynamicDropdown>['menuItems'] =
     useMemo(
@@ -162,7 +156,7 @@ export const Song = (props: SongProps) => {
           icon: <XMarkIcon className='mr-2 h-5 shrink-0' />,
           hidden: !props.isEditable,
           onClick: async () => {
-            await removeFromPlaylist.mutateAsync({
+            await removeFromPlaylist({
               playlistId: props.playlistId ?? '',
               songId: props.songId ?? '',
             })
@@ -172,7 +166,9 @@ export const Song = (props: SongProps) => {
               { duration: 2000 }
             )
             await queryClient.invalidateQueries({
-              queryKey: ['userPlaylist', props.playlistId],
+              queryKey: orpc.playlist.get.queryKey({
+                input: { playlistId: props.playlistId ?? '' },
+              }),
             })
           },
         },
@@ -193,14 +189,14 @@ export const Song = (props: SongProps) => {
           icon: <MusicalNoteIcon className='mr-2 h-5 shrink-0' />,
           onClick: async () => {
             try {
-              const response = await createSongRadio.mutateAsync({
+              const response = await createSongRadio({
                 songArtist: props.artist,
                 songTitle: props.song,
-                songId: props.songId || null,
+                songId: props.songId,
               })
 
-              if (response.createSongRadio) {
-                await router.push(`/playlist/${response.createSongRadio.id}`)
+              if (response.id) {
+                router.push(`/playlist/${response.id}`)
               }
             } catch (error) {
               console.error(error)
@@ -225,9 +221,9 @@ export const Song = (props: SongProps) => {
         props.songId,
         props.artist,
         props.song,
+        removeFromQueue,
         openAddToPlaylistModal,
         addToQueue,
-        removeFromQueue,
         removeFromPlaylist,
         createSongRadio,
         router,
@@ -237,7 +233,7 @@ export const Song = (props: SongProps) => {
   return (
     <div
       className={twMerge(
-        'flex cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700 h-[3.25rem]',
+        'flex h-[3.25rem] cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700',
         isSortHighlight && 'border border-solid border-primary-500 opacity-80',
         isSelected && 'bg-surface-600 hover:bg-surface-600'
       )}
@@ -247,7 +243,7 @@ export const Song = (props: SongProps) => {
       aria-selected={isSelected}
       tabIndex={0}
     >
-      <div className='flex h-full grow @container/songs'>
+      <div className='@container/songs flex h-full grow'>
         <div className='flex h-full items-center @2xl/songs:basis-1/2'>
           {props.position && (
             <div className='w-3 shrink-0 text-sm font-medium text-gray-400'>
@@ -264,7 +260,7 @@ export const Song = (props: SongProps) => {
           >
             <div
               className={twMerge(
-                'ml-5 transition-[width] shrink-0 flex w-5',
+                'ml-5 flex w-5 shrink-0 transition-[width]',
                 !props.isPlaying && 'w-4'
               )}
             >
@@ -278,7 +274,7 @@ export const Song = (props: SongProps) => {
               <p
                 className={`line-clamp-1 text-left text-sm font-medium text-gray-300 ${
                   props.isPlaying ? 'text-primary-500' : ''
-                } `}
+                }`}
               >
                 {props.song}
               </p>

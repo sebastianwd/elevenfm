@@ -1,3 +1,5 @@
+'use client'
+
 import { Icon } from '@iconify/react'
 import type React from 'react'
 import { forwardRef, useRef } from 'react'
@@ -13,7 +15,7 @@ const Circle = forwardRef<
     <div
       ref={ref}
       className={twMerge(
-        'z-10 flex size-16 items-center justify-center rounded-full  bg-surface-800  p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
+        'bg-surface-800 z-10 flex size-16 items-center justify-center rounded-full p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
         className
       )}
     >
@@ -25,16 +27,16 @@ const Circle = forwardRef<
 Circle.displayName = 'Circle'
 
 export function AnimatedBeam({ className }: { className?: string }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const div1Ref = useRef<HTMLDivElement>(null)
-  const div2Ref = useRef<HTMLDivElement>(null)
-  const div3Ref = useRef<HTMLDivElement>(null)
-  const div6Ref = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const div1Ref = useRef<HTMLDivElement | null>(null)
+  const div2Ref = useRef<HTMLDivElement | null>(null)
+  const div3Ref = useRef<HTMLDivElement | null>(null)
+  const div6Ref = useRef<HTMLDivElement | null>(null)
 
   return (
     <div
       className={twMerge(
-        'relative flex items-center justify-center rounded-lg w-2/3 md:w-1/2',
+        'relative flex w-2/3 items-center justify-center rounded-lg md:w-1/2',
         className
       )}
       ref={containerRef}
@@ -52,7 +54,7 @@ export function AnimatedBeam({ className }: { className?: string }) {
           </Circle>
         </div>
         <div className='relative flex flex-col justify-center'>
-          <Circle ref={div6Ref} className='size-16 bg-primary-500/70'>
+          <Circle ref={div6Ref} className='bg-primary-500/70 size-16'>
             <Icon icon='entypo:folder-music' className='size-14' />
           </Circle>
         </div>

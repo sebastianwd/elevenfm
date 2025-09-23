@@ -39,7 +39,7 @@ export const CommandPalette = ({
       className='fixed inset-0 z-50 overflow-y-auto p-4 pt-[15vh] transition data-[closed]:opacity-0'
     >
       <div
-        className='fixed inset-0 w-screen overflow-y-auto bg-surface-900/75'
+        className='bg-surface-900/75 fixed inset-0 w-screen overflow-y-auto'
         aria-hidden='true'
       />
       <DialogPanel>
@@ -47,18 +47,18 @@ export const CommandPalette = ({
           as='div'
           value={value}
           className='relative mx-auto max-w-xl'
-          onChange={(command: string) => {
-            onSelect(command)
+          onChange={(command) => {
+            onSelect(command ?? '')
           }}
         >
-          <div className='flex items-center rounded-xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
+          <div className='bg-surface-800 ring-surface-800/70 flex items-center rounded-xl px-4 shadow-2xl focus-within:ring-2'>
             <ComboboxInput
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               onChange={(e) => {
                 onInputChange(e.target.value)
               }}
-              className='w-full border-0 bg-transparent py-4 text-base outline-none ring-0'
+              className='w-full border-0 bg-transparent py-4 text-base ring-0 outline-none'
               placeholder='Search...'
             />
             {isLoading ? (
@@ -72,7 +72,7 @@ export const CommandPalette = ({
               <ComboboxOption key={command} value={command} as={Fragment}>
                 {({ focus, selected }) => (
                   <li
-                    className={`relative cursor-pointer select-none list-none px-4 py-2 ${
+                    className={`relative cursor-pointer list-none px-4 py-2 select-none ${
                       focus ? 'bg-surface-950 text-white' : 'bg-surface-800'
                     }`}
                   >

@@ -1,0 +1,3 @@
+export const DBErrorCode = {
+  SQLITE_CONSTRAINT_UNIQUE: 'SQLITE_CONSTRAINT_UNIQUE'
+} as const

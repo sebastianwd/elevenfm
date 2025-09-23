@@ -1,13 +1,11 @@
+import { useSession } from '@repo/api/auth/auth.client'
+import { orpc, queryClient } from '@repo/api/lib/orpc.client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { type ClientError } from 'graphql-request'
-import { useSession } from 'next-auth/react'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 
-import { addToPlaylistMutation, queryClient, userPlaylistsQuery } from '~/api'
 import type { PlayableSong } from '~/types'
-import { getError } from '~/utils/get-error'
 
 import { Button } from '../button'
 
@@ -21,18 +19,15 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
 
   const session = useSession()
 
-  const userPlaylists = useQuery({
-    queryKey: ['userPlaylists', session.data?.user?.id],
-    queryFn: () => userPlaylistsQuery(),
-    enabled: !!session.data?.user?.id,
-    staleTime: Infinity,
-  })
+  const userPlaylists = useQuery(
+    orpc.playlist.list.queryOptions({
+      input: { userId: session.data?.user.id },
+      staleTime: Infinity,
+      enabled: !!session.data?.user.id,
+    })
+  )
 
-  const addToPlaylist = useMutation({
-    mutationKey: ['addToPlaylist'],
-    mutationFn: addToPlaylistMutation,
-    onError: (err: ClientError) => err,
-  })
+  const addToPlaylist = useMutation(orpc.playlist.addSong.mutationOptions())
 
   const confirmAddToPlaylist = async ({
     playlistId,
@@ -44,21 +39,23 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
     try {
       await addToPlaylist.mutateAsync({
         playlistId: playlistId,
-        songIds: song.id ? [song.id] : null,
+        songIds: song.id ? [song.id] : undefined,
         songs: song.id
-          ? null
+          ? undefined
           : [
               {
                 album: '',
                 artist: song.artist,
                 title: song.title,
-                songUrl: song.songUrl || null,
+                url: song.songUrl || undefined,
               },
             ],
       })
 
       await queryClient.invalidateQueries({
-        queryKey: ['userPlaylist', playlistId],
+        queryKey: orpc.playlist.list.queryKey({
+          input: { userId: session.data?.user.id },
+        }),
       })
 
       onActionEnd?.({ playlistName, playlistId })
@@ -83,7 +80,7 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
             scrollbar: 'bg-primary-500 w-1 rounded',
           }}
         >
-          {userPlaylists.data?.userPlaylists.map((playlist) => (
+          {userPlaylists.data?.map((playlist) => (
             <Button
               key={playlist.id}
               onClick={() =>
@@ -92,12 +89,12 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
                   playlistName: playlist.name,
                 })
               }
-              className='flex w-full grow flex-col gap-1 rounded-lg  bg-surface-800 px-3 py-1 text-left transition-colors'
+              className='flex w-full grow flex-col gap-1 rounded-lg bg-surface-800 px-3 py-1 text-left transition-colors'
               variant='ghost'
             >
               <p className='text-base'>{playlist.name}</p>
               <p className='mt-0.5 text-xs text-gray-400'>
-                {format(new Date(Number(playlist.createdAt!)), 'MM/dd/yyyy')}
+                {format(new Date(Number(playlist.createdAt)), 'MM/dd/yyyy')}
               </p>
             </Button>
           ))}
@@ -105,11 +102,11 @@ export const AddToPlaylistModal = (props: AddToPlaylistModalProps) => {
       </div>
       <span
         className={twMerge(
-          'text-primary-500 text-sm invisible',
+          'invisible text-sm text-primary-500',
           addToPlaylist.error && 'visible'
         )}
       >
-        Error: {getError(addToPlaylist.error)}
+        Error: {addToPlaylist.error?.message}
       </span>
     </div>
   )

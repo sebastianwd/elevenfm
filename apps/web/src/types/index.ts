@@ -1,10 +1,3 @@
-import { type BaseContext } from '@apollo/server'
-import { type Session } from 'next-auth'
-
-export interface Context extends BaseContext {
-  session: Session | null
-}
-
 export interface PlayableSong {
   title: string
   albumCoverUrl?: string | null
@@ -12,6 +5,6 @@ export interface PlayableSong {
   artist: string
   rank?: string | null
   songUrl?: string | null
-  createdAt?: string | null
+  createdAt?: Date | null
   id?: string
 }

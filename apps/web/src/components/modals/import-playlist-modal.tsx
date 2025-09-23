@@ -1,12 +1,9 @@
 import { LinkIcon } from '@heroicons/react/24/outline'
+import { useSession } from '@repo/api/auth/auth.client'
+import { orpc, queryClient } from '@repo/api/lib/orpc.client'
 import { useMutation } from '@tanstack/react-query'
-import { type ClientError } from 'graphql-request'
-import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-
-import { importPlaylistMutation, queryClient } from '~/api'
-import { getError } from '~/utils/get-error'
 
 interface ImportPlaylistModalProps {
   playlistId?: string
@@ -17,15 +14,7 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
   const { playlistId, onImportEnd } = props
   const [importUrl, setImportUrl] = useState('')
 
-  const importPlaylist = useMutation({
-    mutationKey: ['importPlaylist'],
-    mutationFn: () =>
-      importPlaylistMutation({
-        url: importUrl,
-        playlistId: playlistId || null,
-      }),
-    onError: (err: ClientError) => err,
-  })
+  const importPlaylist = useMutation(orpc.playlist.import.mutationOptions())
 
   const session = useSession()
 
@@ -34,15 +23,22 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
       if (!importUrl) {
         return
       }
-      await importPlaylist.mutateAsync()
+      await importPlaylist.mutateAsync({
+        url: importUrl,
+        playlistId,
+      })
 
       await queryClient.invalidateQueries({
-        queryKey: ['userPlaylists', session.data?.user?.id],
+        queryKey: orpc.playlist.list.queryKey({
+          input: { userId: session.data?.user.id },
+        }),
       })
 
       if (playlistId) {
         await queryClient.invalidateQueries({
-          queryKey: ['userPlaylist', playlistId],
+          queryKey: orpc.playlist.get.queryKey({
+            input: { playlistId },
+          }),
         })
       }
 
@@ -70,7 +66,7 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
         <div className='flex grow items-center rounded-3xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
           <input
             onChange={(e) => setImportUrl(e.target.value)}
-            className='h-9 w-full border-0 bg-transparent py-2 text-base outline-none ring-0'
+            className='h-9 w-full border-0 bg-transparent py-2 text-base ring-0 outline-none'
             value={importUrl}
             placeholder='https://open.spotify.com/playlist/...'
           />
@@ -88,11 +84,11 @@ export const ImportPlaylistModal = (props: ImportPlaylistModalProps) => {
 
       <span
         className={twMerge(
-          'text-primary-500 text-sm invisible',
+          'invisible text-sm text-primary-500',
           importPlaylist.error && 'visible'
         )}
       >
-        Error: {getError(importPlaylist.error)}
+        Error: {importPlaylist.error?.message}
       </span>
     </div>
   )

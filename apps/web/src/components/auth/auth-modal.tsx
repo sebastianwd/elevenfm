@@ -1,7 +1,6 @@
 import { EyeIcon, EyeSlashIcon, UserIcon } from '@heroicons/react/24/outline'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import { getProviders, signIn } from 'next-auth/react'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -9,7 +8,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { GithubIcon } from '../icons'
 import { Input } from '../input'
-import { WavesLoader } from '../loader'
+import { authClient } from '@repo/api/auth/auth.client'
 
 type Inputs = {
   username: string
@@ -21,23 +20,14 @@ interface AuthModalProps {
 }
 
 export const AuthModal = (props: AuthModalProps) => {
-  const { onClose } = props
-
-  const providers = useQuery({
-    queryKey: ['authProviders'],
-    queryFn: () => getProviders(),
-    staleTime: Infinity,
-  })
-
   const credentialsSignIn = useMutation({
     mutationFn: (data: Inputs) =>
-      signIn(providers.data?.credentials.id, {
-        ...data,
-        callbackUrl: pathname?.includes('/auth') ? '/' : pathname || '/',
-        redirect: false,
-        action: authType,
+      authClient.signIn.username({
+        callbackURL: pathname?.includes('/auth') ? '/' : pathname || '/',
+        password: data.password,
+        username: data.username,
       }),
-    mutationKey: ['signIn', providers.data?.credentials.id],
+    mutationKey: ['signIn'],
   })
 
   const pathname = usePathname()
@@ -51,47 +41,13 @@ export const AuthModal = (props: AuthModalProps) => {
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Inputs>()
 
-  const getCredentialsError = (credentialsError: string = '') => {
-    if (
-      ['AccessDenied', 'CredentialsSignin', 'Configuration'].includes(
-        credentialsError
-      )
-    ) {
-      if (authType === 'login') {
-        return 'Invalid credentials'
-      }
-
-      return 'Invalid credentials or username already taken'
-    }
-  }
-
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     if (!isDirty || !isValid) return
 
-    const response = await credentialsSignIn.mutateAsync(data)
-
-    if (!getCredentialsError(response?.error)) {
-      onClose?.()
-    }
+    await credentialsSignIn.mutateAsync(data)
   }
 
   const renderProviders = () => {
-    if (providers.isPending) {
-      return (
-        <div className='flex h-full items-center justify-center'>
-          <WavesLoader className='h-5' />
-        </div>
-      )
-    }
-
-    if (providers.isError) {
-      return (
-        <div className='flex h-full items-center justify-center'>
-          <p>An error occurred. Please try again later.</p>
-        </div>
-      )
-    }
-
     return (
       <>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -157,13 +113,13 @@ export const AuthModal = (props: AuthModalProps) => {
               'text-red-500 text-sm invisible',
               (errors.username?.message ||
                 errors.password?.message ||
-                getCredentialsError(credentialsSignIn.data?.error)) &&
+                credentialsSignIn.data?.error?.message) &&
                 'visible'
             )}
           >
             {errors.username?.message ||
               errors.password?.message ||
-              getCredentialsError(credentialsSignIn.data?.error) ||
+              credentialsSignIn.data?.error?.message ||
               '&nbsp;'}
           </span>
         </form>
@@ -171,10 +127,11 @@ export const AuthModal = (props: AuthModalProps) => {
         <div className='rounded-md bg-gradient-to-br from-primary-500 to-blue-600  p-px'>
           <button
             type='button'
-            key={providers.data?.github.id}
+            key='github'
             onClick={() =>
-              signIn(providers.data?.github.id, {
-                callbackUrl: pathname?.includes('/auth')
+              authClient.signIn.social({
+                provider: 'github',
+                callbackURL: pathname?.includes('/auth')
                   ? '/'
                   : pathname || '/',
               })
@@ -184,8 +141,7 @@ export const AuthModal = (props: AuthModalProps) => {
             )}
           >
             <GithubIcon className='w-6' />
-            {authType === 'login' ? 'Log in' : 'Sign up'} with{' '}
-            {providers.data?.github.name}
+            {authType === 'login' ? 'Log in' : 'Sign up'} with Github
           </button>
         </div>
       </>

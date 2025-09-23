@@ -1,14 +1,14 @@
+import { useSession } from '@repo/api/auth/auth.client'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { useQuery } from '@tanstack/react-query'
 import type { ClientError } from 'graphql-request'
-import { isEmpty, orderBy } from 'lodash'
+import { orderBy } from 'es-toolkit'
 import type { NextPage } from 'next'
 import { useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { useCallback, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
 
-import { playlistQuery } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
 import { ImportPlaylistModal } from '~/components/modals/import-playlist-modal'
 import { Seo } from '~/components/seo'
@@ -28,18 +28,21 @@ const PlaylistPage: NextPage = () => {
 
   const session = useSession()
 
-  const playlist = useQuery({
-    queryKey: ['userPlaylist', params?.playlistId],
-    queryFn: () => playlistQuery({ playlistId: params?.playlistId ?? '' }),
-    staleTime: Infinity,
-    enabled: !!params?.playlistId,
-  })
+  const playlist = useQuery(
+    orpc.playlist.get.queryOptions({
+      input: { playlistId: params?.playlistId ?? '' },
+      staleTime: Infinity,
+      enabled: !!params?.playlistId,
+    })
+  )
 
   // need a separate state for instant playlist update when reordering
-  const { setCurrentPlaylist, currentPlaylist } = useLayoutState((state) => ({
-    setCurrentPlaylist: state.setCurrentPlaylist,
-    currentPlaylist: state.currentPlaylist,
-  }))
+  const { setCurrentPlaylist, currentPlaylist } = useLayoutState(
+    useShallow((state) => ({
+      setCurrentPlaylist: state.setCurrentPlaylist,
+      currentPlaylist: state.currentPlaylist,
+    }))
+  )
 
   const { sortedPlaylists } = useLocalSettings(
     useShallow((state) => ({
@@ -53,13 +56,14 @@ const PlaylistPage: NextPage = () => {
   useEffect(() => {
     if (sortingSettings?.sortBy === 'custom' || !sortingSettings?.sortBy) {
       setCurrentPlaylist(
-        playlist.data?.playlist.songs?.toSorted(sortByLexoRankAsc) ?? []
+        playlist.data?.songs?.toSorted(sortByLexoRankAsc) ?? []
       )
     } else {
       setCurrentPlaylist(
         orderBy(
-          playlist.data?.playlist.songs,
+          playlist.data?.songs ?? [],
           [
+            // @ts-ignore
             sortingSettings?.sortBy === 'dateAdded'
               ? 'createdAt'
               : sortingSettings?.sortBy,
@@ -69,7 +73,7 @@ const PlaylistPage: NextPage = () => {
       )
     }
   }, [
-    playlist.data?.playlist.songs,
+    playlist.data?.songs,
     setCurrentPlaylist,
     sortingSettings?.direction,
     sortingSettings?.sortBy,
@@ -78,7 +82,7 @@ const PlaylistPage: NextPage = () => {
   const openModal = useModalStore((state) => state.openModal)
   const closeModal = useModalStore((state) => state.closeModal)
 
-  const isRadio = playlist.data?.playlist.type === playlistType.RADIO
+  const isRadio = playlist.data?.type === playlistType.RADIO
 
   const onImportFromUrl = useCallback(() => {
     openModal({
@@ -93,16 +97,17 @@ const PlaylistPage: NextPage = () => {
           }}
         />
       ),
-      title: `Import playlist to ${playlist.data?.playlist.name}`,
+      title: `Import playlist to ${playlist.data?.name}`,
     })
-  }, [openModal, closeModal, params?.playlistId, playlist.data?.playlist?.name])
+  }, [openModal, closeModal, params?.playlistId, playlist.data?.name])
 
   const renderSongList = () => {
     if (playlist.isError) {
       return (
         <div className='mt-[10%] flex justify-center'>
           <p>
-            {getError(playlist.error as ClientError) || 'Something went wrong'}{' '}
+            {getError(playlist.error as ClientError) ||
+              'Something went wrong'}{' '}
           </p>
         </div>
       )
@@ -111,9 +116,9 @@ const PlaylistPage: NextPage = () => {
     return (
       <SongList
         isEditable={
-          playlist.data?.playlist.type === playlistType.PLAYLIST &&
-          !!playlist.data.playlist.user?.id &&
-          playlist.data.playlist.user.id === session.data?.user.id
+          playlist.data?.type === playlistType.PLAYLIST &&
+          !!playlist.data.user?.id &&
+          playlist.data.user.id === session.data?.user.id
         }
         onImportFromUrl={onImportFromUrl}
         identifier={params?.playlistId ?? ''}
@@ -125,7 +130,7 @@ const PlaylistPage: NextPage = () => {
     )
   }
 
-  const playlistUser = playlist.data?.playlist?.user?.name
+  const playlistUser = playlist.data?.user?.name
 
   const { theaterMode } = useLayoutState()
 
@@ -145,9 +150,9 @@ const PlaylistPage: NextPage = () => {
                       ? ''
                       : `${
                           isRadio ? `Made for 👤${playlistUser}` : playlistUser
-                        } - ${playlist.data?.playlist?.songs?.length} songs`
+                        } - ${playlist.data?.songs?.length} songs`
                   }
-                  title={playlist.data?.playlist?.name ?? ''}
+                  title={playlist.data?.name ?? ''}
                   externalUrls={{}}
                 />
               </div>

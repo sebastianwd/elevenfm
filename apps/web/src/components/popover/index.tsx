@@ -7,12 +7,12 @@ import {
 
 export interface PopoverItem {
   label: string
-  icon?: JSX.Element
+  icon?: React.ReactElement
   onClick: React.ComponentProps<'button'>['onClick']
 }
 
 interface PopoverProps {
-  menuLabel: (open: boolean) => JSX.Element
+  menuLabel: (open: boolean) => React.ReactElement
   menuItems: PopoverItem[]
   direction?: React.ComponentProps<typeof PopoverPanel>['anchor']
   className?: string

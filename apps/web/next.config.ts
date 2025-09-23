@@ -6,8 +6,6 @@ const invidiousUrls = process.env.NEXT_PUBLIC_INVIDIOUS_URLS ?? ''
 const externalImageUrls = invidiousUrls.split(',')
 
 const nextConfig = {
-  // https://github.com/nextauthjs/next-auth/discussions/9385
-  transpilePackages: ['next-auth'],
   images: {
     remotePatterns: [
       {
@@ -40,6 +38,7 @@ const nextConfig = {
       }),
     ],
   },
+  transpilePackages: ['next-seo'],
   reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: true,
@@ -47,13 +46,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
   },
-  webpack: (config) => {
-    if (!config.experiments) {
-      config.experiments = {}
-    }
-    config.experiments.topLevelAwait = true
-    return config as unknown
-  },
+  serverExternalPackages: ['pino', 'pino-pretty'],
 } satisfies NextConfig
 
 export default nextConfig

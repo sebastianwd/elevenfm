@@ -1,4 +1,7 @@
-import { isEmpty, sample } from 'lodash'
+'use client'
+
+import { sample } from 'es-toolkit'
+import { isEmpty } from 'es-toolkit/compat'
 import dynamic from 'next/dynamic'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type ReactPlayer from 'react-player'
@@ -96,10 +99,10 @@ const VideoPlayer = memo(() => {
 
     const isSoundCloud =
       currentSong?.urls?.length === 1 &&
-      currentSong?.urls[0].includes('soundcloud.com')
+      currentSong.urls[0]?.includes('soundcloud.com')
 
     if (isSoundCloud) {
-      return currentSong?.urls![0]
+      return currentSong.urls![0]
     }
 
     const videoUrl = currentSong?.urls?.[videoChoice]
