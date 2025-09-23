@@ -19,7 +19,7 @@ import SimpleBar from 'simplebar-react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
-import Dropdown from '~/components/dropdown'
+import { Dropdown } from '~/components/dropdown'
 import { useModalStore } from '~/store/use-modal'
 
 import { WavesLoader } from '../loader'

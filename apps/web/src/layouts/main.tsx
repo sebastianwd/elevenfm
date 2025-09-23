@@ -35,6 +35,8 @@ const VideoPlayerPortal = () => {
     ? document.querySelector(`[data-${videoPosition}]`)
     : null
 
+  console.log('container', domReady, container)
+
   return domReady && container ? createPortal(<VideoPlayer />, container) : null
 }
 

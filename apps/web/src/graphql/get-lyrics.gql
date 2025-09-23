@@ -1,8 +1,0 @@
-query getLyricsQuery($artist: String!, $song: String!) {
-  getLyrics(artist: $artist, song: $song) {
-    artist
-    lyrics
-    title
-    __typename
-  }
-}

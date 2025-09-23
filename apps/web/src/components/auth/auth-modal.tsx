@@ -45,6 +45,8 @@ export const AuthModal = (props: AuthModalProps) => {
     if (!isDirty || !isValid) return
 
     await credentialsSignIn.mutateAsync(data)
+
+    props.onClose?.()
   }
 
   const renderProviders = () => {

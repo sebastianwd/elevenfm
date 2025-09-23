@@ -187,7 +187,10 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   }
 
   const renderAccountsSection = () => {
-    if (isEmpty(me.data?.accounts)) {
+    if (
+      isEmpty(me.data?.accounts) ||
+      !me.data?.accounts.find((account) => account.providerId !== 'credential')
+    ) {
       return null
     }
 

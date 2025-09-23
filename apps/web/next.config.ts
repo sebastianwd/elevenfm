@@ -45,6 +45,9 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: true,
+    staleTimes: {
+      dynamic: 180,
+    },
   },
   serverExternalPackages: ['pino', 'pino-pretty'],
 } satisfies NextConfig

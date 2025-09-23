@@ -18,11 +18,11 @@ import { Fragment, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
-import { queryKeys } from '~/constants'
 import { useModalStore } from '~/store/use-modal'
 import { usePlayerState } from '~/store/use-player'
 import { getMainArtist, splitArtist } from '~/utils/song-title-utils'
 
+import { Dropdown as DynamicDropdown } from '../dropdown'
 import { AudioWave } from '../icons'
 import { AddToPlaylistModal } from '../modals/add-to-playlist-modal'
 import { Toast } from '../toast'
@@ -48,10 +48,6 @@ interface SongProps {
   isSelected?: boolean
 }
 
-const DynamicDropdown = dynamic(() => import('../dropdown'), {
-  ssr: false,
-})
-
 interface SongStatusIconProps {
   artist: string
   song: string
@@ -61,11 +57,17 @@ interface SongStatusIconProps {
 const SongStatusIcon = (props: SongStatusIconProps) => {
   const videoSearchQuery = `${getMainArtist(props.artist)} - ${props.song}`
   const videoInfoQuery = useQuery({
-    queryKey: queryKeys.videoInfo(videoSearchQuery),
-    enabled: false,
+    ...orpc.song.videoInfo.queryOptions({
+      input: { query: videoSearchQuery },
+      staleTime: Infinity,
+      gcTime: Infinity,
+      enabled: false,
+    }),
   })
 
   if (videoInfoQuery.isLoading) {
+    console.log('videoInfoQuery', videoInfoQuery)
+
     return (
       <Icon icon='line-md:loading-twotone-loop' className='text-primary-500' />
     )

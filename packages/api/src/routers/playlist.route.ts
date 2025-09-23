@@ -311,6 +311,7 @@ export const userPlaylists = protectedProcedure.output(UserPlaylistsResponse).ha
   return map(playlists, (playlist) => ({
     id: playlist.id,
     name: playlist.name,
+    type: playlist.type,
     user: {
       id: playlist.userId
     },
@@ -350,7 +351,7 @@ export const getPlaylist = protectedProcedure
         id: song.songs.id,
         title: song.songs.title,
         artist: song.songs.artist,
-        songUrl: song.playlistsToSongs.songUrl || undefined,
+        songUrl: song.playlistsToSongs.songUrl || '',
         rank: song.playlistsToSongs.rank || undefined,
         createdAt: song.playlistsToSongs.createdAt
       }))

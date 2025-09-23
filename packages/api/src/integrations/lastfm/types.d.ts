@@ -77,7 +77,7 @@ export type GetTopTracks = {
 }
 
 export type TrackGetInfo = {
-  track: {
+  track?: {
     name: string
     mbid: string
     url: string
@@ -219,7 +219,7 @@ export type AlbumGetInfo = {
     url: string
     name: string
     listeners: string
-    wiki: {
+    wiki?: {
       published: string
       summary: string
       content: string

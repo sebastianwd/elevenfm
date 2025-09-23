@@ -83,6 +83,8 @@ const getVideoInfo = async (song: Song) => {
     })
   )
 
+  console.log('data11', data)
+
   return data
 }
 

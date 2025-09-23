@@ -1,3 +1,0 @@
-query searchArtistQuery($artist: String!) {
-  searchArtists(artist: $artist)
-}

@@ -1,3 +1,4 @@
+'use client'
 import { usePlayerState } from '~/store/use-player'
 
 import { Lyrics } from '../player'

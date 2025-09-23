@@ -3,9 +3,9 @@
 import { ProgressProvider } from '@bprogress/next/app'
 import { queryClient } from '@repo/api/lib/orpc.client'
 import { QueryClientProvider } from '@tanstack/react-query'
-import type * as React from 'react'
+import type { ReactNode } from 'react'
 
-export const AppProvider = (props: { children: React.ReactNode }) => {
+export const AppProvider = (props: { children: ReactNode }) => {
   const { children } = props
 
   return (

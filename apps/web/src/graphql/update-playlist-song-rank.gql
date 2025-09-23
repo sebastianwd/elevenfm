@@ -1,7 +1,0 @@
-mutation updatePlaylistSongRankMutation(
-  $playlistId: ID!
-  $songId: ID!
-  $rank: String!
-) {
-  updatePlaylistSongRank(playlistId: $playlistId, songId: $songId, rank: $rank)
-}

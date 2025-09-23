@@ -130,19 +130,6 @@ interface LyricsProps {
 export const Lyrics = (props: LyricsProps) => {
   const { artist, song } = props
 
-  /*const { data, isLoading } = useQuery({
-    queryKey: ['getLyricsQuery', song, artist],
-    queryFn: () =>
-      getLyricsQuery({
-        song: sanitizeSongTitle(song),
-        artist: splitArtist(artist)[0].trim(),
-      }),
-    staleTime: Infinity,
-    gcTime: Infinity,
-    enabled: Boolean(song && artist),
-    retry: 2,
-  })*/
-
   const { data, isLoading } = useQuery(
     orpc.song.lyrics.queryOptions({
       input: {

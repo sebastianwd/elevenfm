@@ -1,3 +1,5 @@
+'use client'
+
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { orpc } from '@repo/api/lib/orpc.client'
 import { useQuery } from '@tanstack/react-query'

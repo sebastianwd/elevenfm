@@ -33,7 +33,7 @@ const invidious = async <T>(method: InvidiousMethods) => {
         logger.info(`Invidious error: ${invidiousUrl} - ${JSON.stringify(e.response?.data)}`)
         if (
           e.response?.data &&
-          ['Too Many Requests', 'Gateway', 'Bad Response', 'API disabled'].some((error) =>
+          ['Too Many Requests', 'Gateway', 'Bad Response', 'API disabled', 'blocked', 'undefined'].some((error) =>
             String(e.response?.data).includes(error)
           )
         ) {

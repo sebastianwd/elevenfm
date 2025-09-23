@@ -57,6 +57,8 @@ export const getVideoInfo = o
       query: input.query
     })
 
+    console.log('data324234')
+
     const video = data.map((video) => ({
       title: video.title,
       artist: video.author,
@@ -81,7 +83,7 @@ export const getAlbumBySong = o
       track: input.song
     })
 
-    if (isEmpty(data?.track.album)) {
+    if (isEmpty(data?.track?.album)) {
       return {
         artist: input.artist,
         coverUrl: '',
@@ -107,7 +109,7 @@ export const getLyrics = o
       title: input.song
     })
 
-    if (isEmpty(lyrics)) {
+    if (isEmpty(lyrics) || !lyrics) {
       return {
         artist: input.artist,
         title: input.song,

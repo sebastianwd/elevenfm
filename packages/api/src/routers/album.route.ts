@@ -47,6 +47,6 @@ export const albumDetails = o
 
     return {
       tracks,
-      description: albumInfo.wiki.content
+      description: albumInfo.wiki?.content || ''
     }
   })

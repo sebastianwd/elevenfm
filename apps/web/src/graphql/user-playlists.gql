@@ -1,7 +1,0 @@
-query userPlaylistsQuery {
-  userPlaylists {
-    id
-    name
-    createdAt
-  }
-}

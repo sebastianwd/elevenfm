@@ -66,6 +66,7 @@
     "graphql": "catalog:",
     "immer": "catalog:",
     "is-mobile": "catalog:",
+    "json-dry": "^2.0.3",
     "lexorank": "catalog:",
     "lru-cache": "catalog:",
     "lucide-react": "catalog:",

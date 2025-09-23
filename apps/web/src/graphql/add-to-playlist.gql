@@ -1,7 +1,0 @@
-mutation addToPlaylistMutation(
-  $playlistId: ID!
-  $songIds: [ID!]
-  $songs: [songInput!]
-) {
-  addToPlaylist(playlistId: $playlistId, songIds: $songIds, songs: $songs)
-}

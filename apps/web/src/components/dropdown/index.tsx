@@ -24,7 +24,7 @@ interface DropdownProps {
   triggerClassName?: string
 }
 
-export default function Dropdown(props: DropdownProps) {
+export function Dropdown(props: DropdownProps) {
   const {
     menuLabel,
     menuItems,

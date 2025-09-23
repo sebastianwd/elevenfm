@@ -21,7 +21,7 @@ const ArtistResponse = type({
   'memberQuantity?': 'number.integer',
   'location?': 'string',
   'disbanded?': 'boolean',
-  'disbandedYear?': 'string'
+  'disbandedYear?': 'number.integer'
 })
 
 const SongResponse = type({
@@ -91,48 +91,45 @@ export const searchArtist = os
 
 /* ------------------- */
 
-export const getArtist = os
-  .input(GetArtistInput)
-  .output(ArtistResponse)
-  .handler(async ({ input }) => {
-    const [getArtistResponse, getFallbackArtistResponse] = await Promise.all([
-      audioDB.getArtist({ artist: input.name }),
-      lastFM.getArtist({ artist: input.name })
-    ])
+export const getArtist = os.input(GetArtistInput).handler(async ({ input }) => {
+  const [getArtistResponse, getFallbackArtistResponse] = await Promise.all([
+    audioDB.getArtist({ artist: input.name }),
+    lastFM.getArtist({ artist: input.name })
+  ])
 
-    const artist = getArtistResponse.data.artists?.[0]
-    const fallbackArtist = getFallbackArtistResponse.data.artist
+  const artist = getArtistResponse.data.artists?.[0]
+  const fallbackArtist = getFallbackArtistResponse.data.artist
 
-    if (artist) {
-      return {
-        name: artist.strArtist,
-        formedYear: artist.intFormedYear.toString(),
-        image: artist.strArtistThumb,
-        bannerImage: artist.strArtistFanart,
-        logo: artist.strArtistLogo,
-        style: artist.strStyle,
-        genre: artist.strGenre,
-        website: artist.strWebsite,
-        facebook: artist.strFacebook,
-        twitter: artist.strTwitter,
-        biography: fallbackArtist?.bio?.summary || artist.strBiographyEN,
-        memberQuantity: Number(artist.intMembers),
-        location: artist.strCountry,
-        disbanded: artist.strDisbanded ? Boolean(artist.strDisbanded) : undefined,
-        disbandedYear: artist.intDiedYear.toString()
-      }
-    }
-
-    if (!fallbackArtist) {
-      throw new ORPCError('NOT_FOUND', { message: 'Artist not found' })
-    }
-
+  if (artist) {
     return {
-      name: fallbackArtist.name,
-      biography: fallbackArtist.bio?.summary,
-      genre: fallbackArtist.tags?.tag.map((tag) => tag.name).join(', ')
+      name: artist.strArtist,
+      formedYear: artist.intFormedYear.toString(),
+      image: artist.strArtistThumb,
+      bannerImage: artist.strArtistFanart,
+      logo: artist.strArtistLogo,
+      style: artist.strStyle,
+      genre: artist.strGenre,
+      website: artist.strWebsite,
+      facebook: artist.strFacebook,
+      twitter: artist.strTwitter,
+      biography: fallbackArtist?.bio?.summary || artist.strBiographyEN,
+      memberQuantity: Number(artist.intMembers),
+      location: artist.strCountry,
+      disbanded: artist.strDisbanded ? Boolean(artist.strDisbanded) : undefined,
+      disbandedYear: artist.intDiedYear
     }
-  })
+  }
+
+  if (!fallbackArtist) {
+    throw new ORPCError('NOT_FOUND', { message: 'Artist not found' })
+  }
+
+  return {
+    name: fallbackArtist.name,
+    biography: fallbackArtist.bio?.summary,
+    genre: fallbackArtist.tags?.tag.map((tag) => tag.name).join(', ')
+  }
+})
 
 /* ------------------- */
 
@@ -161,140 +158,134 @@ export const topSongsByArtist = os
 
 /* ------------------- */
 
-export const similarArtists = os
-  .input(SimilarArtistsInput)
-  .output(SimilarArtistsResponse)
-  .handler(async ({ input }) => {
-    const getSimilarArtistsResponse = await lastFM.getSimilarArtists({
-      artist: input.artist,
-      limit: input.limit ?? 8
-    })
-
-    const similarArtistsBase = getSimilarArtistsResponse.data.similarartists?.artist || []
-
-    const similarArtistsNames = similarArtistsBase.map((artist) => ({
-      name: artist.name
-    }))
-
-    if (input.onlyNames ?? true) {
-      return similarArtistsNames
-    }
-
-    const similarArtists = await Promise.all(
-      similarArtistsNames.map(async (similarArtistName) => {
-        const getArtistResponse = await audioDB.getArtist({
-          artist: similarArtistName.name
-        })
-
-        const similarArtist = getArtistResponse.data.artists?.[0]
-
-        return similarArtist
-          ? {
-              name: similarArtist.strArtist,
-              formedYear: similarArtist.intFormedYear.toString(),
-              image: similarArtist.strArtistThumb,
-              bannerImage: similarArtist.strArtistFanart,
-              logo: similarArtist.strArtistLogo,
-              style: similarArtist.strStyle,
-              genre: similarArtist.strGenre,
-              website: similarArtist.strWebsite,
-              facebook: similarArtist.strFacebook,
-              twitter: similarArtist.strTwitter,
-              biography: similarArtist.strBiographyEN,
-              memberQuantity: Number(similarArtist.intMembers),
-              location: similarArtist.strCountry,
-              disbanded: similarArtist.strDisbanded ? Boolean(similarArtist.strDisbanded) : undefined,
-              disbandedYear: similarArtist.intDiedYear.toString()
-            }
-          : similarArtistName
-      })
-    )
-
-    return similarArtists
+export const similarArtists = os.input(SimilarArtistsInput).handler(async ({ input }) => {
+  const getSimilarArtistsResponse = await lastFM.getSimilarArtists({
+    artist: input.artist,
+    limit: input.limit ?? 8
   })
+
+  const similarArtistsBase = getSimilarArtistsResponse.data.similarartists?.artist || []
+
+  const similarArtistsNames = similarArtistsBase.map((artist) => ({
+    name: artist.name
+  }))
+
+  if (input.onlyNames ?? true) {
+    return similarArtistsNames
+  }
+
+  const similarArtists = await Promise.all(
+    similarArtistsNames.map(async (similarArtistName) => {
+      const getArtistResponse = await audioDB.getArtist({
+        artist: similarArtistName.name
+      })
+
+      const similarArtist = getArtistResponse.data.artists?.[0]
+
+      return similarArtist
+        ? {
+            name: similarArtist.strArtist,
+            formedYear: similarArtist.intFormedYear.toString() || undefined,
+            image: similarArtist.strArtistThumb || undefined,
+            bannerImage: similarArtist.strArtistFanart || undefined,
+            logo: similarArtist.strArtistLogo || undefined,
+            style: similarArtist.strStyle || undefined,
+            genre: similarArtist.strGenre || undefined,
+            website: similarArtist.strWebsite || undefined,
+            facebook: similarArtist.strFacebook || undefined,
+            twitter: similarArtist.strTwitter || undefined,
+            biography: similarArtist.strBiographyEN || undefined,
+            memberQuantity: Number(similarArtist.intMembers || 0),
+            location: similarArtist.strCountry || undefined,
+            disbanded: similarArtist.strDisbanded ? Boolean(similarArtist.strDisbanded) : undefined,
+            disbandedYear: similarArtist.intDiedYear ? Number(similarArtist.intDiedYear) : undefined
+          }
+        : similarArtistName
+    })
+  )
+
+  return similarArtists
+})
 
 /* ------------------- */
 
-export const getAlbums = os
-  .input(GetAlbumsInput)
-  .output(GetAlbumsResponse)
-  .handler(async ({ input }) => {
-    const getAlbumsByArtist = await audioDB.getAlbumsByArtist({ artist: input.artist })
-    const baseAlbums = getAlbumsByArtist.data.album
+export const getAlbums = os.input(GetAlbumsInput).handler(async ({ input }) => {
+  const getAlbumsByArtist = await audioDB.getAlbumsByArtist({ artist: input.artist })
+  const baseAlbums = getAlbumsByArtist.data.album
 
-    const getTopAlbums = await lastFM.getTopAlbums({
-      artist: input.artist,
-      limit: input.limit ?? 10,
-      page: input.page
-    })
-    const fallbackAlbums = getTopAlbums.data.topalbums?.album
+  const getTopAlbums = await lastFM.getTopAlbums({
+    artist: input.artist,
+    limit: input.limit ?? 10,
+    page: input.page
+  })
+  const fallbackAlbums = getTopAlbums.data.topalbums?.album
 
-    if (!fallbackAlbums && !baseAlbums) {
-      return []
-    }
+  if (!fallbackAlbums && !baseAlbums) {
+    return []
+  }
 
-    // Process fallback albums from Last.fm
-    const albums = (fallbackAlbums || [])
-      .map((fallbackAlbum) => {
-        try {
-          const albumArtistName = fallbackAlbum.artist.name
+  // Process fallback albums from Last.fm
+  const albums = (fallbackAlbums || [])
+    .map((fallbackAlbum) => {
+      try {
+        const albumArtistName = fallbackAlbum.artist.name
 
-          if (!fallbackAlbum.name || fallbackAlbum.name === '(null)' || fallbackAlbum.name === 'undefined') {
-            return null
-          }
-
-          const matchedAlbum = baseAlbums?.find(
-            (baseAlbum) => baseAlbum.strAlbum.toLowerCase() === fallbackAlbum.name.toLowerCase()
-          )
-
-          const coverImage =
-            matchedAlbum?.strAlbumThumb || fallbackAlbum.image.find((img) => img.size === 'large')?.['#text']
-
-          return {
-            artist: albumArtistName,
-            coverImage,
-            description: matchedAlbum?.strDescription || matchedAlbum?.strDescriptionEN,
-            name: fallbackAlbum.name,
-            genre: matchedAlbum?.strGenre,
-            year: matchedAlbum?.intYearReleased.toString(),
-            albumId: matchedAlbum?.idAlbum
-          }
-        } catch {
+        if (!fallbackAlbum.name || fallbackAlbum.name === '(null)' || fallbackAlbum.name === 'undefined') {
           return null
         }
-      })
-      .filter(Boolean)
 
-    // Add missing albums from AudioDB that weren't in Last.fm results
-    const missingAlbums = (baseAlbums || [])
-      .filter((baseAlbum) => !albums.find((album) => album?.name.toLowerCase() === baseAlbum.strAlbum.toLowerCase()))
-      .map((baseAlbum) => ({
-        artist: baseAlbum.strArtist,
-        coverImage: baseAlbum.strAlbumThumb,
-        description: baseAlbum.strDescription,
-        name: baseAlbum.strAlbum,
-        genre: baseAlbum.strGenre,
-        year: baseAlbum.intYearReleased.toString(),
-        albumId: baseAlbum.idAlbum
-      }))
+        const matchedAlbum = baseAlbums?.find(
+          (baseAlbum) => baseAlbum.strAlbum.toLowerCase() === fallbackAlbum.name.toLowerCase()
+        )
 
-    // Combine and sort albums
-    const allAlbums = compact([...albums, ...missingAlbums])
+        const coverImage =
+          matchedAlbum?.strAlbumThumb || fallbackAlbum.image.find((img) => img.size === 'large')?.['#text']
 
-    // Sort by year (desc) and then by whether it has cover image
-    const albumsSorted = allAlbums.sort((a, b) => {
-      const yearA = a.year ? Number(a.year) : 0
-      const yearB = b.year ? Number(b.year) : 0
-
-      if (yearA !== yearB) {
-        return yearB - yearA // desc
+        return {
+          artist: albumArtistName,
+          coverImage,
+          description: matchedAlbum?.strDescription || matchedAlbum?.strDescriptionEN,
+          name: fallbackAlbum.name,
+          genre: matchedAlbum?.strGenre,
+          year: matchedAlbum?.intYearReleased.toString(),
+          albumId: matchedAlbum?.idAlbum
+        }
+      } catch {
+        return null
       }
-
-      const hasImageA = a.coverImage ? 1 : 2
-      const hasImageB = b.coverImage ? 1 : 2
-
-      return hasImageA - hasImageB // asc (images first)
     })
+    .filter(Boolean)
 
-    return albumsSorted
+  // Add missing albums from AudioDB that weren't in Last.fm results
+  const missingAlbums = (baseAlbums || [])
+    .filter((baseAlbum) => !albums.find((album) => album?.name.toLowerCase() === baseAlbum.strAlbum.toLowerCase()))
+    .map((baseAlbum) => ({
+      artist: baseAlbum.strArtist,
+      coverImage: baseAlbum.strAlbumThumb,
+      description: baseAlbum.strDescription,
+      name: baseAlbum.strAlbum,
+      genre: baseAlbum.strGenre,
+      year: baseAlbum.intYearReleased.toString(),
+      albumId: baseAlbum.idAlbum
+    }))
+
+  // Combine and sort albums
+  const allAlbums = compact([...albums, ...missingAlbums])
+
+  // Sort by year (desc) and then by whether it has cover image
+  const albumsSorted = allAlbums.sort((a, b) => {
+    const yearA = a.year ? Number(a.year) : 0
+    const yearB = b.year ? Number(b.year) : 0
+
+    if (yearA !== yearB) {
+      return yearB - yearA // desc
+    }
+
+    const hasImageA = a.coverImage ? 1 : 2
+    const hasImageB = b.coverImage ? 1 : 2
+
+    return hasImageA - hasImageB // asc (images first)
   })
+
+  return albumsSorted
+})

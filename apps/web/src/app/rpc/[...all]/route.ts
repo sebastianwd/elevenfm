@@ -1,13 +1,25 @@
-import { onError } from '@orpc/server'
+import { onError, ORPCError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { createContext } from '@repo/api/context'
 import { router } from '@repo/api/routers/index'
 import type { NextRequest } from 'next/server'
 
+import { logger } from '~/server/logger'
+
 const rpcHandler = new RPCHandler(router, {
   interceptors: [
     onError((error: unknown) => {
-      console.error(error)
+      if (
+        error instanceof ORPCError &&
+        'cause' in error &&
+        typeof error.cause === 'object' &&
+        error.cause !== null &&
+        'issues' in error.cause
+      ) {
+        console.log('error', JSON.stringify(error.cause.issues))
+      }
+
+      logger.error({ error: JSON.stringify(error) }, 'ORPC Error')
     }),
   ],
 })
