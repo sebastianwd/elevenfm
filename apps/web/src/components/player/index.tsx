@@ -2,7 +2,13 @@
 
 import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
+import { Icon } from '@iconify/react'
 import { orpc } from '@repo/api/lib/orpc.client'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@repo/ui/components/hover-card'
 import { TextAutoScroll } from '@repo/ui/components/text-auto-scroll'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -230,6 +236,9 @@ export const FooterPlayer = () => {
     playPrevious,
     isShuffled,
     setShuffle,
+    volume,
+    setVolume,
+    toggleMute,
   } = usePlayerState()
 
   const { progress } = usePlayerProgressState()
@@ -250,6 +259,14 @@ export const FooterPlayer = () => {
       instance.current?.seekTo(Number(e[0]) / 100, 'fraction')
     },
     [instance]
+  )
+
+  const onVolumeChange = useCallback(
+    (e: number[]) => {
+      const newVolume = Number(e[0]) / 100
+      setVolume(newVolume)
+    },
+    [setVolume]
   )
 
   const { queueIdentifier, currentQueue, repeatMode, setRepeatMode } =
@@ -294,6 +311,8 @@ export const FooterPlayer = () => {
       enableOnFormTags: false,
     }
   )
+
+  console.log(volume)
 
   return (
     <>
@@ -496,6 +515,48 @@ export const FooterPlayer = () => {
                   }`}
                 />
               </Button>
+
+              {/* Volume Control */}
+              <HoverCard openDelay={200} closeDelay={100}>
+                <HoverCardTrigger asChild>
+                  <Button
+                    className='p-1'
+                    title='Volume'
+                    variant='ghost'
+                    onClick={toggleMute}
+                  >
+                    <Icon
+                      icon={
+                        volume === 0
+                          ? 'mdi:volume-off'
+                          : volume < 0.3
+                            ? 'mdi:volume-low'
+                            : volume < 0.7
+                              ? 'mdi:volume-medium'
+                              : 'mdi:volume-high'
+                      }
+                      className='size-6 text-gray-200'
+                    />
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className='w-auto p-3' side='top'>
+                  <div className='flex flex-col items-center space-y-2'>
+                    <span className='text-sm text-gray-300'>Volume</span>
+                    <RangeSlider
+                      max={100}
+                      min={0}
+                      value={volume * 100}
+                      onValueCommit={onVolumeChange}
+                      className='h-32 w-6'
+                      orientation='vertical'
+                      dragToChange={false}
+                    />
+                    <span className='text-xs text-gray-400'>
+                      {Math.round(volume * 100)}%
+                    </span>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
             </div>
           </div>
         </div>

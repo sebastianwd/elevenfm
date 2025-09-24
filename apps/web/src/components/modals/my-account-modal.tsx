@@ -239,7 +239,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   return (
     <div className='w-full max-w-2xl p-0'>
       {me.isPending ? (
-        <div className='flex h-96 items-center justify-center rounded-2xl bg-surface-900'>
+        <div className='flex aspect-square h-96 items-center justify-center rounded-2xl bg-surface-900'>
           <div className='flex flex-col items-center space-y-4'>
             <Loader className='h-12 w-12 text-primary-500' />
             <p className='text-gray-400'>Loading account information...</p>
@@ -254,7 +254,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
               <div className='flex items-center space-x-4'>
                 <div className='flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm'>
                   <span className='text-2xl font-bold text-white'>
-                    {session.data?.user.name?.charAt(0).toUpperCase() || 'U'}
+                    {session.data?.user.name.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
                 <div>

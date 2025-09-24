@@ -63,7 +63,8 @@ const Slider = React.forwardRef<React.ComponentRef<typeof SliderPrimitive.Root>,
           onValueCommit?.([value || min])
         }}
         className={cn(
-          'group/slider relative flex h-7 grow items-center py-3 transition-[height] duration-300 hover:h-8 hover:cursor-grab active:cursor-grabbing',
+          'group/slider relative flex h-7 grow items-center py-3 transition-[height] duration-300 hover:h-8 hover:cursor-grabbing active:cursor-grabbing',
+          'data-[orientation=vertical]:h-32 data-[orientation=vertical]:w-7 data-[orientation=vertical]:flex-col',
           className
         )}
         // manual pointer to prevent focus-visible when clicking on slider
@@ -96,11 +97,12 @@ const Slider = React.forwardRef<React.ComponentRef<typeof SliderPrimitive.Root>,
         <SliderPrimitive.Track
           className={cn(
             'relative h-full grow overflow-hidden rounded-full bg-gray-700',
+            'data-[orientation=vertical]:w-1',
             !isUsingPointer &&
               'group-has-[:focus-visible]/slider:outline group-has-[:focus-visible]/slider:outline-offset-2 group-has-[:focus-visible]/slider:outline-primary-500'
           )}
         >
-          <SliderPrimitive.Range className='absolute h-full bg-primary-500 transition group-hover/slider:bg-white'>
+          <SliderPrimitive.Range className='absolute h-full bg-primary-500 transition group-hover/slider:bg-white data-[orientation=vertical]:w-full'>
             <div className='absolute inset-0 group-has-[:focus-visible]/slider:bg-white' />
           </SliderPrimitive.Range>
         </SliderPrimitive.Track>

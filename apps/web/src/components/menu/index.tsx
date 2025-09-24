@@ -80,7 +80,7 @@ const MenuItem = ({
             {children}
           </span>
           {hotkey && (
-            <span className='hidden text-xs text-gray-500 md:block mt-0.5'>
+            <span className='mt-0.5 hidden text-xs text-gray-500 md:block'>
               {hotkey}
             </span>
           )}

@@ -44,8 +44,14 @@ const DynamicReactPlayer = dynamic(() => import('react-player/lazy'), {
 })
 
 const VideoPlayer = memo(() => {
-  const { isPlaying, setIsPlaying, currentSong, setDuration, playNext } =
-    usePlayerState()
+  const {
+    isPlaying,
+    setIsPlaying,
+    currentSong,
+    setDuration,
+    playNext,
+    volume,
+  } = usePlayerState()
 
   const { instance } = usePlayerInstance()
 
@@ -128,6 +134,7 @@ const VideoPlayer = memo(() => {
       playing={isPlaying}
       url={url}
       controls
+      volume={volume}
       onPlay={onPlayerPlay}
       onPause={onPlayerPause}
       onEnded={onPlayerEnd}

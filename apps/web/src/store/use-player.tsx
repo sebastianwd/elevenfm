@@ -49,6 +49,9 @@ interface PlayerState {
   repeatMode: 'none' | 'one' | 'all'
   setRepeatMode: (mode: 'none' | 'one' | 'all') => void
   toggleIsPlaying: () => void
+  volume: number
+  setVolume: (volume: number) => void
+  toggleMute: () => void
 }
 
 interface PlayerInstanceState {
@@ -357,6 +360,19 @@ export const usePlayerState = create<PlayerState>()(
             set((state) => {
               state.isPlaying = !state.isPlaying
             }),
+          volume: 0.8,
+          setVolume: (volume: number) =>
+            set((state) => {
+              state.volume = volume
+            }),
+          toggleMute: () =>
+            set((state) => {
+              if (state.volume === 0) {
+                state.volume = 0.8 // Restore to default volume
+              } else {
+                state.volume = 0 // Mute
+              }
+            }),
         }),
         {
           name: 'player-state',
@@ -368,6 +384,7 @@ export const usePlayerState = create<PlayerState>()(
             isShuffled: state.isShuffled,
             queueIdentifier: state.queueIdentifier,
             repeatMode: state.repeatMode,
+            volume: state.volume,
           }),
         }
       )

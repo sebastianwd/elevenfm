@@ -129,9 +129,6 @@ export const RightSidebar = () => {
             {/* Empty state when no song is playing */}
             {!currentSong && (
               <div className='mt-6 hidden flex-col items-center justify-center space-y-4 text-center md:flex'>
-                <div className='flex h-32 w-32 items-center justify-center rounded-lg bg-surface-800'>
-                  <div className='text-4xl text-gray-500'>♪</div>
-                </div>
                 <div className='space-y-2'>
                   <h3 className='text-lg font-medium text-gray-300'>
                     Nothing playing

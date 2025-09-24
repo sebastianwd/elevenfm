@@ -41,7 +41,7 @@ export const CommandPalette = ({
       className='fixed inset-0 z-50 overflow-y-auto p-4 pt-[20vh] transition data-[closed]:opacity-0'
     >
       <div
-        className='fixed inset-0 w-screen overflow-y-auto bg-black/60 backdrop-blur-md'
+        className='fixed inset-0 w-screen overflow-y-auto bg-black/40'
         aria-hidden='true'
       />
       <DialogPanel>

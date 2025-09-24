@@ -30,10 +30,9 @@ export const ArtistSearchCommand = () => {
       return response
     },
     enabled: !!search && search.length >= 3,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 
-  // Update loading state
   useEffect(() => {
     setIsSearching(searchQuery.isFetching)
   }, [searchQuery.isFetching, setIsSearching])

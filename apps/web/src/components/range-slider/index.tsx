@@ -12,9 +12,13 @@ export const RangeSlider = (props: RangeSliderProps) => {
 
   return (
     <div className={cn(`flex items-center gap-1`, className)}>
-      <span className='block w-6 text-xs text-gray-400'>{minLabel}</span>
+      {minLabel ? (
+        <span className='block w-6 text-xs text-gray-400'>{minLabel}</span>
+      ) : null}
       <Slider {...rest} />
-      <span className='block w-6 text-xs text-gray-400'>{maxLabel}</span>
+      {maxLabel ? (
+        <span className='block w-6 text-xs text-gray-400'>{maxLabel}</span>
+      ) : null}
     </div>
   )
 }
