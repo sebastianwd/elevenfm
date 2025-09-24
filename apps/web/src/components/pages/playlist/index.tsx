@@ -38,8 +38,6 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
     })
   )
 
-  console.log('playlist', playlist.isPending)
-
   // need a separate state for instant playlist update when reordering
   const { setCurrentPlaylist, currentPlaylist } = useLayoutState(
     useShallow((state) => ({

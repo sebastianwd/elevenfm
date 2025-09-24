@@ -83,8 +83,6 @@ const getVideoInfo = async (song: Song) => {
     })
   )
 
-  console.log('data11', data)
-
   return data
 }
 
@@ -379,16 +377,48 @@ export const usePlayerState = create<PlayerState>()(
 
 export const usePlayerProgressState = create<PlayerProgressState>()(
   devtools(
-    immer((set) => ({
-      progress: {
-        playedSeconds: 0,
-        played: 0,
-      },
-      setProgress: (progress) =>
-        set((state) => {
-          state.progress = progress
+    immer(
+      persist(
+        (set) => ({
+          progress: {
+            playedSeconds: 0,
+            played: 0,
+          },
+          setProgress: (progress) =>
+            set((state) => {
+              state.progress = progress
+            }),
         }),
-    }))
+        {
+          name: 'player-progress-state',
+          partialize: (state) => ({
+            progress: state.progress,
+          }),
+          storage: {
+            getItem: (name) => {
+              const str = localStorage.getItem(name)
+              return str ? JSON.parse(str) : null
+            },
+            setItem: (name, value) => {
+              // Only persist if it's been 10+ seconds since last persistence
+              const lastPersisted = localStorage.getItem(
+                `${name}_last_persisted`
+              )
+              const now = Date.now()
+
+              if (!lastPersisted || now - parseInt(lastPersisted) >= 10000) {
+                localStorage.setItem(name, JSON.stringify(value))
+                localStorage.setItem(`${name}_last_persisted`, now.toString())
+              }
+            },
+            removeItem: (name) => {
+              localStorage.removeItem(name)
+              localStorage.removeItem(`${name}_last_persisted`)
+            },
+          },
+        }
+      )
+    )
   )
 )
 

@@ -38,10 +38,6 @@ export const RightSidebar = () => {
     songsIdentifier: '',
   })
 
-  if (theaterMode) {
-    return null
-  }
-
   return (
     <>
       <AnimatePresence>
@@ -147,7 +143,7 @@ export const RightSidebar = () => {
               </div>
             )}
             {/* Video Player Section */}
-            {currentSong && (
+            {currentSong && !theaterMode && (
               <AnimatePresence initial={false}>
                 <motion.div
                   className='rounded-lg'

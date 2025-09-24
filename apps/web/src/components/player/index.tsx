@@ -3,11 +3,11 @@
 import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { orpc } from '@repo/api/lib/orpc.client'
-import { FluidPanel } from '@repo/ui/components/fluid-panel'
+import { TextAutoScroll } from '@repo/ui/components/text-auto-scroll'
 import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
-import { type ChangeEvent, Fragment, useCallback, useState } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 import { useShallow } from 'zustand/react/shallow'
@@ -26,6 +26,7 @@ import { sanitizeSongTitle, splitArtist } from '~/utils/song-title-utils'
 
 import { Button } from '../button'
 import {
+  Loader,
   LyricsIcon,
   NextIcon,
   PreviousIcon,
@@ -34,7 +35,6 @@ import {
   RepeatOneIcon,
   TheaterModeIcon,
 } from '../icons'
-import { WavesLoader } from '../loader'
 import { RangeSlider } from '../range-slider'
 import { Song } from '../song'
 
@@ -173,7 +173,7 @@ export const Lyrics = (props: LyricsProps) => {
     if (isLoading) {
       return (
         <div className='flex h-[calc(100vh-14rem)] items-center justify-center md:h-[36rem]'>
-          <WavesLoader />
+          <Loader className='size-16' />
         </div>
       )
     }
@@ -244,9 +244,9 @@ export const FooterPlayer = () => {
     (state) => state.toggleRightSidebarOpen
   )
 
-  const onChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      instance.current?.seekTo(Number(e.target.value) / 100, 'fraction')
+  const onSeek = useCallback(
+    (e: number[]) => {
+      instance.current?.seekTo(Number(e[0]) / 100, 'fraction')
     },
     [instance]
   )
@@ -315,10 +315,11 @@ export const FooterPlayer = () => {
                 />
               ) : null}
             </div>
-            <div className='flex min-w-0 flex-col justify-center md:max-w-56 md:min-w-28'>
-              <h3 className='truncate text-sm font-medium text-gray-100'>
-                {currentSong?.title}
-              </h3>
+            <div className='flex min-w-0 flex-col justify-center md:max-w-56 xl:min-w-28'>
+              <TextAutoScroll
+                className='truncate text-sm font-medium text-gray-100'
+                text={currentSong?.title || ''}
+              />
               <div className='truncate text-xs text-zinc-300'>
                 {splitArtist(currentSong?.artist || '').map(
                   (artist, index, artists) => (
@@ -337,18 +338,19 @@ export const FooterPlayer = () => {
             </div>
           </div>
 
-          <div className='flex flex-col flex-wrap-reverse justify-center gap-3 md:flex-row'>
+          <div className='flex flex-col flex-wrap-reverse justify-center gap-1 md:flex-row'>
             {/* Center: Progress Bar + Time */}
-            <div className='flex w-full items-center gap-3 md:w-58 md:flex-1'>
+            <div className='flex w-full items-center gap-3 px-2 md:w-58 md:flex-1'>
               <RangeSlider
                 max={100}
                 min={0}
                 disabled={!currentSong}
                 value={progress.played * 100}
-                onChange={onChange}
-                minLabel={`${formatSeconds(progress.playedSeconds)}`}
-                maxLabel={`${formatSeconds(duration)}`}
-                className='flex-1'
+                onValueCommit={onSeek}
+                className='min-w-28 flex-1'
+                dragToChange={false}
+                minLabel={formatSeconds(progress.playedSeconds)}
+                maxLabel={formatSeconds(duration)}
               />
             </div>
             {/* Right: Controls */}

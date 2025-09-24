@@ -20,9 +20,9 @@ import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 import { Dropdown } from '~/components/dropdown'
+import { Loader } from '~/components/icons'
 import { useModalStore } from '~/store/use-modal'
 
-import { WavesLoader } from '../loader'
 import { EditPlaylistDetailsModal } from '../modals/edit-playlist-details-modal'
 import { ImportPlaylistModal } from '../modals/import-playlist-modal'
 import { Toast } from '../toast'
@@ -200,7 +200,7 @@ export const PlaylistMenu = () => {
     if (userPlaylists.isPending) {
       return (
         <div className='flex h-full items-center justify-center'>
-          <WavesLoader className='h-5' />
+          <Loader className='size-16' />
         </div>
       )
     }
