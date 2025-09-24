@@ -41,7 +41,8 @@
     "npm-check-updates": "^16.14.20",
     "prettier": "catalog:",
     "turbo": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@types/node": "catalog:"
   },
   "packageManager": "pnpm@10.17.1"
 }

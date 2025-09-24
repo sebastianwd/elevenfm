@@ -23,6 +23,7 @@ export const AuthModal = (props: AuthModalProps) => {
   const credentialsSignIn = useMutation({
     mutationFn: (data: Inputs) =>
       authClient.signIn.username({
+        callbackURL: pathname.includes('/auth') ? '/' : pathname || '/',
         password: data.password,
         username: data.username,
       }),
@@ -132,7 +133,7 @@ export const AuthModal = (props: AuthModalProps) => {
             onClick={() =>
               authClient.signIn.social({
                 provider: 'github',
-                callbackURL: process.env.NEXT_PUBLIC_SITE_URL,
+                callbackURL: pathname.includes('/auth') ? '/' : pathname || '/',
               })
             }
             className={twMerge(
