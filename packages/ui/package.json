@@ -1,0 +1,39 @@
+{
+  "name": "@repo/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.tsx",
+    "./utils/*": "./src/utils/*.ts",
+    "./main.css": "./src/main.css"
+  },
+  "scripts": {
+    "ui:add": "pnpm dlx shadcn@latest add",
+    "lint": "eslint src",
+    "build": "tsc --build",
+    "tsc": "tsc --build"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/react": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "@types/react-dom": "catalog:"
+  },
+  "dependencies": {
+    "motion": "catalog:",
+    "react-use-measure": "catalog:",
+    "radix-ui": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "postcss": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:"
+  }
+}

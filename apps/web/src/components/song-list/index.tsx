@@ -426,7 +426,7 @@ export const SongList = (props: SongListProps) => {
             )}
           </Button>
           <Input
-            className='mt-auto w-48 lg:min-w-96'
+            className='mt-auto'
             icon={<MagnifyingGlassIcon className='size-4' />}
             onChange={(e) => onInputChange(e.target.value)}
             value={listSearchValue}

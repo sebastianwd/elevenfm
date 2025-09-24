@@ -1,0 +1,16 @@
+{
+  "include": [
+    "src",
+    "*.mjs",
+    "*.ts",
+  ],
+  "extends": "@repo/typescript-config/tsconfig.react.json",
+  "references": [
+    {
+      "path": "../typescript-config"
+    },
+    {
+      "path": "../eslint-config"
+    }
+  ],
+}

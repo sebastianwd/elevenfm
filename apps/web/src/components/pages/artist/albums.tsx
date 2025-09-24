@@ -270,7 +270,7 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
           {getAlbums.isPending
             ? Array.from({ length: 12 }).map((_, i) => (
                 <div
-                  className='mb-5 flex h-36 w-1/2 flex-col px-2 @sm/albums:w-1/3 @lg/albums:w-1/4 @2xl/albums:w-1/5'
+                  className='mb-5 flex aspect-square w-1/2 flex-col px-2 @sm/albums:w-1/3 @lg/albums:w-1/4 @2xl/albums:w-1/5'
                   key={i}
                 >
                   <Skeleton className='size-full rounded-md object-cover' />

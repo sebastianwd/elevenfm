@@ -234,7 +234,7 @@ export const PlaylistMenu = () => {
   }
 
   return (
-    <div className='flex h-full flex-col px-4 py-7'>
+    <div className='flex h-full flex-col px-4 py-7 md:pb-28 xl:pb-7'>
       <div className='flex justify-between'>
         <h1 className='text-xl font-semibold text-gray-300'>Your playlists</h1>
         {session.data?.user.id && (

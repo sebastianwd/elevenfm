@@ -1,11 +1,13 @@
 'use client'
 
+import { QueueListIcon } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Fragment } from 'react'
 import SimpleBar from 'simplebar-react'
 import { useShallow } from 'zustand/react/shallow'
 
+import { Button } from '~/components/button'
 import { Song } from '~/components/song'
 import { VideoPlayer } from '~/components/video-player'
 import { usePlaySong } from '~/hooks/use-play-song'
@@ -20,6 +22,9 @@ const transition = {
 export const RightSidebar = () => {
   const theaterMode = useLayoutState((state) => state.theaterMode)
   const rightSidebarOpen = useLayoutState((state) => state.rightSidebarOpen)
+  const toggleRightSidebarOpen = useLayoutState(
+    (state) => state.toggleRightSidebarOpen
+  )
   const currentSong = usePlayerState((state) => state.currentSong)
 
   const { currentQueue } = usePlayerState(
@@ -61,7 +66,7 @@ export const RightSidebar = () => {
         )}
       </AnimatePresence>
       <motion.div
-        className='top-0 right-0 z-40 size-full [--media-transform:translateX(0%)] md:fixed md:z-20 md:w-96 md:px-0 md:[--media-transform:translateX(100%)]'
+        className='top-0 right-0 z-20 size-full [--media-transform:translateX(0%)] md:fixed md:w-96 md:px-0 md:[--media-transform:translateX(100%)]'
         animate={{
           transform: rightSidebarOpen
             ? 'translateX(0)'
@@ -70,50 +75,52 @@ export const RightSidebar = () => {
         transition={transition}
       >
         <div className='top-0 right-0 flex h-full grow p-4 md:sticky md:bg-surface-950 md:p-0'>
-          <div className='flex size-full flex-col px-4 md:py-7'>
-            {/* Video Player Section */}
-
+          <div className='flex size-full flex-col px-4 md:py-7 md:pb-28 xl:pb-7'>
+            {/* Close Button */}
+            <div className='absolute top-4 left-4'></div>
             {/* Now Playing Section - Spotify Style */}
             {currentSong && (
               <div className='mb-2 hidden rounded-lg md:block'>
                 <div className='flex flex-col space-y-4'>
-                  {/* Album Artwork */}
-                  <div className='flex justify-center'>
-                    <img
-                      src={
-                        currentSong.albumCoverUrl || '/cover-placeholder.png'
-                      }
-                      alt={`${currentSong.title} album cover`}
-                      className='h-32 w-32 rounded-lg object-cover shadow-lg'
-                    />
-                  </div>
-
                   {/* Song Info */}
-                  <div className='space-y-2 text-center'>
-                    <h2 className='line-clamp-2 text-lg font-bold text-white'>
-                      {currentSong.title}
-                    </h2>
-                    <div className='flex flex-wrap justify-center gap-1 text-sm text-gray-300'>
-                      {splitArtist(currentSong.artist || '').map(
-                        (artist, index, artists) => (
-                          <Fragment key={artist}>
-                            <Link
-                              href={`/artist/${artist.trim()}`}
-                              className='transition-colors hover:text-white hover:underline'
-                            >
-                              {artist.trim()}
-                            </Link>
-                            {index < artists.length - 1 ? ', ' : ''}
-                          </Fragment>
-                        )
-                      )}
+                  <div className='flex gap-2'>
+                    <Button
+                      onClick={toggleRightSidebarOpen}
+                      title='Close sidebar'
+                      variant='ghost'
+                      className='mt-1'
+                    >
+                      <QueueListIcon
+                        className={`size-6 ${
+                          rightSidebarOpen
+                            ? 'text-primary-500'
+                            : 'text-gray-200'
+                        }`}
+                      />
+                    </Button>
+                    <div className='flex flex-col'>
+                      <h2 className='line-clamp-2 text-lg font-bold text-white'>
+                        {currentSong.title}
+                      </h2>
+                      <div className='flex flex-wrap gap-1 text-sm text-gray-300'>
+                        {splitArtist(currentSong.artist || '').map(
+                          (artist, index, artists) => (
+                            <Fragment key={artist}>
+                              <Link
+                                href={`/artist/${artist.trim()}`}
+                                className='transition-colors hover:text-white hover:underline'
+                              >
+                                {artist.trim()}
+                              </Link>
+                              {index < artists.length - 1 ? ', ' : ''}
+                            </Fragment>
+                          )
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Divider */}
-                  <div className='border-t border-surface-700'></div>
-
-                  <div className='space-y-3'>
+                  <div className='mt-1 space-y-3'>
                     <div className='text-center'>
                       <p className='text-xs tracking-wider text-gray-400 uppercase'>
                         Now Playing
