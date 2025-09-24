@@ -33,6 +33,7 @@ interface MenuItemProps {
   active?: boolean
   loading?: boolean
   tag?: 'button' | 'a' | 'div'
+  hotkey?: string
 }
 
 const MenuItem = ({
@@ -44,6 +45,7 @@ const MenuItem = ({
   active,
   loading,
   tag = 'button',
+  hotkey,
 }: MenuItemProps) => {
   const pathname = usePathname()
 
@@ -77,6 +79,11 @@ const MenuItem = ({
           >
             {children}
           </span>
+          {hotkey && (
+            <span className='hidden text-xs text-gray-500 md:block mt-0.5'>
+              {hotkey}
+            </span>
+          )}
         </span>
       </Wrapper>
     </li>
@@ -211,6 +218,7 @@ export const Menu = () => {
               <MenuItem
                 onClick={() => setIsOpen(true)}
                 icon={<MagnifyingGlassIcon />}
+                hotkey='⌘K'
               >
                 Search
               </MenuItem>

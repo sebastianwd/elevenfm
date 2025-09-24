@@ -44,7 +44,7 @@ export const Popover = (props: PopoverProps) => {
           >
             <PopoverPanel
               anchor={direction}
-              className='z-40 min-w-48 divide-y divide-surface-900 rounded-xl bg-surface-600/75 p-1'
+              className='z-[42] min-w-48 divide-y divide-surface-900 rounded-xl bg-surface-600/75 p-1'
             >
               {menuItems.map((item, index) => {
                 return (

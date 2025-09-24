@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Fragment, useCallback, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 import { useShallow } from 'zustand/react/shallow'
@@ -280,6 +281,19 @@ export const FooterPlayer = () => {
 
     setShuffle(!isShuffled)
   }, [isShuffled, queueIdentifier, setShuffle, toggleShuffledPlaylist])
+
+  useHotkeys(
+    'space',
+    (event) => {
+      if (currentSong) {
+        event.preventDefault()
+        setIsPlaying(!isPlaying)
+      }
+    },
+    {
+      enableOnFormTags: false,
+    }
+  )
 
   return (
     <>

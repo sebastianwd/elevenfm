@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import * as v from 'valibot'
 
 import { Button } from '../button'
-import { GithubIcon } from '../icons'
+import { GithubIcon, Loader } from '../icons'
 import { Input } from '../input'
 import { Toast } from '../toast'
 
@@ -143,46 +143,58 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   const renderPasswordSection = () => {
     if (me.data?.hasPassword) {
       return (
-        <>
-          {' '}
-          <label className='text-sm' htmlFor='password'>
-            Change password
-          </label>
-          <div className='grid gap-2 md:grid-cols-2'>
-            <div className='flex flex-col'>
-              <Input
-                className='text-sm'
-                placeholder='Current password'
-                id='password'
-                error={errors.password?.message}
-                {...register('password')}
-              />
-            </div>
-            <div className='flex flex-col'>
-              <Input
-                className='text-sm'
-                placeholder='New password'
-                error={errors.newPassword?.message}
-                {...register('newPassword')}
-              />
-            </div>
+        <div className='grid gap-6 md:grid-cols-2'>
+          <div className='space-y-2'>
+            <label
+              className='text-sm font-medium text-gray-300'
+              htmlFor='password'
+            >
+              Current password
+            </label>
+            <Input
+              className='w-full'
+              placeholder='Enter current password'
+              id='password'
+              type='password'
+              error={errors.password?.message}
+              {...register('password')}
+            />
           </div>
-        </>
+          <div className='space-y-2'>
+            <label
+              className='text-sm font-medium text-gray-300'
+              htmlFor='newPassword'
+            >
+              New password
+            </label>
+            <Input
+              className='w-full'
+              placeholder='Enter new password'
+              type='password'
+              error={errors.newPassword?.message}
+              {...register('newPassword')}
+            />
+          </div>
+        </div>
       )
     }
 
     return (
-      <>
-        <label className='text-sm' htmlFor='password'>
-          New password
+      <div className='space-y-2'>
+        <label
+          className='text-sm font-medium text-gray-300'
+          htmlFor='newPassword'
+        >
+          Set password
         </label>
         <Input
-          className='text-sm'
-          placeholder='New password'
+          className='w-full'
+          placeholder='Enter new password'
+          type='password'
           error={errors.newPassword?.message}
           {...register('newPassword')}
         />
-      </>
+      </div>
     )
   }
 
@@ -195,98 +207,156 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
     }
 
     return (
-      <>
-        <label className='text-sm' htmlFor='accounts'>
-          Accounts
-        </label>
-        <div className='grid gap-2 md:grid-cols-2'>
-          {me.data.accounts.map((account) => (
+      <div className='space-y-3'>
+        {me.data.accounts
+          .filter((account) => account.providerId !== 'credential')
+          .map((account) => (
             <div
-              className='flex items-center justify-between space-x-4'
+              className='flex items-center justify-between rounded-lg bg-surface-800 p-4'
               key={account.providerId}
             >
-              <div className='flex items-center space-x-4'>
-                <GithubIcon className='w-6' />
+              <div className='flex items-center space-x-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-surface-700'>
+                  <GithubIcon className='h-5 w-5 text-gray-300' />
+                </div>
                 <div>
-                  <p className='text-sm leading-none font-medium'>
+                  <p className='font-medium text-white capitalize'>
                     {account.providerId}
                   </p>
+                  <p className='text-sm text-gray-400'>Connected account</p>
                 </div>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <div className='h-2 w-2 rounded-full bg-green-500' />
+                <span className='text-sm text-green-400'>Connected</span>
               </div>
             </div>
           ))}
-        </div>
-      </>
+      </div>
     )
   }
 
   return (
-    <div className='w-96 max-w-full p-8 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)]'>
-      <p className='mb-1 text-base'>Manage your personal information</p>
-      <p className='mb-5 text-sm text-neutral-300'>
-        Logged in as: {session.data?.user.name}
-      </p>
-      <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
-        {/*
-        <div className='w-fit'>
-          <span className='text-sm'>Profile picture</span>
-          <div className='flex gap-2 items-center'>
-            <button
-              className='flex items-center justify-center rounded-full bg-surface-800 ring-surface-800/70 focus-within:ring-2 grow size-16'
-              type='button'
-            >
-              <Icon
-                icon='solar:camera-outline'
-                className='size-6 text-gray-400'
-              />
-            </button>
-            <Button variant='ghost' className='text-sm flex gap-1 items-center'>
-              <Icon icon='tabler:upload' className='size-6' />
-              Upload
-            </Button>
+    <div className='w-full max-w-2xl p-0'>
+      {me.isPending ? (
+        <div className='flex h-96 items-center justify-center rounded-2xl bg-surface-900'>
+          <div className='flex flex-col items-center space-y-4'>
+            <Loader className='h-12 w-12 text-primary-500' />
+            <p className='text-gray-400'>Loading account information...</p>
           </div>
         </div>
-        */}
-        <div>
-          <label className='text-sm' htmlFor='username'>
-            Username
-          </label>
-          <Input
-            className='w-full text-sm'
-            id='username'
-            required
-            error={errors.username?.message}
-            {...register('username', { required: true })}
-          />
-        </div>
-        <div>
-          <label className='text-sm' htmlFor='email'>
-            Email
-          </label>
-          <Input
-            className='w-full text-sm'
-            type='email'
-            id='email'
-            error={errors.email?.message}
-            {...register('email')}
-          />
-        </div>
-        <div>{renderPasswordSection()}</div>
-        <div>{renderAccountsSection()}</div>
-        <div className='mt-6 flex justify-end gap-4'>
-          <Button onClick={onClose} variant='secondary' className='h-9 px-4'>
-            Cancel
-          </Button>
-          <Button
-            type='submit'
-            variant='primary'
-            className='h-9 px-4'
-            disabled={!isDirty}
-          >
-            Save
-          </Button>
-        </div>
-      </form>
+      ) : (
+        <>
+          {/* Header Section */}
+          <div className='relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 px-8 py-8'>
+            <div className='absolute inset-0 bg-black/20' />
+            <div className='relative z-10'>
+              <div className='flex items-center space-x-4'>
+                <div className='flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm'>
+                  <span className='text-2xl font-bold text-white'>
+                    {session.data?.user.name?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <h1 className='text-2xl font-bold text-white'>
+                    Account Settings
+                  </h1>
+                  <p className='text-white/80'>
+                    Manage your personal information
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className='absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10' />
+            <div className='absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/5' />
+          </div>
+
+          {/* Content Section */}
+          <div className='rounded-b-2xl bg-surface-900 px-8 py-8'>
+            <form className='space-y-8' onSubmit={handleSubmit(onSubmit)}>
+              {/* Profile Section */}
+              <div className='space-y-6'>
+                <div className='border-b border-surface-700 pb-6'>
+                  <h2 className='mb-4 text-lg font-semibold text-white'>
+                    Profile
+                  </h2>
+                  <div className='grid gap-6 md:grid-cols-2'>
+                    <div className='space-y-2'>
+                      <label
+                        className='text-sm font-medium text-gray-300'
+                        htmlFor='username'
+                      >
+                        Username
+                      </label>
+                      <Input
+                        className='w-full'
+                        id='username'
+                        required
+                        error={errors.username?.message}
+                        {...register('username', { required: true })}
+                      />
+                    </div>
+                    <div className='space-y-2'>
+                      <label
+                        className='text-sm font-medium text-gray-300'
+                        htmlFor='email'
+                      >
+                        Email
+                      </label>
+                      <Input
+                        className='w-full'
+                        type='email'
+                        id='email'
+                        error={errors.email?.message}
+                        {...register('email')}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Password Section */}
+                <div className='border-b border-surface-700 pb-6'>
+                  <h2 className='mb-4 text-lg font-semibold text-white'>
+                    Password
+                  </h2>
+                  <div className='space-y-4'>{renderPasswordSection()}</div>
+                </div>
+
+                {/* Connected Accounts */}
+                {renderAccountsSection() && (
+                  <div>
+                    <h2 className='mb-4 text-lg font-semibold text-white'>
+                      Connected Accounts
+                    </h2>
+                    <div className='space-y-4'>{renderAccountsSection()}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className='flex justify-end space-x-3 pt-6'>
+                <Button
+                  onClick={onClose}
+                  variant='ghost'
+                  className='px-6 py-2 text-gray-400 hover:bg-surface-800 hover:text-white'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  variant='primary'
+                  className='px-6 py-2 font-medium'
+                  disabled={!isDirty || updateUser.isPending}
+                >
+                  {updateUser.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   )
 }
