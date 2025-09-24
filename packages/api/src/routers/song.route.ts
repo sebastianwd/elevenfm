@@ -57,8 +57,6 @@ export const getVideoInfo = o
       query: input.query
     })
 
-    console.log('data324234')
-
     const video = data.map((video) => ({
       title: video.title,
       artist: video.author,

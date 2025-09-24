@@ -102,5 +102,6 @@
     "tailwindcss": "catalog:",
     "typescript-eslint": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "packageManager": "pnpm@10.17.1"
 }
