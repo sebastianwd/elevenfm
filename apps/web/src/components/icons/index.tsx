@@ -193,7 +193,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
       <g id='audio-wave' data-name='audio-wave' className='[&>*]:[y:11px]'>
         <rect
           id='wave-5'
-          className='animate-pulse-size animation-delay-[0.4s]'
+          className='animate-pulse-size delay-[0.4s]'
           x='32'
           width='4'
           height='0'
@@ -203,7 +203,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
         />
         <rect
           id='wave-4'
-          className='animate-pulse-size duration-1000 animation-delay-700'
+          className='animate-pulse-size delay-700 duration-1000'
           x='24'
           y='2'
           width='4'
@@ -214,7 +214,7 @@ export const AudioWave = (props: SVGProps<SVGSVGElement>) => {
         />
         <rect
           id='wave-3'
-          className='animate-pulse-size duration-1000 animation-delay-[600ms]'
+          className='animate-pulse-size delay-[600ms] duration-1000'
           x='16'
           width='4'
           height='0'

@@ -1,0 +1,14 @@
+{
+  "extends": "@repo/typescript-config/tsconfig.json",
+  "references": [
+    {
+      "path": "../eslint-config"
+    },
+    {
+      "path": "../typescript-config"
+    },
+    {
+      "path": "../utils"
+    }
+  ]
+}

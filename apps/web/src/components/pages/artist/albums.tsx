@@ -1,13 +1,13 @@
 import { ArrowLeftIcon, PlayIcon } from '@heroicons/react/24/solid'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { maxBy, orderBy } from 'es-toolkit'
 import { motion } from 'framer-motion'
 import Fuse from 'fuse.js'
-import { maxBy, orderBy } from 'lodash'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
-import { getAlbumDetailsQuery, getAlbumsQuery } from '~/api'
 import { Button } from '~/components/button'
 import { Skeleton } from '~/components/skeleton/skeleton'
 import { SongList } from '~/components/song-list'
@@ -42,20 +42,17 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
 
   const [readMore, setReadMore] = useState(false)
 
-  const getAlbumDetails = useQuery({
-    queryKey: ['getAlbumDetails', albumId, album, artist],
-    queryFn: () =>
-      getAlbumDetailsQuery({ albumId: albumId ?? '', album, artist }),
-    enabled: !!album && !!artist,
-    staleTime: Infinity,
-    gcTime: Infinity,
-  })
+  const getAlbumDetails = useQuery(
+    orpc.album.details.queryOptions({
+      input: { albumId: albumId ?? '', album, artist },
+      enabled: !!album && !!artist,
+      staleTime: Infinity,
+      gcTime: Infinity,
+    })
+  )
 
-  const albumSongs = getAlbumDetails.data?.albumDetails.tracks
-  const description =
-    defaultDescription || getAlbumDetails.data?.albumDetails.description
-
-  console.log(defaultDescription, getAlbumDetails.data?.albumDetails)
+  const albumSongs = getAlbumDetails.data?.tracks
+  const description = defaultDescription || getAlbumDetails.data?.description
 
   const identifier = `${artist}-${album}`
 
@@ -83,6 +80,7 @@ const ArtistAlbum = (props: ArtistAlbumProps) => {
   const sortedPlayableSongs = useMemo(() => {
     return orderBy(
       playableSongs,
+      // @ts-expect-error TODO: fix this
       sortablePropertiesMapping[sortBySetting as ArtistSortableProperties],
       [sortingSettings?.direction || 'desc']
     )
@@ -157,21 +155,22 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
 
   const [selectedLimit, setSelectedLimit] = useState('40')
 
-  const getAlbums = useQuery({
-    queryKey: ['getAlbums', artist, parseInt(selectedLimit)],
-    queryFn: () => getAlbumsQuery({ artist, limit: parseInt(selectedLimit) }),
-    staleTime: Infinity,
-    gcTime: Infinity,
-    placeholderData: keepPreviousData,
-  })
+  const getAlbums = useQuery(
+    orpc.artist.albums.queryOptions({
+      input: { artist, limit: parseInt(selectedLimit) },
+      staleTime: Infinity,
+      gcTime: Infinity,
+      placeholderData: keepPreviousData,
+    })
+  )
 
   const albums = useMemo(() => {
-    if (!getAlbums.data?.getAlbums) {
+    if (!getAlbums.data) {
       return []
     }
 
-    return getAlbums.data.getAlbums
-  }, [getAlbums.data?.getAlbums])
+    return getAlbums.data
+  }, [getAlbums.data])
 
   const fuse = useMemo(() => {
     return new Fuse(albums, {
@@ -206,7 +205,7 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
           (match) => match.item.name !== bestMatch.item.name
         )
 
-        if (bestMatch && !ignoredAlbums.has(bestMatch.item.name)) {
+        if (!ignoredAlbums.has(bestMatch.item.name)) {
           otherMatches.forEach((match) => {
             // albums with year are never ignored
             if (match.item.year) return
@@ -222,7 +221,7 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
   }, [albums, fuse])
 
   const selectedAlbum = useMemo(() => {
-    return albums?.find((album) => album.name === selectedAlbumName)
+    return albums.find((album) => album.name === selectedAlbumName)
   }, [albums, selectedAlbumName])
 
   const renderContent = () => {
@@ -242,10 +241,10 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
           <ArtistAlbum
             album={selectedAlbumName}
             artist={artist}
-            songs={selectedAlbum?.tracks || []}
-            coverImage={selectedAlbum?.coverImage || undefined}
-            description={selectedAlbum?.description || undefined}
-            albumId={selectedAlbum?.albumId || undefined}
+            songs={[]}
+            coverImage={selectedAlbum.coverImage || undefined}
+            description={selectedAlbum.description || undefined}
+            albumId={selectedAlbum.albumId || undefined}
           />
         </>
       )
@@ -267,21 +266,21 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
             </SelectContent>
           </Select>
         </div>
-        <div className='-mx-2 -mr-1 flex flex-wrap'>
+        <div className='@container/albums -mx-2 -mr-1 flex flex-wrap'>
           {getAlbums.isPending
             ? Array.from({ length: 12 }).map((_, i) => (
                 <div
-                  className='mb-5 flex h-36 w-1/2 flex-col px-2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6'
+                  className='mb-5 flex h-36 w-1/2 flex-col px-2 @sm/albums:w-1/3 @lg/albums:w-1/4 @2xl/albums:w-1/5'
                   key={i}
                 >
                   <Skeleton className='size-full rounded-md object-cover' />
                 </div>
               ))
-            : filteredAlbums?.map((album, i) => {
+            : filteredAlbums.map((album, i) => {
                 return (
                   <div
                     key={album.name + i}
-                    className='mb-5 flex w-1/2 flex-col px-2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6'
+                    className='mb-5 flex w-1/2 flex-col px-2 @sm/albums:w-1/3 @lg/albums:w-1/4 @2xl/albums:w-1/5'
                   >
                     <button
                       type='button'
@@ -298,7 +297,7 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
                           src={album.coverImage || '/cover-placeholder.png'}
                           className='w-full rounded-md object-cover'
                         />
-                        <div className='invisible absolute left-0 top-0 flex size-full items-center justify-center transition-colors group-hover:visible group-hover:bg-black/30'>
+                        <div className='invisible absolute top-0 left-0 flex size-full items-center justify-center transition-colors group-hover:visible group-hover:bg-black/30'>
                           <PlayIcon className='size-10 text-transparent transition-colors group-hover:text-primary-500' />
                         </div>
                       </div>

@@ -47,8 +47,8 @@ export const CommandPalette = ({
           as='div'
           value={value}
           className='relative mx-auto max-w-xl'
-          onChange={(command: string) => {
-            onSelect(command)
+          onChange={(command) => {
+            onSelect(command ?? '')
           }}
         >
           <div className='flex items-center rounded-xl bg-surface-800 px-4 shadow-2xl ring-surface-800/70 focus-within:ring-2'>
@@ -58,7 +58,7 @@ export const CommandPalette = ({
               onChange={(e) => {
                 onInputChange(e.target.value)
               }}
-              className='w-full border-0 bg-transparent py-4 text-base outline-none ring-0'
+              className='w-full border-0 bg-transparent py-4 text-base ring-0 outline-none'
               placeholder='Search...'
             />
             {isLoading ? (
@@ -72,7 +72,7 @@ export const CommandPalette = ({
               <ComboboxOption key={command} value={command} as={Fragment}>
                 {({ focus, selected }) => (
                   <li
-                    className={`relative cursor-pointer select-none list-none px-4 py-2 ${
+                    className={`relative cursor-pointer list-none px-4 py-2 select-none ${
                       focus ? 'bg-surface-950 text-white' : 'bg-surface-800'
                     }`}
                   >

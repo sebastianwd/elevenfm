@@ -1,8 +1,8 @@
-import { head, isNil } from 'lodash'
+import { orpc, queryClient } from '@repo/api/lib/orpc.client'
+import { head } from 'es-toolkit'
+import { isNil } from 'es-toolkit/compat'
 import { useCallback } from 'react'
 
-import { getVideoInfoQuery, queryClient } from '~/api'
-import { queryKeys } from '~/constants'
 import { useLocalSettings } from '~/store/use-local-settings'
 import { usePlayerState } from '~/store/use-player'
 import type { PlayableSong } from '~/types'
@@ -16,15 +16,12 @@ interface UsePlaySongOptions {
 export const usePlaySong = (options: UsePlaySongOptions) => {
   const { songs, songsIdentifier: identifier } = options
 
-  const { isShuffled } = useLocalSettings((state) => ({
-    toggleShuffledPlaylist: state.toggleShuffledPlaylist,
-    isShuffled: state.shuffledPlaylists.includes(identifier ?? ''),
-  }))
+  const isShuffled = useLocalSettings((state) =>
+    state.shuffledPlaylists.includes(identifier || '')
+  )
 
-  const { setShuffle, setQueueIdentifier } = usePlayerState((state) => ({
-    setQueueIdentifier: state.setQueueIdentifier,
-    setShuffle: state.setShuffle,
-  }))
+  const setQueueIdentifier = usePlayerState((state) => state.setQueueIdentifier)
+  const setShuffle = usePlayerState((state) => state.setShuffle)
 
   const { setIsPlaying, setCurrentSong, setQueue } = usePlayerState()
 
@@ -36,29 +33,27 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
         if (!isNil(isShuffled)) {
           setShuffle(isShuffled)
         }
-        setQueueIdentifier(identifier ?? '')
+        setQueueIdentifier(identifier || '')
       }
 
       if (!songUrl) {
         const videoSearchQuery = `${getMainArtist(artist)} - ${title}`
 
-        const data = await queryClient.fetchQuery({
-          queryKey: queryKeys.videoInfo(videoSearchQuery),
-          queryFn: () =>
-            getVideoInfoQuery({
-              query: videoSearchQuery,
-            }),
-          staleTime: Infinity,
-          gcTime: Infinity,
-        })
+        const data = await queryClient.fetchQuery(
+          orpc.song.videoInfo.queryOptions({
+            input: { query: videoSearchQuery },
+            staleTime: Infinity,
+            gcTime: Infinity,
+          })
+        )
 
-        const urls = data?.getVideoInfo.map((video) => video.videoUrl)
+        const urls = data.map((video) => video.videoUrl)
 
         setCurrentSong({
           artist,
           title,
           urls,
-          videoThumbnailUrl: head(data.getVideoInfo)?.thumbnailUrl,
+          videoThumbnailUrl: head(data)?.thumbnailUrl,
           albumCoverUrl: song.albumCoverUrl || undefined,
         }).catch((err) => console.error('Error setting current song', err))
       } else {
@@ -75,7 +70,7 @@ export const usePlaySong = (options: UsePlaySongOptions) => {
             artist: song.artist,
             title: song.title,
             urls: song.songUrl ? [song.songUrl] : undefined,
-          })) || []
+          }))
         )
       }
 

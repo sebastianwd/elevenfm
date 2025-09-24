@@ -1,27 +1,21 @@
-import {
-  HydrationBoundary as Hydrate,
-  QueryClientProvider,
-} from '@tanstack/react-query'
-import type { AppProps } from 'next/app'
-import { SessionProvider } from 'next-auth/react'
-import type * as React from 'react'
+'use client'
 
-import { queryClient } from '~/api'
+import { ProgressProvider } from '@bprogress/next/app'
+import { queryClient } from '@repo/api/lib/orpc.client'
+import { QueryClientProvider } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
 
-export const AppProvider = (props: {
-  children: React.ReactNode
-  pageProps: AppProps['pageProps']
-}) => {
-  const {
-    children,
-    pageProps: { session, ...pageProps },
-  } = props
+export const AppProvider = (props: { children: ReactNode }) => {
+  const { children } = props
 
   return (
-    <SessionProvider session={session}>
-      <QueryClientProvider client={queryClient}>
-        <Hydrate state={pageProps?.dehydratedState}>{children}</Hydrate>
-      </QueryClientProvider>
-    </SessionProvider>
+    <ProgressProvider
+      height='4px'
+      color='#FC3967'
+      options={{ showSpinner: false }}
+      shallowRouting
+    >
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </ProgressProvider>
   )
 }

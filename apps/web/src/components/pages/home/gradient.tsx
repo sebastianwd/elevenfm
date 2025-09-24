@@ -1,7 +1,7 @@
 export const Gradient = () => {
   return (
     <div
-      className='absolute left-0 top-1/2 h-1/2 max-h-96 w-full max-w-[80svw] -translate-y-1/2 md:max-w-screen-sm'
+      className='absolute top-1/2 left-0 h-1/2 max-h-96 w-full max-w-[80svw] -translate-y-1/2 md:max-w-screen-sm'
       style={{
         backgroundImage: `radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 1) 0px, transparent 0%),
                 radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 1) 0px, transparent 50%),

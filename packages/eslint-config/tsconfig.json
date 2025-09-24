@@ -1,0 +1,8 @@
+{
+  "extends": "@repo/typescript-config/tsconfig.json",
+  "references": [
+    {
+      "path": "../typescript-config"
+    }
+  ]
+}

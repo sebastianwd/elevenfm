@@ -1,4 +1,7 @@
-import { head, isEmpty, random, sortBy } from 'lodash'
+import { orpc, queryClient } from '@repo/api/lib/orpc.client'
+import { getMainArtist } from '@repo/utils/song-title-utils'
+import { head, shuffle } from 'es-toolkit'
+import { isEmpty } from 'es-toolkit/compat'
 import { createRef } from 'react'
 import type ReactPlayer from 'react-player'
 import { toast } from 'sonner'
@@ -6,10 +9,7 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 
-import { getAlbumBySongQuery, getVideoInfoQuery, queryClient } from '~/api'
 import { Toast } from '~/components/toast'
-import { queryKeys } from '~/constants'
-import { getMainArtist } from '~/utils/song-title-utils'
 
 export type Song = {
   title: string
@@ -52,7 +52,7 @@ interface PlayerState {
 }
 
 interface PlayerInstanceState {
-  instance: React.MutableRefObject<Omit<ReactPlayer, 'refs'> | null>
+  instance: React.RefObject<Omit<ReactPlayer, 'refs'> | null>
 }
 
 const getAlbum = async (song: Song) => {
@@ -60,28 +60,32 @@ const getAlbum = async (song: Song) => {
     return
   }
 
-  const data = await queryClient.fetchQuery({
-    queryKey: ['album', `${song.artist} - ${song.title}`],
-    queryFn: () =>
-      getAlbumBySongQuery({ artist: song.artist, song: song.title }),
-    gcTime: Infinity,
-    staleTime: Infinity,
-  })
+  const data = await queryClient.fetchQuery(
+    orpc.song.album.queryOptions({
+      input: { artist: song.artist, song: song.title },
+      gcTime: Infinity,
+      staleTime: Infinity,
+    })
+  )
 
-  return data.getAlbumBySong
+  return data
 }
 
 const getVideoInfo = async (song: Song) => {
   const videoSearchQuery = `${getMainArtist(song.artist)} - ${song.title}`
 
-  const data = await queryClient.fetchQuery({
-    queryKey: queryKeys.videoInfo(videoSearchQuery),
-    queryFn: () => getVideoInfoQuery({ query: videoSearchQuery }),
-    gcTime: Infinity,
-    staleTime: Infinity,
-  })
+  const data = await queryClient.fetchQuery(
+    orpc.song.videoInfo.queryOptions({
+      input: { query: videoSearchQuery },
+      retry: 2,
+      staleTime: Infinity,
+      gcTime: Infinity,
+    })
+  )
 
-  return data.getVideoInfo
+  console.log('data11', data)
+
+  return data
 }
 
 export const usePlayerState = create<PlayerState>()(
@@ -123,9 +127,7 @@ export const usePlayerState = create<PlayerState>()(
                     song.artist !== currentSong.artist)
               )
 
-              const shuffledSongs = sortBy(songsWithoutCurrent, () =>
-                random(true)
-              )
+              const shuffledSongs = shuffle(songsWithoutCurrent)
 
               state.shuffledQueue = [currentSong, ...shuffledSongs]
             }),
@@ -144,9 +146,7 @@ export const usePlayerState = create<PlayerState>()(
                       song.artist !== currentSong.artist)
                 )
 
-                const shuffledSongs = sortBy(songsWithoutCurrent, () =>
-                  random(true)
-                )
+                const shuffledSongs = shuffle(songsWithoutCurrent)
 
                 state.shuffledQueue = [currentSong, ...shuffledSongs]
               }
@@ -161,7 +161,7 @@ export const usePlayerState = create<PlayerState>()(
             const currentSongIndex = activeQueue.findIndex(
               (song) =>
                 song.title === state.currentSong?.title &&
-                song.artist === state.currentSong?.artist
+                song.artist === state.currentSong.artist
             )
 
             const getNextSong = () => {
@@ -193,7 +193,7 @@ export const usePlayerState = create<PlayerState>()(
 
                 return {
                   thumbnailUrl: head(data)?.thumbnailUrl,
-                  videoUrls: data.map((item) => item?.videoUrl),
+                  videoUrls: data.map((item) => item.videoUrl),
                 }
               }
 
@@ -222,7 +222,7 @@ export const usePlayerState = create<PlayerState>()(
             const currentSongIndex = activeQueue.findIndex(
               (song) =>
                 song.title === state.currentSong?.title &&
-                song.artist === state.currentSong?.artist
+                song.artist === state.currentSong.artist
             )
 
             const previousSong = state.isShuffled
@@ -235,7 +235,7 @@ export const usePlayerState = create<PlayerState>()(
 
                 return {
                   thumbnailUrl: head(data)?.thumbnailUrl,
-                  videoUrls: data.map((item) => item?.videoUrl),
+                  videoUrls: data.map((item) => item.videoUrl),
                 }
               }
 
@@ -286,7 +286,7 @@ export const usePlayerState = create<PlayerState>()(
 
             const isSameAsCurrentSong =
               song.title === state.currentSong?.title &&
-              song.artist === state.currentSong?.artist
+              song.artist === state.currentSong.artist
 
             if (isSameAsCurrentSong) {
               toast.custom(
@@ -300,8 +300,8 @@ export const usePlayerState = create<PlayerState>()(
 
             const songAlreadyInQueueIndex = activeQueue.findIndex(
               (queueSong) =>
-                queueSong.title === song?.title &&
-                queueSong.artist === song?.artist
+                queueSong.title === song.title &&
+                queueSong.artist === song.artist
             )
 
             set((state) => {
@@ -313,7 +313,7 @@ export const usePlayerState = create<PlayerState>()(
               const currentSongIndex = updatedQueue.findIndex(
                 (song) =>
                   song.title === state.currentSong?.title &&
-                  song.artist === state.currentSong?.artist
+                  song.artist === state.currentSong.artist
               )
 
               state.queue = updatedQueue.toSpliced(
@@ -326,18 +326,23 @@ export const usePlayerState = create<PlayerState>()(
           removeFromQueue: (song: Song) => {
             const state = get()
 
-            const activeQueue = state.isShuffled
-              ? state.shuffledQueue
-              : state.queue
-
-            const songToRemoveIndex = activeQueue.findIndex(
+            const removeShuffledQueueIndex = state.shuffledQueue.findIndex(
               (queueSong) =>
-                queueSong.title === song?.title &&
-                queueSong.artist === song?.artist
+                queueSong.title === song.title &&
+                queueSong.artist === song.artist
+            )
+            const removeQueueIndex = state.queue.findIndex(
+              (queueSong) =>
+                queueSong.title === song.title &&
+                queueSong.artist === song.artist
             )
 
             set((state) => {
-              state.queue = activeQueue.toSpliced(songToRemoveIndex, 1)
+              state.queue = state.queue.toSpliced(removeQueueIndex, 1)
+              state.shuffledQueue = state.shuffledQueue.toSpliced(
+                removeShuffledQueueIndex,
+                1
+              )
             })
           },
           queueIdentifier: '',
@@ -387,10 +392,7 @@ export const usePlayerProgressState = create<PlayerProgressState>()(
   )
 )
 
-const instanceRef = createRef<Omit<
-  ReactPlayer,
-  'refs'
-> | null>() as React.MutableRefObject<Omit<ReactPlayer, 'refs'> | null>
+const instanceRef = createRef<Omit<ReactPlayer, 'refs'> | null>()
 instanceRef.current = null
 
 export const usePlayerInstance = create<PlayerInstanceState>()(

@@ -19,7 +19,7 @@ interface WavesLoaderProps {
 export const WavesLoader = (props: WavesLoaderProps) => {
   return (
     <div
-      className={twMerge('flex justify-center items-center', props.className)}
+      className={twMerge('flex items-center justify-center', props.className)}
     >
       {Array(10)
         .fill(null)
@@ -27,7 +27,7 @@ export const WavesLoader = (props: WavesLoaderProps) => {
           <div
             key={index}
             className={twMerge(
-              `w-0.5 h-10 max-h-full bg-gradient-to-br from-primary-500 to-primary-500 mx-2 animate-waves rounded-xl grow shrink-0 opacity-0`,
+              `mx-2 h-10 max-h-full w-0.5 shrink-0 grow animate-waves rounded-xl bg-gradient-to-br from-primary-500 to-primary-500 opacity-0`,
               delayClasses[(index + 1) as keyof typeof delayClasses]
             )}
           ></div>

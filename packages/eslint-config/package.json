@@ -1,0 +1,20 @@
+{
+  "name": "@repo/eslint-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./base": "./src/base.ts",
+    "./react": "./src/react.ts"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "eslint src/ --fix",
+    "tsc": "tsc --build"
+  },
+  "devDependencies": {
+    "swd-eslint-config": "catalog:",
+    "typescript-eslint": "catalog:",
+    "@repo/typescript-config": "workspace:*"
+  }
+}

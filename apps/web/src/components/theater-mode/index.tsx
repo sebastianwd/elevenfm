@@ -1,7 +1,8 @@
+'use client'
 import { usePlayerState } from '~/store/use-player'
 
 import { Lyrics } from '../player'
-import { VideoPlayerPortalContainer } from '../video-player'
+import { VideoPlayer } from '../video-player'
 
 export const TheaterMode = () => {
   const currentSong = usePlayerState((state) => state.currentSong)
@@ -12,14 +13,13 @@ export const TheaterMode = () => {
 
   return (
     <div className='grid grid-cols-1 lg:grow lg:grid-cols-3'>
-      <VideoPlayerPortalContainer
-        className='aspect-video max-w-full lg:col-span-2 lg:h-full'
-        position='theater-mode'
-      />
-      <div className='lg:col-span-1'>
+      <div className='lg:col-span-2'>
+        <VideoPlayer />
+      </div>
+      <div className='relative lg:col-span-1'>
         <Lyrics
-          artist={currentSong?.artist}
-          song={currentSong?.title}
+          artist={currentSong.artist}
+          song={currentSong.title}
           className='h-[calc(100svh/1.95)] lg:h-[calc(100svh-11rem)]'
         />
       </div>

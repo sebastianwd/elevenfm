@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "exclude": [
+    "${configDir}/out",
+    "${configDir}/dist",
+    "${configDir}/node_modules",
+    "${configDir}/.output",
+    "${configDir}/.turbo"
+  ],
+  "include": [
+    "${configDir}/**/*.ts",
+    "${configDir}/**/*.tsx"
+  ]
+}

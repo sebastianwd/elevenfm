@@ -1,8 +1,0 @@
-query topsongsByArtistQuery($artist: String!) {
-  topsongsByArtist(artist: $artist) {
-    artist
-    title
-    playcount
-    __typename
-  }
-}

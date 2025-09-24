@@ -7,12 +7,12 @@ import {
 
 export interface PopoverItem {
   label: string
-  icon?: JSX.Element
+  icon?: React.ReactElement
   onClick: React.ComponentProps<'button'>['onClick']
 }
 
 interface PopoverProps {
-  menuLabel: (open: boolean) => JSX.Element
+  menuLabel: (open: boolean) => React.ReactElement
   menuItems: PopoverItem[]
   direction?: React.ComponentProps<typeof PopoverPanel>['anchor']
   className?: string
@@ -51,7 +51,7 @@ export const Popover = (props: PopoverProps) => {
                   <button
                     type='button'
                     key={index}
-                    className={`group flex w-full items-center rounded-md bg-surface-800 p-4 text-sm transition-colors hover:bg-surface-950`}
+                    className='group flex w-full items-center rounded-md bg-surface-800 p-4 text-sm transition-colors hover:bg-surface-950'
                     onClick={item.onClick}
                   >
                     <span className='block shrink-0 group-hover:text-primary-500'>

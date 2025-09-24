@@ -1,7 +1,7 @@
 import { EyeIcon, EyeSlashIcon, UserIcon } from '@heroicons/react/24/outline'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { authClient } from '@repo/api/auth/auth.client'
+import { useMutation } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import { getProviders, signIn } from 'next-auth/react'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -9,7 +9,6 @@ import { twMerge } from 'tailwind-merge'
 
 import { GithubIcon } from '../icons'
 import { Input } from '../input'
-import { WavesLoader } from '../loader'
 
 type Inputs = {
   username: string
@@ -21,23 +20,14 @@ interface AuthModalProps {
 }
 
 export const AuthModal = (props: AuthModalProps) => {
-  const { onClose } = props
-
-  const providers = useQuery({
-    queryKey: ['authProviders'],
-    queryFn: () => getProviders(),
-    staleTime: Infinity,
-  })
-
   const credentialsSignIn = useMutation({
     mutationFn: (data: Inputs) =>
-      signIn(providers.data?.credentials.id, {
-        ...data,
-        callbackUrl: pathname?.includes('/auth') ? '/' : pathname || '/',
-        redirect: false,
-        action: authType,
+      authClient.signIn.username({
+        callbackURL: pathname.includes('/auth') ? '/' : pathname || '/',
+        password: data.password,
+        username: data.username,
       }),
-    mutationKey: ['signIn', providers.data?.credentials.id],
+    mutationKey: ['signIn'],
   })
 
   const pathname = usePathname()
@@ -51,47 +41,15 @@ export const AuthModal = (props: AuthModalProps) => {
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Inputs>()
 
-  const getCredentialsError = (credentialsError: string = '') => {
-    if (
-      ['AccessDenied', 'CredentialsSignin', 'Configuration'].includes(
-        credentialsError
-      )
-    ) {
-      if (authType === 'login') {
-        return 'Invalid credentials'
-      }
-
-      return 'Invalid credentials or username already taken'
-    }
-  }
-
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     if (!isDirty || !isValid) return
 
-    const response = await credentialsSignIn.mutateAsync(data)
+    await credentialsSignIn.mutateAsync(data)
 
-    if (!getCredentialsError(response?.error)) {
-      onClose?.()
-    }
+    props.onClose?.()
   }
 
   const renderProviders = () => {
-    if (providers.isPending) {
-      return (
-        <div className='flex h-full items-center justify-center'>
-          <WavesLoader className='h-5' />
-        </div>
-      )
-    }
-
-    if (providers.isError) {
-      return (
-        <div className='flex h-full items-center justify-center'>
-          <p>An error occurred. Please try again later.</p>
-        </div>
-      )
-    }
-
     return (
       <>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -106,7 +64,7 @@ export const AuthModal = (props: AuthModalProps) => {
             id='username'
             {...register('username', { required: 'Username is required' })}
           />
-          <label className='mb-1 mt-3 block text-sm' htmlFor='password'>
+          <label className='mt-3 mb-1 block text-sm' htmlFor='password'>
             Password
           </label>
           <Input
@@ -145,7 +103,7 @@ export const AuthModal = (props: AuthModalProps) => {
           <button
             type='submit'
             className={twMerge(
-              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-neutral-200 font-medium h-12 text-surface-900 mt-7 disabled:opacity-80'
+              'mt-7 flex h-12 w-full items-center justify-center gap-2 rounded-md bg-neutral-200 py-2 font-medium text-surface-900 transition-colors disabled:opacity-80'
             )}
             disabled={!isDirty || !isValid || isSubmitting}
           >
@@ -154,38 +112,36 @@ export const AuthModal = (props: AuthModalProps) => {
           </button>
           <span
             className={twMerge(
-              'text-red-500 text-sm invisible',
+              'invisible text-sm text-red-500',
               (errors.username?.message ||
                 errors.password?.message ||
-                getCredentialsError(credentialsSignIn.data?.error)) &&
+                credentialsSignIn.data?.error?.message) &&
                 'visible'
             )}
           >
             {errors.username?.message ||
               errors.password?.message ||
-              getCredentialsError(credentialsSignIn.data?.error) ||
+              credentialsSignIn.data?.error?.message ||
               '&nbsp;'}
           </span>
         </form>
-        <span className='mx-auto mb-6 mt-2 block w-fit'>Or</span>
-        <div className='rounded-md bg-gradient-to-br from-primary-500 to-blue-600  p-px'>
+        <span className='mx-auto mt-2 mb-6 block w-fit'>Or</span>
+        <div className='rounded-md bg-gradient-to-br from-primary-500 to-blue-600 p-px'>
           <button
             type='button'
-            key={providers.data?.github.id}
+            key='github'
             onClick={() =>
-              signIn(providers.data?.github.id, {
-                callbackUrl: pathname?.includes('/auth')
-                  ? '/'
-                  : pathname || '/',
+              authClient.signIn.social({
+                provider: 'github',
+                callbackURL: pathname.includes('/auth') ? '/' : pathname || '/',
               })
             }
             className={twMerge(
-              'w-full py-2 rounded-md flex items-center justify-center gap-2 transition-colors bg-surface-800 font-medium h-12'
+              'flex h-12 w-full items-center justify-center gap-2 rounded-md bg-surface-800 py-2 font-medium transition-colors'
             )}
           >
             <GithubIcon className='w-6' />
-            {authType === 'login' ? 'Log in' : 'Sign up'} with{' '}
-            {providers.data?.github.name}
+            {authType === 'login' ? 'Log in' : 'Sign up'} with Github
           </button>
         </div>
       </>

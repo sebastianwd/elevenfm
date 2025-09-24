@@ -1,15 +1,12 @@
 import { valibotResolver } from '@hookform/resolvers/valibot'
+import { useSession } from '@repo/api/auth/auth.client'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ClientError } from 'graphql-request'
-import { isEmpty } from 'lodash'
-import { useSession } from 'next-auth/react'
+import { isEmpty } from 'es-toolkit/compat'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as v from 'valibot'
-
-import { meQuery, updateUserMutation } from '~/api'
-import { getError } from '~/utils/get-error'
 
 import { Button } from '../button'
 import { GithubIcon } from '../icons'
@@ -46,6 +43,7 @@ const schema = v.pipe(
     ]),
     password: v.union([v.literal(''), v.string()]),
     newPassword: v.union([v.literal(''), v.string()]),
+    name: v.union([v.literal(''), v.string()]),
   }),
   v.forward(
     v.partialCheck(
@@ -79,18 +77,14 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   const { onClose } = props
   const session = useSession()
 
-  const me = useQuery({
-    queryKey: ['me', session.data?.user?.id],
-    queryFn: () => meQuery(),
-    enabled: !!session.data?.user?.id,
-    staleTime: Infinity,
-  })
+  const me = useQuery(
+    orpc.user.me.queryOptions({
+      enabled: !!session.data?.user.id,
+      staleTime: Infinity,
+    })
+  )
 
-  const updateUser = useMutation({
-    mutationKey: ['updateUser', session.data?.user?.id],
-    mutationFn: updateUserMutation,
-    onError: (err: ClientError) => err,
-  })
+  const updateUser = useMutation(orpc.user.update.mutationOptions())
 
   const {
     register,
@@ -100,9 +94,9 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   } = useForm<Inputs>({
     mode: 'onBlur',
     values: {
-      username: me.data?.me.username ?? '',
-      email: me.data?.me.email ?? '',
-      name: me.data?.me.name ?? '',
+      username: me.data?.username ?? '',
+      email: me.data?.email ?? '',
+      name: me.data?.name ?? '',
       password: '',
       newPassword: '',
     },
@@ -112,19 +106,14 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await updateUser.mutateAsync({
-        user: {
-          username: data.username,
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          newPassword: data.newPassword,
-        },
+        name: data.name,
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        newPassword: data.newPassword,
       })
 
-      await session.update({
-        name: data.username,
-        email: data.email,
-      })
+      session.refetch()
 
       reset({}, { keepValues: true })
 
@@ -135,11 +124,11 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
       await me.refetch()
     } catch (error) {
       console.error(error)
-      if (error instanceof ClientError) {
+      if (error instanceof Error) {
         toast.custom(
           () => (
             <Toast
-              message={`❌ ${getError(error)}`}
+              message={`❌ ${error.message}`}
               className='bg-red-700 text-neutral-100'
             />
           ),
@@ -152,7 +141,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   }
 
   const renderPasswordSection = () => {
-    if (me.data?.me.hasPassword) {
+    if (me.data?.hasPassword) {
       return (
         <>
           {' '}
@@ -198,7 +187,10 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
   }
 
   const renderAccountsSection = () => {
-    if (isEmpty(me.data?.me.accounts)) {
+    if (
+      isEmpty(me.data?.accounts) ||
+      !me.data?.accounts.find((account) => account.providerId !== 'credential')
+    ) {
       return null
     }
 
@@ -208,16 +200,16 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
           Accounts
         </label>
         <div className='grid gap-2 md:grid-cols-2'>
-          {me.data?.me.accounts.map((account) => (
+          {me.data.accounts.map((account) => (
             <div
               className='flex items-center justify-between space-x-4'
-              key={account.provider}
+              key={account.providerId}
             >
               <div className='flex items-center space-x-4'>
                 <GithubIcon className='w-6' />
                 <div>
-                  <p className='text-sm font-medium leading-none'>
-                    {account.provider}
+                  <p className='text-sm leading-none font-medium'>
+                    {account.providerId}
                   </p>
                 </div>
               </div>
@@ -232,7 +224,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
     <div className='w-96 max-w-full p-8 md:w-[calc(100vw/2)] lg:w-[calc(100vw/3)]'>
       <p className='mb-1 text-base'>Manage your personal information</p>
       <p className='mb-5 text-sm text-neutral-300'>
-        Logged in as: {session.data?.user?.name}
+        Logged in as: {session.data?.user.name}
       </p>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
         {/*

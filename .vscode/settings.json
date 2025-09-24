@@ -1,4 +1,21 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "eslint.workingDirectories": ["./apps/web", "./packages/shared"]
+  "eslint.workingDirectories": [
+    "./apps/web",
+    "./packages/eslint-config",
+    "./packages/typescript-config",
+    "./packages/api"
+  ],
+  "tailwindCSS.experimental.classRegex": [
+    "tw`([^`]*)",
+    "tw\\.style\\(([^)]*)\\)",
+    [
+      "cva\\(([^)]*)\\)",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "cx\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ]
+  ]
 }

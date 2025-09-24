@@ -8,9 +8,11 @@ import {
   PauseIcon,
   PlayIcon,
 } from '@heroicons/react/24/solid'
+import { sample } from 'es-toolkit'
+import { find, isEmpty, size } from 'es-toolkit/compat'
 import { AnimatePresence, motion } from 'framer-motion'
 import isMobile from 'is-mobile'
-import { find, isEmpty, sample, size } from 'lodash'
+import type { RefObject } from 'react'
 import React, { useCallback, useMemo, useRef } from 'react'
 import { isHotkeyPressed } from 'react-hotkeys-hook'
 import { twMerge } from 'tailwind-merge'
@@ -47,16 +49,14 @@ const SongListHeader = (props: SongListHeaderProps) => {
 
   return (
     <div className='flex h-10 cursor-default items-center justify-between rounded pl-4 transition-colors'>
-      <div className='flex h-full grow @container/songs'>
+      <div className='@container/songs flex h-full grow'>
         <div className='flex h-full items-center @2xl/songs:basis-1/2'>
           <div className='w-3 shrink-0 text-sm font-medium text-gray-400'>
             <span>#</span>
           </div>
           <div className='flex h-full items-center'>
             <div className='ml-4'>
-              <p
-                className={`line-clamp-1 text-left text-sm font-medium text-gray-400`}
-              >
+              <p className='line-clamp-1 text-left text-sm font-medium text-gray-400'>
                 Title
               </p>
             </div>
@@ -136,12 +136,10 @@ const SongsDragOverlay = () => {
   return (
     <div className='flex w-fit min-w-96 items-center gap-4 rounded border border-solid border-surface-300 bg-surface-900 px-4 py-2 opacity-85'>
       <div className={twMerge(!isDraggingMultiple && 'flex gap-4')}>
-        <p
-          className={`line-clamp-1 text-left text-sm font-medium text-gray-300`}
-        >
-          {sample.title}
+        <p className='line-clamp-1 text-left text-sm font-medium text-gray-300'>
+          {sample?.title}
         </p>
-        {sample.artist && (
+        {sample?.artist && (
           <p className='block text-left text-sm text-gray-400 @2xl/songs:hidden'>
             {sample.artist}
           </p>
@@ -284,7 +282,7 @@ export const SongList = (props: SongListProps) => {
 
   const ref = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(ref, onClickOutside)
+  useOnClickOutside(ref as RefObject<HTMLDivElement>, onClickOutside)
 
   const onSelect = useCallback(
     (song: PlayableSong) => {
@@ -331,7 +329,7 @@ export const SongList = (props: SongListProps) => {
       ))
     }
 
-    if (!isLoading && isEmpty(filteredSongs)) {
+    if (isEmpty(filteredSongs)) {
       return (
         <div className='mt-[10%] flex justify-center rounded pl-4'>
           <p className='text-neutral-300'>{emptyMessage || 'No songs found'}</p>
@@ -339,7 +337,7 @@ export const SongList = (props: SongListProps) => {
       )
     }
 
-    return filteredSongs?.map((song, index) => {
+    return filteredSongs.map((song, index) => {
       const songIdentifier = song.id || `${song.title}-${song.artist}`
 
       const hasOtherSelectedSongs =
@@ -373,7 +371,7 @@ export const SongList = (props: SongListProps) => {
             position={index + 1}
             isPlaying={
               currentSong?.title === song.title &&
-              currentSong?.artist === song.artist
+              currentSong.artist === song.artist
             }
             onClick={() => onPlaySong(song)}
             song={song.title}
@@ -395,8 +393,8 @@ export const SongList = (props: SongListProps) => {
 
   return (
     <>
-      <div className='flex flex-wrap justify-center gap-2 p-2'>
-        <div className='flex grow justify-center gap-2'>
+      <div className='flex flex-wrap justify-center gap-2 p-2 pt-4'>
+        <div className='flex grow justify-center gap-2 md:justify-start'>
           <Button
             onClick={async () => {
               if (queueIdentifier === identifier) {
@@ -406,13 +404,15 @@ export const SongList = (props: SongListProps) => {
 
               if (isShuffled) {
                 const randomSong = sample(filteredSongs)
-                if (randomSong) {
-                  await onPlaySong(randomSong)
-                  return
-                }
+                await onPlaySong(randomSong)
+                return
               }
 
-              await onPlaySong(filteredSongs[0])
+              const firstSong = filteredSongs[0]
+
+              if (firstSong) {
+                await onPlaySong(firstSong)
+              }
             }}
             title='Play all'
             variant='primary'
@@ -470,7 +470,7 @@ export const SongList = (props: SongListProps) => {
             disabled={isLoading}
           >
             <ListBulletIcon className='h-5 shrink-0' />
-            <span className='my-auto ml-1 text-sm '>
+            <span className='my-auto ml-1 text-sm'>
               {sortableProrpertiesLabels[currentSortingProperty]}
             </span>
           </Button>

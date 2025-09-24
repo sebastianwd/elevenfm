@@ -26,6 +26,8 @@ interface LayoutState {
   setDraggingToPlaylistEl: (el: LayoutState['draggingToPlaylistData']) => void
   playlistMenuOpen: boolean
   setPlaylistMenuOpen: (playlistMenuOpen: boolean) => void
+  rightSidebarOpen: boolean
+  toggleRightSidebarOpen: () => void
   // for reordering logic
   currentPlaylist: PlayableSong[]
   setCurrentPlaylist: (playlist: PlayableSong[]) => void
@@ -56,6 +58,11 @@ export const useLayoutState = create<LayoutState>()(
             set((state) => {
               state.playlistMenuOpen = playlistMenuOpen
             }),
+          rightSidebarOpen: false,
+          toggleRightSidebarOpen: () =>
+            set((state) => {
+              state.rightSidebarOpen = !state.rightSidebarOpen
+            }),
           currentPlaylist: [],
           setCurrentPlaylist: (playlist) =>
             set((state) => {
@@ -66,6 +73,7 @@ export const useLayoutState = create<LayoutState>()(
           name: 'layout-state',
           partialize: (state) => ({
             playlistMenuOpen: state.playlistMenuOpen,
+            rightSidebarOpen: state.rightSidebarOpen,
           }),
         }
       )

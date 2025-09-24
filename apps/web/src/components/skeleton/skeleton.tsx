@@ -7,7 +7,7 @@ function Skeleton({
   return (
     <div
       className={twMerge(
-        'animate-pulse rounded-md bg-neutral-300/10 pointer-events-none',
+        'pointer-events-none animate-pulse rounded-md bg-neutral-300/10',
         className
       )}
       {...props}

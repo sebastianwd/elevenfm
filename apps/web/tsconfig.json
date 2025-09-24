@@ -1,38 +1,16 @@
 {
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es2018",
-    "skipLibCheck": true,
-    "checkJs": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "strictPropertyInitialization": false,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "Preserve",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "alwaysStrict": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es2022",
-      "ESNext"
-    ],
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "paths": {
-      "~/*": [
-        "./src/*"
-      ]
+  "references": [
+    {
+      "path": "../../packages/typescript-config"
     },
-    "allowJs": true,
+    {
+      "path": "../../packages/eslint-config"
+    },
+    {
+      "path": "../../packages/api"
+    }
+  ],
+  "compilerOptions": {
     "plugins": [
       {
         "name": "next"
@@ -40,25 +18,19 @@
     ],
     "types": [
       "vitest/globals"
-    ]
+    ],
+    "noEmit": true,
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
-    "next-env.d.ts",
-    "tailwind.config.ts",
-    "postcss.config.js",
+    "*.mjs",
+    "*.ts",
     "src",
-    "next.config.ts",
-    "codegen.yml",
-    "codegen.ts",
-    "eslint.config.mjs",
-    "apollo.config.js",
-    "prettier.config.mjs",
-    ".next/types/**/*.ts",
-    "drizzle.config.ts",
-    "vitest.config.ts"
+    ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    ".next"
-  ]
+  "extends": "@repo/typescript-config/tsconfig.react.json"
 }

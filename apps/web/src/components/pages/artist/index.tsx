@@ -1,14 +1,16 @@
+'use client'
+
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { artistQuery } from '~/api'
 import { ArtistHeader } from '~/components/artist-header'
 import { Seo } from '~/components/seo'
 import { TheaterMode } from '~/components/theater-mode'
-import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { useLayoutState } from '~/store/use-layout-state'
 
 import { ArtistAlbums } from './albums'
@@ -28,14 +30,15 @@ export const ArtistPage = (props: ArtistPageProps) => {
     setSelectedAlbum(album)
   }
 
-  const { data } = useQuery({
-    queryKey: ['artist', artist],
-    queryFn: () => artistQuery({ name: artist }),
-    staleTime: Infinity,
-  })
+  const { data } = useQuery(
+    orpc.artist.get.queryOptions({
+      input: { name: artist },
+      staleTime: Infinity,
+    })
+  )
 
   const artistWebsite = useMemo(() => {
-    const website = data?.artist.website
+    const website = data?.website
     if (website) {
       if (!website.startsWith('http://') && !website.startsWith('https://')) {
         return 'https://' + website
@@ -43,103 +46,126 @@ export const ArtistPage = (props: ArtistPageProps) => {
 
       return website
     }
-  }, [data?.artist.website])
+  }, [data?.website])
 
   const { theaterMode } = useLayoutState()
 
   return (
-    <>
+    <div className='relative'>
       <Seo
-        title={data?.artist.name}
-        description={`Listen to ${data?.artist.name} on ElevenFM`}
-        image={data?.artist.image || undefined}
-        path={`/artist/${data?.artist.name}`}
+        title={data?.name}
+        description={`Listen to ${data?.name} on ElevenFM`}
+        image={data?.image || undefined}
+        path={`/artist/${data?.name}`}
       />
+      {theaterMode ? null : (
+        <div
+          className={twMerge(`absolute top-0 left-0 flex h-80 w-full flex-col`)}
+        >
+          <div
+            className='size-full bg-cover bg-position-[top_-4rem_center] bg-no-repeat'
+            style={{
+              backgroundImage: data?.bannerImage
+                ? `url("${data.bannerImage}")`
+                : undefined,
+            }}
+          >
+            <div
+              className={twMerge(
+                'size-full',
+                data?.bannerImage
+                  ? `bg-gradient-blend`
+                  : 'bg-gradient-blend-surface'
+              )}
+            ></div>
+          </div>
+        </div>
+      )}
       <div className='container mx-auto flex min-h-full w-full max-w-[1920px] flex-col'>
         {theaterMode ? (
           <TheaterMode />
         ) : (
           <>
-            <div className='grid lg:grid-cols-3'>
-              <header
-                className={twMerge(
-                  `relative col-span-2 flex h-80 w-auto flex-col bg-no-repeat bg-top`,
-                  data?.artist.bannerImage
-                    ? 'bg-gradient-blend'
-                    : 'bg-gradient-blend-surface'
-                )}
-                style={{
-                  backgroundImage: data?.artist.bannerImage
-                    ? `url("${data.artist.bannerImage}")`
-                    : undefined,
-                }}
-              >
-                <div className='z-10 mb-16 mt-auto flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
-                  {data?.artist.image && (
-                    <Image
-                      alt='artist'
-                      width={200}
-                      height={200}
-                      quality={100}
-                      src={data?.artist.image}
-                      className='size-40 rounded-lg object-cover [box-shadow:rgb(0,0,0)_0px_0px_20rem]'
-                    />
-                  )}
-                  <ArtistHeader
-                    externalUrls={{
-                      website: artistWebsite || '',
-                    }}
-                    title={data?.artist.name || ''}
-                    subtitle={data?.artist.genre || ''}
+            <header
+              className={twMerge(
+                `relative flex h-80 w-full flex-col bg-top bg-no-repeat`
+              )}
+            >
+              <div className='z-10 mt-auto mb-16 flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
+                {data?.image && (
+                  <Image
+                    alt='artist'
+                    width={200}
+                    height={200}
+                    quality={100}
+                    src={data.image}
+                    className='size-40 rounded-lg object-cover [box-shadow:rgb(0,0,0)_0px_0px_20rem]'
                   />
-                </div>
-              </header>
-              <div className='col-span-2 flex justify-center lg:col-span-1'>
-                <VideoPlayerPortalContainer
-                  position='artist-page'
-                  className='aspect-video max-w-full'
+                )}
+                <ArtistHeader
+                  externalUrls={{
+                    website: artistWebsite || '',
+                  }}
+                  title={data?.name || ''}
+                  subtitle={data?.genre || ''}
                 />
               </div>
-            </div>
+            </header>
+
             <div className='grid lg:grid-cols-3'>
               <div className='md:pl-8 lg:col-span-2 lg:-mt-11'>
                 <TabGroup>
                   <TabList>
-                    <Tab
-                      className={({ selected }) =>
-                        twMerge(
-                          `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-['']`,
-                          selected ? `before:bg-primary-500` : ''
-                        )
-                      }
-                    >
-                      Songs
+                    <Tab className='relative px-4 py-2'>
+                      {({ selected }) => (
+                        <>
+                          Songs
+                          {selected ? (
+                            <motion.div
+                              layoutId='tab-indicator'
+                              className={twMerge(
+                                'absolute bottom-0 left-1/4 mx-auto h-[1px] w-1/2 bg-primary-500'
+                              )}
+                            />
+                          ) : null}
+                        </>
+                      )}
                     </Tab>
-                    <Tab
-                      className={({ selected }) =>
-                        twMerge(
-                          `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-['']`,
-                          selected ? `before:bg-primary-500` : ''
-                        )
-                      }
-                    >
-                      Albums
+                    <Tab className='relative px-4 py-2'>
+                      {({ selected }) => (
+                        <>
+                          Albums
+                          {selected ? (
+                            <motion.div
+                              layoutId='tab-indicator'
+                              className={twMerge(
+                                'absolute bottom-0 left-1/4 mx-auto h-[1px] w-1/2 bg-primary-500'
+                              )}
+                            />
+                          ) : null}
+                        </>
+                      )}
                     </Tab>
-                    <Tab
-                      className={({ selected }) =>
-                        twMerge(
-                          `relative px-4 py-2 before:absolute before:bottom-0 before:left-1/4 before:mx-auto before:h-[1px] before:w-1/2 before:transition-colors before:content-[''] `,
-                          selected ? `before:bg-primary-500` : ''
-                        )
-                      }
-                    >
-                      Biography
+                    <Tab className='relative px-4 py-2'>
+                      {({ selected }) => (
+                        <>
+                          Biography
+                          {selected ? (
+                            <motion.div
+                              layoutId='tab-indicator'
+                              className={twMerge(
+                                'absolute bottom-0 left-1/4 mx-auto h-[1px] w-1/2 bg-primary-500'
+                              )}
+                            />
+                          ) : null}
+                        </>
+                      )}
                     </Tab>
                   </TabList>
                   <TabPanels>
                     <TabPanel>
                       <div className='md:pr-4'>
-                        <ArtistSongs artist={artist} />
+                        <ArtistSongs artist={data?.name || artist} />
                       </div>
                     </TabPanel>
                     <TabPanel>
@@ -156,30 +182,30 @@ export const ArtistPage = (props: ArtistPageProps) => {
                         </h3>
 
                         <ul>
-                          {!!Number(data?.artist.formedYear) &&
-                            !Number.isNaN(Number(data?.artist.formedYear)) && (
+                          {!!Number(data?.formedYear) &&
+                            !Number.isNaN(Number(data?.formedYear)) && (
                               <li className='mb-2'>
                                 <span className='font-semibold'>
                                   Year formed:
                                 </span>{' '}
-                                {data?.artist.formedYear || ''}
+                                {data?.formedYear || ''}
                               </li>
                             )}
-                          {data?.artist.location && (
+                          {data?.location && (
                             <li className='mb-2'>
                               <span className='font-semibold'>Location:</span>{' '}
-                              {data?.artist.location || ''}
+                              {data.location || ''}
                             </li>
                           )}
-                          {data?.artist.disbanded && (
+                          {typeof data?.disbanded === 'boolean' && (
                             <li className='mb-2'>
                               <span className='font-semibold'>Disbanded:</span>{' '}
-                              {data?.artist.disbanded ? 'Yes' : 'No'}
+                              {data.disbanded ? 'Yes' : 'No'}
                             </li>
                           )}
                         </ul>
                         <article className='text-sm leading-relaxed'>
-                          <p>{data?.artist.biography || ''}</p>
+                          <p>{data?.biography || ''}</p>
                         </article>
                       </div>
                     </TabPanel>
@@ -194,6 +220,6 @@ export const ArtistPage = (props: ArtistPageProps) => {
           </>
         )}
       </div>
-    </>
+    </div>
   )
 }

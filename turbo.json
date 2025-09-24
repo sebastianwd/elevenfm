@@ -1,0 +1,56 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "env": [
+        "LASTFM_API_KEY",
+        "AUDIODB_API_KEY",
+        "GENIUS_ACCESS_TOKEN",
+        "INVIDIOUS_URLS",
+        "SITE_URL",
+        "PROXY",
+        "TURSO_CONNECTION_URL",
+        "TURSO_AUTH_TOKEN",
+        "UPSTASH_REDIS_URL",
+        "UPSTASH_REDIS_TOKEN",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "AUTH_GITHUB_ID",
+        "AUTH_GITHUB_SECRET"
+      ],
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "tsc": {
+      "dependsOn": ["^tsc"]
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "ui:add": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:push": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:studio": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:migrate": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:generate": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
