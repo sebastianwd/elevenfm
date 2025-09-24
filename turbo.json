@@ -3,6 +3,7 @@
   "tasks": {
     "build": {
       "env": [
+        "NODE_ENV",
         "LASTFM_API_KEY",
         "AUDIODB_API_KEY",
         "GENIUS_ACCESS_TOKEN",
