@@ -4,12 +4,15 @@
   "tasks": {
     "build": {
       "env": [
+        "NODE_ENV",
         "LASTFM_API_KEY",
         "AUDIODB_API_KEY",
         "GENIUS_ACCESS_TOKEN",
         "INVIDIOUS_URLS",
         "SITE_URL",
         "PROXY",
+        "TURSO_CONNECTION_URL",
+        "TURSO_AUTH_TOKEN",
         "UPSTASH_REDIS_URL",
         "UPSTASH_REDIS_TOKEN",
         "BETTER_AUTH_SECRET",
