@@ -200,7 +200,7 @@ export const MyAccountModal = (props: MyAccountModalProps) => {
           Accounts
         </label>
         <div className='grid gap-2 md:grid-cols-2'>
-          {me.data?.accounts.map((account) => (
+          {me.data.accounts.map((account) => (
             <div
               className='flex items-center justify-between space-x-4'
               key={account.providerId}

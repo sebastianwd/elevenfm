@@ -7,10 +7,11 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "tsc": "turbo run tsc",
-    "ui:add": "turbo ui:add -F @repo/ui --",
-    "release": "changeset",
-    "release:publish": "pnpm shared build && changeset publish --provenance --access public",
-    "gen": "graphql-codegen"
+    "db:push": "turbo -F @repo/api db:push",
+    "db:studio": "turbo -F @repo/api db:studio",
+    "db:migrate": "turbo -F @repo/api db:migrate",
+    "db:generate": "turbo -F @repo/api db:generate",
+    "ui:add": "turbo ui:add -F @repo/ui --"
   },
   "keywords": [],
   "author": "sebastianwd",
@@ -30,21 +31,17 @@
       "sharp"
     ]
   },
+  "dependencies": {
+    "next": "catalog:"
+  },
   "devDependencies": {
+    "@next/eslint-plugin-next": "catalog:",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "@changesets/cli": "^2.27.3",
-    "@graphql-codegen/add": "^5.0.2",
-    "@graphql-codegen/cli": "^5.0.2",
-    "@graphql-codegen/introspection": "^4.0.3",
-    "@graphql-codegen/typescript": "^4.0.6",
-    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
-    "@graphql-codegen/typescript-operations": "^4.2.0",
-    "@graphql-codegen/typescript-react-query": "^6.1.0",
     "eslint": "catalog:",
     "npm-check-updates": "^16.14.20",
     "prettier": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
+  "packageManager": "pnpm@10.17.1"
 }

@@ -2,9 +2,8 @@ import { onError, ORPCError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { createContext } from '@repo/api/context'
 import { router } from '@repo/api/routers/index'
+import { logger } from '@repo/api/utils/logger'
 import type { NextRequest } from 'next/server'
-
-import { logger } from '~/server/logger'
 
 const rpcHandler = new RPCHandler(router, {
   interceptors: [

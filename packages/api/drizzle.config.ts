@@ -3,8 +3,6 @@ import { defineConfig } from 'drizzle-kit'
 
 dotenv.config({ path: ['.env.local', '.env'] })
 
-console.log(process.env.NODE_ENV)
-
 export default defineConfig({
   schema: './src/db/schema',
   out: './migrations',

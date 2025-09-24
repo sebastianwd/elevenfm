@@ -194,14 +194,15 @@ export const Menu = () => {
                 marginRight: '16rem',
                 transition: {
                   duration: 0.2,
+                  ease: 'easeOut',
                 },
               },
             }}
           />
         )}
       </AnimatePresence>
-      <div className='sticky top-0 z-40 size-full px-4 md:fixed md:z-20 md:w-36 md:px-0'>
-        <div className='sticky top-0 flex h-full grow rounded-[40px] bg-surface-950 p-4 md:rounded-none md:p-0 md:pb-28'>
+      <div className='sticky top-0 z-[41] size-full px-4 md:fixed md:z-20 md:w-36 md:px-0'>
+        <div className='sticky top-0 flex h-full grow rounded-[40px] bg-surface-950 p-4 md:rounded-none md:p-0'>
           <div className='relative flex w-full'>
             <ul className='z-10 flex w-full items-center justify-between bg-surface-950 md:flex-col md:gap-4 md:py-10'>
               <MenuItem href='/' icon={<HomeIcon />}>

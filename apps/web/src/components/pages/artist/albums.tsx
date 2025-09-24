@@ -266,11 +266,11 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
             </SelectContent>
           </Select>
         </div>
-        <div className='-mx-2 -mr-1 flex flex-wrap'>
+        <div className='@container/albums -mx-2 -mr-1 flex flex-wrap'>
           {getAlbums.isPending
             ? Array.from({ length: 12 }).map((_, i) => (
                 <div
-                  className='mb-5 flex h-36 w-1/2 flex-col px-2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6'
+                  className='mb-5 flex h-36 w-1/2 flex-col px-2 @sm/albums:w-1/3 @lg/albums:w-1/4 @2xl/albums:w-1/5'
                   key={i}
                 >
                   <Skeleton className='size-full rounded-md object-cover' />
@@ -280,7 +280,7 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
                 return (
                   <div
                     key={album.name + i}
-                    className='mb-5 flex w-1/2 flex-col px-2 sm:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6'
+                    className='mb-5 flex w-1/2 flex-col px-2 @sm/albums:w-1/3 @lg/albums:w-1/4 @2xl/albums:w-1/5'
                   >
                     <button
                       type='button'

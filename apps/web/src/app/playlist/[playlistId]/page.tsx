@@ -7,5 +7,9 @@ export default async function Playlist({
 }) {
   const { playlistId } = await params
 
-  return <PlaylistPage playlistId={playlistId} />
+  return (
+    <>
+      <PlaylistPage playlistId={playlistId} />
+    </>
+  )
 }

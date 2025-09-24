@@ -10,7 +10,6 @@ import { Icon } from '@iconify/react'
 import { orpc, queryClient } from '@repo/api/lib/orpc.client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
@@ -66,8 +65,6 @@ const SongStatusIcon = (props: SongStatusIconProps) => {
   })
 
   if (videoInfoQuery.isLoading) {
-    console.log('videoInfoQuery', videoInfoQuery)
-
     return (
       <Icon icon='line-md:loading-twotone-loop' className='text-primary-500' />
     )

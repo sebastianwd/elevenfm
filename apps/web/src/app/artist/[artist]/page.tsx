@@ -10,8 +10,6 @@ interface ArtistPageProps {
 export default async function Artist({ params }: ArtistPageProps) {
   const { artist } = await params
 
-  console.log('artist', artist)
-
   await queryClient.prefetchQuery(
     orpc.artist.get.queryOptions({
       input: { name: artist },

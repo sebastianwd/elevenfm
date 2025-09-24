@@ -32,7 +32,7 @@ export const SimilarArtists = (props: SimilarArtistsProps) => {
         ? Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
-              className='mb-1 flex h-28 w-1/2 flex-col px-1 md:h-64 2xl:w-1/3'
+              className='mb-1 flex h-28 w-1/2 flex-col px-1 md:h-32 2xl:w-1/2'
             >
               <Skeleton className='size-full overflow-hidden' />
             </div>
@@ -41,7 +41,7 @@ export const SimilarArtists = (props: SimilarArtistsProps) => {
             return (
               <div
                 key={artist.name + i}
-                className='mb-1 flex h-28 w-1/2 flex-col px-1 md:h-64 2xl:w-1/3'
+                className='mb-1 flex h-28 w-1/2 flex-col px-1 md:h-32 2xl:w-1/2'
               >
                 <Link
                   href={`/artist/${artist.name}`}
@@ -53,10 +53,10 @@ export const SimilarArtists = (props: SimilarArtistsProps) => {
                     height={164}
                     quality={80}
                     src={artist.image || '/cover-placeholder.png'}
-                    className='size-full object-cover transition-all group-hover:scale-105 group-hover:blur-sm'
+                    className='size-full object-cover object-top transition-all group-hover:scale-105 group-hover:blur-sm'
                   />
                   <div className='absolute top-0 left-0 flex size-full items-center justify-center bg-black/50 transition-colors group-hover:bg-black/40'>
-                    <span className='text-center text-slate-50'>
+                    <span className='text-center text-sm text-slate-50'>
                       {artist.name}
                     </span>
                   </div>

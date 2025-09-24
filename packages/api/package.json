@@ -7,7 +7,11 @@
     "build": "tsc --build",
     "test": "echo 'Add test script here'",
     "lint": "eslint src/ --fix",
-    "tsc": "tsc --build"
+    "tsc": "tsc --build",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio --verbose",
+    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate"
   },
   "exports": {
     "./*": "./src/*.ts"

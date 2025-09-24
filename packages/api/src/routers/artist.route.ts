@@ -167,7 +167,8 @@ export const similarArtists = os.input(SimilarArtistsInput).handler(async ({ inp
   const similarArtistsBase = getSimilarArtistsResponse.data.similarartists?.artist || []
 
   const similarArtistsNames = similarArtistsBase.map((artist) => ({
-    name: artist.name
+    name: artist.name,
+    image: ''
   }))
 
   if (input.onlyNames ?? true) {

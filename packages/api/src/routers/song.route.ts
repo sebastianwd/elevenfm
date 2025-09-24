@@ -5,7 +5,7 @@ import { invidious } from '../integrations/invidious/invidious'
 import { lastFM } from '../integrations/lastfm/lastfm'
 import { getLyrics as getLyricsIntegration } from '../integrations/lyrics/lyrics'
 import { o } from '../lib/orpc.server'
-import { getCoverImage } from '../utils/get-cover-image'
+import { getLastFMCoverImage } from '../utils/get-cover-image'
 
 // Shared schemas
 const SongVideoResponse = type({
@@ -91,7 +91,7 @@ export const getAlbumBySong = o
       }
     }
 
-    const coverImage = getCoverImage(data.track.album.image)
+    const coverImage = getLastFMCoverImage(data.track.album.image ?? [])
 
     return {
       artist: data.track.artist.name,

@@ -62,28 +62,12 @@ body,
 }
 
 @utility bg-gradient-blend {
-  position: relative;
-}
-
-@utility bg-gradient-blend {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
   background:
     linear-gradient(to bottom, transparent -80%, var(--color-surface-900) 100%),
     linear-gradient(to left, transparent 99%, var(--color-surface-900) 100%);
 }
 
 @utility bg-gradient-blend-surface {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
   background:
     linear-gradient(
       to bottom,

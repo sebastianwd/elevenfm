@@ -393,8 +393,8 @@ export const SongList = (props: SongListProps) => {
 
   return (
     <>
-      <div className='flex flex-wrap justify-center gap-2 p-2'>
-        <div className='flex grow justify-center gap-2'>
+      <div className='flex flex-wrap justify-center gap-2 p-2 pt-4'>
+        <div className='flex grow justify-center gap-2 md:justify-start'>
           <Button
             onClick={async () => {
               if (queueIdentifier === identifier) {

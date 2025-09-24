@@ -2,7 +2,6 @@
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "eslint.workingDirectories": [
     "./apps/web",
-    "./packages/shared",
     "./packages/eslint-config",
     "./packages/typescript-config",
     "./packages/api"

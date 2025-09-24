@@ -326,18 +326,23 @@ export const usePlayerState = create<PlayerState>()(
           removeFromQueue: (song: Song) => {
             const state = get()
 
-            const activeQueue = state.isShuffled
-              ? state.shuffledQueue
-              : state.queue
-
-            const songToRemoveIndex = activeQueue.findIndex(
+            const removeShuffledQueueIndex = state.shuffledQueue.findIndex(
+              (queueSong) =>
+                queueSong.title === song.title &&
+                queueSong.artist === song.artist
+            )
+            const removeQueueIndex = state.queue.findIndex(
               (queueSong) =>
                 queueSong.title === song.title &&
                 queueSong.artist === song.artist
             )
 
             set((state) => {
-              state.queue = activeQueue.toSpliced(songToRemoveIndex, 1)
+              state.queue = state.queue.toSpliced(removeQueueIndex, 1)
+              state.shuffledQueue = state.shuffledQueue.toSpliced(
+                removeShuffledQueueIndex,
+                1
+              )
             })
           },
           queueIdentifier: '',

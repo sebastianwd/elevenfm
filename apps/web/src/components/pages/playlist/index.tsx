@@ -141,7 +141,7 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
         <TheaterMode />
       ) : (
         <>
-          <div className='bg-gradient-blend-surface relative grid bg-top bg-no-repeat lg:grid-cols-3'>
+          <div className='relative grid bg-top bg-no-repeat bg-gradient-blend-surface lg:grid-cols-3'>
             <header className='col-span-2 flex h-48 md:h-72'>
               <div className='z-10 mt-auto mb-16 flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
                 <ArtistHeader
