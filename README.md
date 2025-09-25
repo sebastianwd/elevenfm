@@ -5,29 +5,32 @@ A music streaming webapp that uses YouTube to get the audio and video. The artis
 ## Tech Stack
 
 - [Next.js](https://nextjs.org/)
-- [Apollo Server](https://www.apollographql.com/docs/apollo-server/) with [TypeGraphQL](https://typegraphql.com/)
-- [Tanstack Query](https://tanstack.com/query/) for communication with the GraphQL server
-- [Auth.js](https://authjs.dev/)
+- [ORPC](https://orpc.unnoq.com/)
+- [Tanstack Query](https://tanstack.com/query/)
+- [Better Auth](https://www.better-auth.com/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Drizzle ORM](https://orm.drizzle.team/)
-- [Turso](https://turso.tech/) for SQLite database
-- [DndKit](https://dndkit.com/) for sorting and drag and drop
+- [Turso](https://turso.tech/)
+- [DndKit](https://dndkit.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Zustand](https://zustand-demo.pmnd.rs/)
 
-![Main page screenshot](resources/image.png)
+<img width="2540" height="1276" alt="image" src="https://github.com/user-attachments/assets/26a1b4a9-cf51-458e-b1e6-7c2acfcb6216" />
 
 ## Features
 
-- **Search** for artists.
-- View artist details and discography.
-- **Play** albums and tracks.
-- Autoplay artist's tracks.
-- Add tracks to **queue**.
-- View **lyrics**.
-- Randomize the queue.
-- Manage playlists.
-- **Import** playlists from Spotify, YouTube and SoundCloud. (100 max at a time)
-- Simple account creation with no email required.
-- Fully responsive design.
+- **Search** for artists (Ctrl+K)
+- View artist details and discography
+- **Play** albums and tracks
+- Autoplay artist's tracks
+- Add tracks to **queue**
+- View **lyrics**
+- Randomize the queue
+- Manage playlists with drag and drop reordering
+- **Import** playlists from Spotify, YouTube and SoundCloud
+- **Drag and drop** Spotify songs directly into playlists
+- Simple account creation with username-based auth
+- Fully responsive design
 
   | Add songs to your playlists by dragging and dropping: | Reorder tracks in your playlists:          |
   | ----------------------------------------------------- | ------------------------------------------ |
@@ -48,23 +51,17 @@ Finally `pnpm run dev` to start the development server.
 - `TURSO_CONNECTION_URL` and `TURSO_AUTH_TOKEN` - [Turso](https://docs.turso.tech/sdk/ts/quickstart) variables
 - `UPSTASH_REDIS_URL` and `UPSTASH_REDIS_TOKEN` - [Upstash](https://upstash.com/) Redis variables for sessions
 
-### NextAuth variables
+### Better Auth variables
 
-- `NEXTAUTH_URL` - hostname + `/api/auth`
-- `AUTH_SECRET`
-- `AUTH_GITHUB_ID`
-- `AUTH_GITHUB_SECRET`
+- `BETTER_AUTH_SECRET` - Secret key for Better Auth
+- `BETTER_AUTH_URL` - Base URL for authentication
 
 ## Other commands
 
-- `pnpm run gen` - Generate GraphQL types
 - `pnpm run build` - Build the app for production
-- `pnpm run update` - Run npm-check-updates and update dependencies
-
-## Recommended VS Code extensions
-
-- [Apollo GraphQL](https://marketplace.visualstudio.com/items?itemName=apollographql.vscode-apollo) for GraphQL autocomplete
-  and typecheck
+- `pnpm run db:push` - Push database schema changes
+- `pnpm run db:studio` - Open Drizzle Studio for database management
+- `pnpm run db:generate` - Generate database migrations
 
 ## Motivation
 

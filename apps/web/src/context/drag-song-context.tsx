@@ -118,7 +118,9 @@ export const DragSongContext = memo(
             )
 
             await queryClient.invalidateQueries({
-              queryKey: ['userPlaylist', droppableEntity.id],
+              queryKey: orpc.playlist.get.queryKey({
+                input: { playlistId: droppableEntity.id },
+              }),
               type: 'all',
             })
           } catch (error) {
@@ -175,7 +177,9 @@ export const DragSongContext = memo(
           })
 
           await queryClient.invalidateQueries({
-            queryKey: ['userPlaylist', params.playlistId],
+            queryKey: orpc.playlist.get.queryKey({
+              input: { playlistId: params.playlistId },
+            }),
           })
         }
 

@@ -34,14 +34,11 @@ export const EditPlaylistDetailsModal = (
         }),
         (data) => {
           if (!data) return undefined
-          return {
-            ...data,
-            userPlaylists: data.map((playlist) =>
-              playlist.id === playlistId
-                ? { ...playlist, name: newName }
-                : playlist
-            ),
-          }
+          return data.map((playlist) =>
+            playlist.id === playlistId
+              ? { ...playlist, name: newName }
+              : playlist
+          ) satisfies typeof data
         }
       )
       queryClient.setQueryData(
@@ -52,8 +49,8 @@ export const EditPlaylistDetailsModal = (
           if (!data) return undefined
           return {
             ...data,
-            playlist: { ...data, name: newName },
-          }
+            name: newName,
+          } as const satisfies typeof data
         }
       )
 

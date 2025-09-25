@@ -239,7 +239,7 @@ export const Song = (props: SongProps) => {
   return (
     <div
       className={twMerge(
-        'flex h-[3.25rem] cursor-default items-center justify-between rounded pl-4 transition-colors hover:bg-surface-700',
+        'flex h-[3.25rem] cursor-default items-center justify-between rounded pl-4 transition-colors duration-100 hover:bg-surface-700',
         isSortHighlight && 'border border-solid border-primary-500 opacity-80',
         isSelected && 'bg-surface-600 hover:bg-surface-600'
       )}
