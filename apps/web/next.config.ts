@@ -38,7 +38,6 @@ const nextConfig = {
       }),
     ],
   },
-  transpilePackages: ['next-seo'],
   reactStrictMode: true,
   typescript: {
     ignoreBuildErrors: true,

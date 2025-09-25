@@ -4,6 +4,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { maxBy, orderBy } from 'es-toolkit'
 import { motion } from 'framer-motion'
 import Fuse from 'fuse.js'
+import { ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
@@ -255,9 +256,12 @@ export const ArtistAlbums = (props: ArtistAlbumsProps) => {
         <div className='mb-4 flex items-center justify-between'>
           <h3 className='text-xl font-semibold'>Albums</h3>
           <Select value={selectedLimit} onValueChange={setSelectedLimit}>
-            <SelectTrigger className='w-fit'>
-              Limit:
-              <Button variant='secondary'>{selectedLimit}</Button>
+            <SelectTrigger className='w-fit' asChild>
+              <Button variant='ghost' className='gap-1'>
+                <span className='mr-2'>Limit:</span>
+                <span>{selectedLimit}</span>
+                <ChevronDown className='size-4 opacity-50 transition-all group-data-[state=open]:rotate-180' />
+              </Button>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='20'>20</SelectItem>

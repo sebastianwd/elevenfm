@@ -9,7 +9,6 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { ArtistHeader } from '~/components/artist-header'
-import { Seo } from '~/components/seo'
 import { TheaterMode } from '~/components/theater-mode'
 import { useLayoutState } from '~/store/use-layout-state'
 
@@ -52,12 +51,6 @@ export const ArtistPage = (props: ArtistPageProps) => {
 
   return (
     <div className='relative'>
-      <Seo
-        title={data?.name}
-        description={`Listen to ${data?.name} on ElevenFM`}
-        image={data?.image || undefined}
-        path={`/artist/${data?.name}`}
-      />
       {theaterMode ? null : (
         <div
           className={twMerge(`absolute top-0 left-0 flex h-80 w-full flex-col`)}

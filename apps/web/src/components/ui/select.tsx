@@ -16,21 +16,36 @@ const SelectValue = SelectPrimitive.Value
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      'flex h-10 w-full items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300 [&>span]:line-clamp-1',
-      className
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className='size-4 opacity-50' />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-))
+>(({ className, children, asChild, ...props }, ref) => {
+  const renderContent = () => {
+    if (asChild) {
+      return children
+    }
+
+    return (
+      <>
+        {children}
+        <SelectPrimitive.Icon asChild>
+          <ChevronDown className='size-4 opacity-50' />
+        </SelectPrimitive.Icon>
+      </>
+    )
+  }
+
+  return (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        'group flex h-10 w-full items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300 [&>span]:line-clamp-1',
+        className
+      )}
+      {...props}
+    >
+      {renderContent()}
+    </SelectPrimitive.Trigger>
+  )
+})
+
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
 const SelectScrollUpButton = React.forwardRef<

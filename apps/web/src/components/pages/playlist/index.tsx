@@ -11,7 +11,6 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { ArtistHeader } from '~/components/artist-header'
 import { ImportPlaylistModal } from '~/components/modals/import-playlist-modal'
-import { Seo } from '~/components/seo'
 import { SongList } from '~/components/song-list'
 import { TheaterMode } from '~/components/theater-mode'
 import { Toast } from '~/components/toast'
@@ -135,7 +134,6 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
 
   return (
     <div className='relative'>
-      <Seo />
       {theaterMode ? null : (
         <div
           className={twMerge(`absolute top-0 left-0 flex h-80 w-full flex-col`)}

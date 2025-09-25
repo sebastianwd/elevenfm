@@ -1,7 +1,6 @@
 'use client'
 
 import { SearchTrigger } from '~/components/search-trigger'
-import { Seo } from '~/components/seo'
 import { TheaterMode } from '~/components/theater-mode'
 import { VideoPlayerPortalContainer } from '~/components/video-player'
 import { useGlobalSearchStore } from '~/store/use-global-search'
@@ -48,10 +47,5 @@ export const HomePage = () => {
     )
   }
 
-  return (
-    <>
-      <Seo description='Enjoy unlimited free music, find similar artists, full albums, lyrics and much more!' />
-      {renderContent()}
-    </>
-  )
+  return <>{renderContent()}</>
 }
