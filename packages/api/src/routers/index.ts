@@ -3,12 +3,16 @@ import type { RouterClient } from '@orpc/server'
 import { albumDetails } from './album.route'
 import { getAlbums, getArtist, searchArtist, similarArtists, topSongsByArtist } from './artist.route'
 import {
+  addSongMetadata,
   addToPlaylist,
   createPlaylist,
   createSongRadio,
   deletePlaylist,
+  generatePlaybackUrl,
+  generateUploadUrl,
   getPlaylist,
   importPlaylist,
+  processAudioUpload,
   removeFromPlaylist,
   updatePlaylist,
   updatePlaylistSongRank,
@@ -42,7 +46,11 @@ export const router = {
     update: updatePlaylist,
     addSong: addToPlaylist,
     createRadio: createSongRadio,
-    updateSongRank: updatePlaylistSongRank
+    updateSongRank: updatePlaylistSongRank,
+    generateUploadUrl: generateUploadUrl,
+    processAudioUpload: processAudioUpload,
+    generatePlaybackUrl: generatePlaybackUrl,
+    addSongMetadata: addSongMetadata
   },
   song: {
     videoInfo: getVideoInfo,

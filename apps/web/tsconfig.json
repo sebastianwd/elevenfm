@@ -36,7 +36,8 @@
     "*.mjs",
     "*.ts",
     "src",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../../packages/ui/src/components/index.tsx"
   ],
   "extends": "@repo/typescript-config/tsconfig.react.json"
 }

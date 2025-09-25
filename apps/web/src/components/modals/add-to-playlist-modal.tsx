@@ -1,13 +1,12 @@
 import { useSession } from '@repo/api/auth/auth.client'
 import { orpc, queryClient } from '@repo/api/lib/orpc.client'
+import { Button } from '@repo/ui/components/button'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import SimpleBar from 'simplebar-react'
 import { twMerge } from 'tailwind-merge'
 
 import type { PlayableSong } from '~/types'
-
-import { Button } from '../button'
 
 interface AddToPlaylistModalProps {
   song: PlayableSong

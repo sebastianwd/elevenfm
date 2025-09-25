@@ -7,11 +7,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Toast } from '~/components/toast'
+import { useModalStore } from '~/store/use-modal'
 
 export const useSpotifyDragDrop = () => {
   const pathname = usePathname()
   const isPlaylistPage = pathname.startsWith('/playlist/')
   const playlistId = isPlaylistPage ? pathname.split('/')[2] : null
+  const isModalOpen = useModalStore((state) => state.isOpen)
 
   const [isDragging, setIsDragging] = useState(false)
 
@@ -24,8 +26,9 @@ export const useSpotifyDragDrop = () => {
   }, [])
 
   const handleDragEnter = useCallback(() => {
+    if (isModalOpen) return
     setIsDragging(true)
-  }, [])
+  }, [isModalOpen])
 
   const handleDragLeave = useCallback((e: DragEvent) => {
     if (!e.relatedTarget) {
@@ -37,6 +40,9 @@ export const useSpotifyDragDrop = () => {
     async (e: DragEvent) => {
       e.preventDefault()
       setIsDragging(false)
+
+      // Don't process drops if modal is open
+      if (isModalOpen) return
 
       if (!isPlaylistPage || !playlistId) return
 
@@ -66,7 +72,7 @@ export const useSpotifyDragDrop = () => {
         )
       }
     },
-    [isPlaylistPage, playlistId, importPlaylist]
+    [isPlaylistPage, playlistId, importPlaylist, isModalOpen]
   )
 
   const handleDragEnd = useCallback(() => {
@@ -74,18 +80,24 @@ export const useSpotifyDragDrop = () => {
   }, [])
 
   useEffect(() => {
-    window.addEventListener('dragover', handleDragOver)
-    window.addEventListener('dragenter', handleDragEnter)
-    window.addEventListener('dragleave', handleDragLeave)
-    window.addEventListener('drop', handleDrop)
-    window.addEventListener('dragend', handleDragEnd)
+    const controller = new AbortController()
+
+    window.addEventListener('dragover', handleDragOver, {
+      signal: controller.signal,
+    })
+    window.addEventListener('dragenter', handleDragEnter, {
+      signal: controller.signal,
+    })
+    window.addEventListener('dragleave', handleDragLeave, {
+      signal: controller.signal,
+    })
+    window.addEventListener('drop', handleDrop, { signal: controller.signal })
+    window.addEventListener('dragend', handleDragEnd, {
+      signal: controller.signal,
+    })
 
     return () => {
-      window.removeEventListener('dragover', handleDragOver)
-      window.removeEventListener('dragenter', handleDragEnter)
-      window.removeEventListener('dragleave', handleDragLeave)
-      window.removeEventListener('drop', handleDrop)
-      window.removeEventListener('dragend', handleDragEnd)
+      controller.abort()
     }
   }, [
     handleDragOver,
@@ -96,7 +108,7 @@ export const useSpotifyDragDrop = () => {
   ])
 
   return {
-    isDragging: isDragging && isPlaylistPage,
+    isDragging: isDragging && isPlaylistPage && !isModalOpen,
     isImporting,
   }
 }

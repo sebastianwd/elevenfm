@@ -102,3 +102,4 @@ catalog:
   radix-ui: ^1.4.3
   react-use-measure: ^2.1.7
   motion: ^12.23.21
+  react-dropzone: ^14.3.8

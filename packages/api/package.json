@@ -17,6 +17,8 @@
     "./*": "./src/*.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.896.0",
+    "@aws-sdk/s3-request-presigner": "^3.896.0",
     "@libsql/client": "catalog:",
     "@orpc/client": "^1.8.9",
     "@orpc/server": "catalog:",
@@ -40,13 +42,14 @@
     "genius-lyrics-api": "catalog:",
     "get-artist-title": "catalog:",
     "lexorank": "catalog:",
+    "lru-cache": "catalog:",
+    "music-metadata": "^11.9.0",
     "next": "catalog:",
     "pino": "catalog:",
     "sonner": "catalog:",
     "soundcloud.ts": "catalog:",
     "spotify-url-info": "catalog:",
-    "youtubei": "catalog:",
-    "lru-cache": "catalog:"
+    "youtubei": "catalog:"
   },
   "devDependencies": {
     "@types/common-tags": "catalog:",

@@ -1,6 +1,7 @@
 'use client'
 import { usePlayerState } from '~/store/use-player'
 
+import { ArtworkOverlay } from '../artwork-overlay'
 import { Lyrics } from '../player'
 import { VideoPlayer } from '../video-player'
 
@@ -13,7 +14,8 @@ export const TheaterMode = () => {
 
   return (
     <div className='grid grid-cols-1 lg:grow lg:grid-cols-3'>
-      <div className='lg:col-span-2'>
+      <div className='relative lg:col-span-2'>
+        <ArtworkOverlay currentSong={currentSong} />
         <VideoPlayer />
       </div>
       <div className='relative lg:col-span-1'>

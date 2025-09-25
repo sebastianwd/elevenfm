@@ -4,6 +4,7 @@ import { QueueListIcon } from '@heroicons/react/24/outline'
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid'
 import { Icon } from '@iconify/react'
 import { orpc } from '@repo/api/lib/orpc.client'
+import { Button } from '@repo/ui/components/button'
 import {
   HoverCard,
   HoverCardContent,
@@ -31,7 +32,6 @@ import {
 import type { PlayableSong } from '~/types'
 import { sanitizeSongTitle, splitArtist } from '~/utils/song-title-utils'
 
-import { Button } from '../button'
 import {
   Loader,
   LyricsIcon,

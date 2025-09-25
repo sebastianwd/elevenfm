@@ -8,6 +8,7 @@ import { chunk, keyBy } from 'es-toolkit'
 import { isEmpty, map } from 'es-toolkit/compat'
 import getArtistTitle from 'get-artist-title'
 import { LexoRank } from 'lexorank'
+import { parseBuffer } from 'music-metadata'
 import spotifyFetch from 'spotify-url-info'
 
 import { db } from '../db/client'
@@ -17,6 +18,7 @@ import { invidious } from '../integrations/invidious/invidious'
 import { soundcloud } from '../integrations/soundcloud/soundcloud'
 import { protectedProcedure } from '../lib/orpc.server'
 import { logger } from '../utils/logger'
+import { generateFileKey, generatePresignedDownloadUrl, generatePresignedUploadUrl } from '../utils/r2'
 
 const spotifyRequest = spotifyFetch(fetch)
 
@@ -102,6 +104,24 @@ const UpdatePlaylistSongRankInput = type({
   rank: 'string'
 })
 
+const GenerateUploadUrlInput = type({
+  playlistId: 'string',
+  fileName: 'string',
+  fileSize: 'number',
+  contentType: 'string'
+})
+
+const ProcessAudioUploadInput = type({
+  playlistId: 'string',
+  fileName: 'string',
+  fileSize: 'number',
+  contentType: 'string',
+  fileKey: 'string',
+  customTitle: 'string?',
+  customArtist: 'string?',
+  customAlbum: 'string?'
+})
+
 // Response schemas
 const ImportPlaylistResponse = PlaylistResponse.omit('songs')
 const UserPlaylistsResponse = type(PlaylistResponse.and(type({ createdAt: 'Date' })), '[]')
@@ -113,6 +133,35 @@ const UpdatePlaylistResponse = PlaylistResponse.omit('songs')
 const AddToPlaylistResponse = type('boolean')
 const CreateSongRadioResponse = PlaylistResponse.omit('songs')
 const UpdatePlaylistSongRankResponse = type('boolean')
+const GenerateUploadUrlResponse = type({
+  uploadUrl: 'string',
+  fileKey: 'string'
+})
+
+const ProcessAudioUploadResponse = type({
+  success: 'boolean',
+  song: SongResponse
+})
+
+const GeneratePlaybackUrlInput = type({
+  fileKey: 'string'
+})
+
+const GeneratePlaybackUrlResponse = type({
+  playbackUrl: 'string'
+})
+
+const AddSongMetadataInput = type({
+  playlistId: 'string',
+  title: 'string',
+  artist: 'string',
+  album: 'string?'
+})
+
+const AddSongMetadataResponse = type({
+  success: 'boolean',
+  song: SongResponse
+})
 
 // Helper functions
 const getUrlSourceName = (url: string) => {
@@ -197,6 +246,89 @@ const getLastRankInPlaylist = async (playlistId: string) => {
     .limit(1)
 
   return lastRank
+}
+
+const verifyPlaylistOwnership = async (playlistId: string, userId: string) => {
+  const { userId: playlistUserId } = getTableColumns(Playlists)
+
+  const [playlist] = await db
+    .select({
+      userId: playlistUserId
+    })
+    .from(Playlists)
+    .where(and(eq(Playlists.id, playlistId), eq(Playlists.userId, userId)))
+
+  if (!playlist) {
+    throw new ORPCError('NOT_FOUND', { message: 'Playlist not found' })
+  }
+
+  return playlist
+}
+
+const validateAudioFile = (fileName: string, fileSize: number, contentType: string): string | null => {
+  const maxSize = 20 * 1024 * 1024 // 20MB
+
+  if (fileSize > maxSize) {
+    return 'File size exceeds 20MB limit'
+  }
+
+  if (
+    !contentType.startsWith('audio/') &&
+    !fileName.toLowerCase().endsWith('.mp3') &&
+    !fileName.toLowerCase().endsWith('.m4a')
+  ) {
+    return 'Invalid file type. Only MP3 and M4A files are allowed'
+  }
+
+  return null
+}
+
+const createSongInPlaylist = async (
+  playlistId: string,
+  songData: {
+    title: string
+    artist: string
+    album?: string
+    songUrl?: string
+  }
+) => {
+  const [createdSong] = await db
+    .insert(Songs)
+    .values({
+      title: songData.title,
+      artist: songData.artist,
+      album: songData.album || ''
+    })
+    .onConflictDoUpdate({
+      target: [Songs.title, Songs.artist, Songs.album],
+      set: { updatedAt: new Date() }
+    })
+    .returning({
+      insertedId: Songs.id,
+      insertedTitle: Songs.title,
+      insertedArtist: Songs.artist,
+      insertedCreatedAt: Songs.createdAt
+    })
+
+  const lastRank = await getLastRankInPlaylist(playlistId)
+  const currentRank = lastRank?.rank ? LexoRank.parse(lastRank.rank).genNext() : LexoRank.middle()
+
+  await db
+    .insert(PlaylistsToSongs)
+    .values({
+      playlistId,
+      songId: createdSong!.insertedId,
+      songUrl: songData.songUrl || '',
+      rank: currentRank.toString()
+    })
+    .onConflictDoNothing()
+
+  return {
+    id: createdSong!.insertedId,
+    title: createdSong!.insertedTitle,
+    artist: createdSong!.insertedArtist,
+    createdAt: createdSong!.insertedCreatedAt
+  }
 }
 
 // ========== ORPC Endpoints ======================================================
@@ -476,10 +608,10 @@ export const addToPlaylist = protectedProcedure
         userId
       })
       .from(Playlists)
-      .where(eq(Playlists.id, input.playlistId))
+      .where(and(eq(Playlists.id, input.playlistId), eq(Playlists.userId, context.session.user.id)))
 
-    if (!playlist || playlist.userId !== context.session.user.id) {
-      throw new ORPCError('UNAUTHORIZED', { message: 'Unauthorized' })
+    if (!playlist) {
+      throw new ORPCError('NOT_FOUND', { message: 'Playlist not found' })
     }
 
     const hasExistingSongs = !isEmpty(input.songIds)
@@ -718,4 +850,123 @@ export const updatePlaylistSongRank = protectedProcedure
       .where(and(eq(PlaylistsToSongs.playlistId, input.playlistId), eq(PlaylistsToSongs.songId, input.songId)))
 
     return true
+  })
+
+export const generateUploadUrl = protectedProcedure
+  .input(GenerateUploadUrlInput)
+  .output(GenerateUploadUrlResponse)
+  .handler(async ({ input, context }) => {
+    await verifyPlaylistOwnership(input.playlistId, context.session.user.id)
+
+    const validationError = validateAudioFile(input.fileName, input.fileSize, input.contentType)
+    if (validationError) {
+      throw new ORPCError('BAD_REQUEST', { message: validationError })
+    }
+
+    try {
+      const fileKey = generateFileKey(context.session.user.id, input.fileName)
+      const uploadUrl = await generatePresignedUploadUrl(fileKey, input.contentType)
+
+      return {
+        uploadUrl,
+        fileKey
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(`[generateUploadUrl] Error generating upload URL: ${error.message}`)
+      }
+      throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Failed to generate upload URL' })
+    }
+  })
+
+export const processAudioUpload = protectedProcedure
+  .input(ProcessAudioUploadInput)
+  .output(ProcessAudioUploadResponse)
+  .handler(async ({ input, context }) => {
+    await verifyPlaylistOwnership(input.playlistId, context.session.user.id)
+
+    const validationError = validateAudioFile(input.fileName, input.fileSize, input.contentType)
+    if (validationError) {
+      throw new ORPCError('BAD_REQUEST', { message: validationError })
+    }
+
+    try {
+      const downloadUrl = await generatePresignedDownloadUrl(input.fileKey)
+      const response = await fetch(downloadUrl)
+
+      if (!response.ok) {
+        throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Failed to download file for metadata processing' })
+      }
+
+      const arrayBuffer = await response.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+
+      const metadata = await parseBuffer(buffer)
+      const { title, artist, album } = metadata.common
+
+      // Use custom metadata if provided, otherwise extract from file
+      const songTitle = input.customTitle || title || input.fileName.replace(/\.(mp3|m4a)$/i, '')
+      const songArtist = input.customArtist || artist || 'Unknown Artist'
+      const songAlbum = input.customAlbum || album || ''
+
+      const song = await createSongInPlaylist(input.playlistId, {
+        title: songTitle,
+        artist: songArtist,
+        album: songAlbum,
+        songUrl: input.fileKey
+      })
+
+      return {
+        success: true,
+        song
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(`[processAudioUpload] Error processing audio metadata: ${error.message}`)
+      }
+      throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Failed to process audio metadata' })
+    }
+  })
+
+export const generatePlaybackUrl = protectedProcedure
+  .input(GeneratePlaybackUrlInput)
+  .output(GeneratePlaybackUrlResponse)
+  .handler(async ({ input }) => {
+    try {
+      const playbackUrl = await generatePresignedDownloadUrl(input.fileKey)
+
+      return {
+        playbackUrl
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(`[generatePlaybackUrl] Error generating playback URL: ${error.message}`)
+      }
+      throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Failed to generate playback URL' })
+    }
+  })
+
+export const addSongMetadata = protectedProcedure
+  .input(AddSongMetadataInput)
+  .output(AddSongMetadataResponse)
+  .handler(async ({ input, context }) => {
+    await verifyPlaylistOwnership(input.playlistId, context.session.user.id)
+
+    try {
+      const song = await createSongInPlaylist(input.playlistId, {
+        title: input.title,
+        artist: input.artist,
+        album: input.album
+      })
+
+      return {
+        success: true,
+        song
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(`[addSongMetadata] Error adding song metadata: ${error.message}`)
+      }
+      throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Failed to add song metadata' })
+    }
   })

@@ -1,13 +1,14 @@
 'use client'
 
 import { QueueListIcon } from '@heroicons/react/24/outline'
+import { Button } from '@repo/ui/components/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { Fragment } from 'react'
 import SimpleBar from 'simplebar-react'
 import { useShallow } from 'zustand/react/shallow'
 
-import { Button } from '~/components/button'
+import { ArtworkOverlay } from '~/components/artwork-overlay'
 import { Song } from '~/components/song'
 import { VideoPlayer } from '~/components/video-player'
 import { usePlaySong } from '~/hooks/use-play-song'
@@ -148,6 +149,7 @@ export const RightSidebar = () => {
                   animate={{ opacity: 1, height: 'auto' }}
                 >
                   <div className='relative aspect-video h-fit w-full overflow-hidden rounded-lg bg-surface-800 p-2'>
+                    <ArtworkOverlay currentSong={currentSong} />
                     <VideoPlayer />
                   </div>
                 </motion.div>

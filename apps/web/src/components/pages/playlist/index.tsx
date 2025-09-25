@@ -11,6 +11,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { ArtistHeader } from '~/components/artist-header'
 import { ImportPlaylistModal } from '~/components/modals/import-playlist-modal'
+import { UploadMp3Modal } from '~/components/modals/upload-mp3-modal'
 import { SongList } from '~/components/song-list'
 import { TheaterMode } from '~/components/theater-mode'
 import { Toast } from '~/components/toast'
@@ -28,7 +29,13 @@ interface PlaylistPageProps {
 export function PlaylistPage({ playlistId }: PlaylistPageProps) {
   const session = useSession()
 
-  const playlist = useQuery(
+  const {
+    data: playlist,
+    refetch: refetchPlaylist,
+    isPending: isPlaylistPending,
+    isError: isPlaylistError,
+    error: playlistError,
+  } = useQuery(
     orpc.playlist.get.queryOptions({
       input: { playlistId },
       staleTime: Infinity,
@@ -56,13 +63,11 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
 
   useEffect(() => {
     if (sortingSettings?.sortBy === 'custom' || !sortingSettings?.sortBy) {
-      setCurrentPlaylist(
-        playlist.data?.songs?.toSorted(sortByLexoRankAsc) ?? []
-      )
+      setCurrentPlaylist(playlist?.songs?.toSorted(sortByLexoRankAsc) ?? [])
     } else {
       setCurrentPlaylist(
         orderBy(
-          playlist.data?.songs ?? [],
+          playlist?.songs ?? [],
           [
             // @ts-expect-error TODO: fix this
             sortingSettings.sortBy === 'dateAdded'
@@ -74,7 +79,7 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
       )
     }
   }, [
-    playlist.data?.songs,
+    playlist?.songs,
     setCurrentPlaylist,
     sortingSettings?.direction,
     sortingSettings?.sortBy,
@@ -83,7 +88,7 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
   const openModal = useModalStore((state) => state.openModal)
   const closeModal = useModalStore((state) => state.closeModal)
 
-  const isRadio = playlist.data?.type === playlistType.RADIO
+  const isRadio = playlist?.type === playlistType.RADIO
 
   const onImportFromUrl = useCallback(() => {
     openModal({
@@ -98,15 +103,30 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
           }}
         />
       ),
-      title: `Import playlist to ${playlist.data?.name}`,
+      title: `Import playlist to ${playlist?.name}`,
     })
-  }, [openModal, closeModal, playlistId, playlist.data?.name])
+  }, [openModal, closeModal, playlistId, playlist?.name])
+
+  const onUploadMp3 = useCallback(() => {
+    openModal({
+      content: (
+        <UploadMp3Modal
+          playlistId={playlistId}
+          onUploadEnd={() => {
+            closeModal()
+            void refetchPlaylist()
+          }}
+        />
+      ),
+      title: `Add Song to ${playlist?.name}`,
+    })
+  }, [openModal, playlistId, refetchPlaylist, closeModal, playlist?.name])
 
   const renderSongList = () => {
-    if (playlist.isError) {
+    if (isPlaylistError) {
       return (
         <div className='mt-[10%] flex justify-center'>
-          <p>{playlist.error.message || 'Something went wrong'} </p>
+          <p>{playlistError.message || 'Something went wrong'} </p>
         </div>
       )
     }
@@ -114,21 +134,22 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
     return (
       <SongList
         isEditable={
-          playlist.data?.type === playlistType.PLAYLIST &&
-          !!playlist.data.user.id &&
-          playlist.data.user.id === session.data?.user.id
+          playlist?.type === playlistType.PLAYLIST &&
+          !!playlist.user.id &&
+          playlist.user.id === session.data?.user.id
         }
         onImportFromUrl={onImportFromUrl}
+        onUploadMp3={onUploadMp3}
         identifier={playlistId}
         songs={currentPlaylist}
         showArtist
-        isLoading={playlist.isPending}
+        isLoading={isPlaylistPending}
         emptyMessage='This playlist is empty'
       />
     )
   }
 
-  const playlistUser = playlist.data?.user.name
+  const playlistUser = playlist?.user.name
 
   const { theaterMode } = useLayoutState()
 
@@ -156,15 +177,15 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
                 <div className='z-10 mt-auto mb-16 flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
                   <ArtistHeader
                     subtitle={
-                      playlist.isPending
+                      isPlaylistPending
                         ? ''
                         : `${
                             isRadio
                               ? `Made for 👤${playlistUser}`
                               : playlistUser
-                          } - ${playlist.data?.songs?.length} songs`
+                          } - ${playlist?.songs?.length} songs`
                     }
-                    title={playlist.data?.name ?? ''}
+                    title={playlist?.name ?? ''}
                     externalUrls={{}}
                   />
                 </div>

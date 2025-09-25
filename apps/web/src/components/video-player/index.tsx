@@ -1,19 +1,23 @@
 'use client'
 
 import { invidiousUrls } from '@repo/api/integrations/invidious/invidious'
+import { orpc } from '@repo/api/lib/orpc.client'
 import { ytGetId } from '@repo/utils/get-yt-url-id'
+import { useMutation } from '@tanstack/react-query'
 import { sample } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import dynamic from 'next/dynamic'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type ReactPlayer from 'react-player'
 
+import { useSongChangeDetection } from '~/hooks/use-song-change-detection'
 import { useLayoutState, type VideoPosition } from '~/store/use-layout-state'
 import {
   usePlayerInstance,
   usePlayerProgressState,
   usePlayerState,
 } from '~/store/use-player'
+import { isR2Url } from '~/utils/r2-utils'
 
 interface VideoPlayerPortalContainerProps {
   position: VideoPosition
@@ -63,6 +67,13 @@ const VideoPlayer = memo(() => {
 
   const videoPosition = useLayoutState((state) => state.videoPosition)
 
+  const { mutateAsync: generatePlaybackUrl } = useMutation(
+    orpc.playlist.generatePlaybackUrl.mutationOptions()
+  )
+
+  const [videoChoice, setVideoChoice] = useState(0)
+  const regeneratedR2UrlRef = useRef<string | null>(null)
+
   const onPlayerPlay = useCallback(() => {
     if (!currentSong) {
       return
@@ -98,7 +109,11 @@ const VideoPlayer = memo(() => {
     [playedProgress]
   )
 
-  const [videoChoice, setVideoChoice] = useState(0)
+  const regenerateR2Url = useCallback(async () => {
+    const fileKey = currentSong?.urls?.[videoChoice]?.split('/').pop() || ''
+    const response = await generatePlaybackUrl({ fileKey })
+    regeneratedR2UrlRef.current = response.playbackUrl
+  }, [currentSong?.urls, videoChoice, generatePlaybackUrl])
 
   const url = useMemo(() => {
     if (isEmpty(currentSong?.urls)) return undefined
@@ -116,6 +131,13 @@ const VideoPlayer = memo(() => {
     const isVideoUrlBlocked = !videoUrl
 
     if (isVideoUrlBlocked) {
+      if (
+        regeneratedR2UrlRef.current &&
+        isR2Url(currentSong?.urls?.[0] ?? '')
+      ) {
+        return regeneratedR2UrlRef.current
+      }
+
       return `${sample(invidiousUrls)}/latest_version?id=${ytGetId(currentSong?.urls?.[0] ?? '')?.id}&itag=18`
     }
 
@@ -125,6 +147,20 @@ const VideoPlayer = memo(() => {
   useEffect(() => {
     setVideoChoice(0)
   }, [currentSong?.title, currentSong?.artist])
+
+  useSongChangeDetection({
+    currentSong,
+    currentProgress: playedProgress,
+    onSongChange: () => {
+      setPlayerProgress({
+        playedSeconds: 0,
+        played: 0,
+      })
+      regeneratedR2UrlRef.current = null
+    },
+  })
+
+  console.log('isPlaying', isPlaying)
 
   return (
     <DynamicReactPlayer
@@ -142,8 +178,19 @@ const VideoPlayer = memo(() => {
       progressInterval={500}
       onProgress={onPlayerProgress}
       position={videoPosition}
-      onError={(error) => {
+      onError={async (error) => {
         console.log(error)
+        // Check if it's an expired R2 URL
+        if (
+          currentSong?.urls?.[videoChoice] &&
+          isR2Url(currentSong.urls[videoChoice]) &&
+          !regeneratedR2UrlRef.current
+        ) {
+          await regenerateR2Url()
+          return
+        }
+
+        // Fallback to next video choice
         if (error) {
           setVideoChoice((prev) => prev + 1)
         }
@@ -158,13 +205,10 @@ const VideoPlayer = memo(() => {
         // @ts-expect-error - hide from redux devtools for performance
         node.toJSON = () => ({ hidden: 'to help redux devtools :)' })
 
-        const previousPosition = instance.current?.props.position
-
         instance.current = node
 
-        if (previousPosition !== node.props.position) {
-          updatePlayerProgress(instance.current)
-        }
+        // Always restore progress when player is ready (handles theater mode switching)
+        updatePlayerProgress(instance.current)
       }}
     />
   )

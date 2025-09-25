@@ -58,7 +58,7 @@ export const useLayoutState = create<LayoutState>()(
             set((state) => {
               state.playlistMenuOpen = playlistMenuOpen
             }),
-          rightSidebarOpen: false,
+          rightSidebarOpen: true,
           toggleRightSidebarOpen: () =>
             set((state) => {
               state.rightSidebarOpen = !state.rightSidebarOpen

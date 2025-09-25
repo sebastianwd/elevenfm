@@ -8,11 +8,10 @@ import {
   TransitionChild,
 } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/solid'
+import { Button } from '@repo/ui/components/button'
 import { Fragment } from 'react'
 
 import { useModalStore } from '~/store/use-modal'
-
-import { Button } from '../button'
 
 export function Modal() {
   const isOpen = useModalStore((state) => state.isOpen)

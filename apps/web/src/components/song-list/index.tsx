@@ -1,6 +1,10 @@
 import { DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { LinkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import {
+  CloudArrowUpIcon,
+  LinkIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline'
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -8,6 +12,7 @@ import {
   PauseIcon,
   PlayIcon,
 } from '@heroicons/react/24/solid'
+import { Button } from '@repo/ui/components/button'
 import { sample } from 'es-toolkit'
 import { find, isEmpty, size } from 'es-toolkit/compat'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -28,7 +33,6 @@ import {
 import { usePlayerState } from '~/store/use-player'
 import type { PlayableSong } from '~/types'
 
-import { Button } from '../button'
 import { RandomIcon } from '../icons'
 import { Input } from '../input'
 import { Skeleton } from '../skeleton/skeleton'
@@ -92,6 +96,7 @@ interface SongListProps {
   isEditable?: boolean
   isLoading?: boolean
   onImportFromUrl?: () => void
+  onUploadMp3?: () => void
   emptyMessage?: string
 }
 
@@ -163,6 +168,7 @@ export const SongList = (props: SongListProps) => {
     identifier,
     isEditable = false,
     onImportFromUrl,
+    onUploadMp3,
     isLoading,
     emptyMessage,
   } = props
@@ -439,6 +445,16 @@ export const SongList = (props: SongListProps) => {
               className='p-2'
             >
               <LinkIcon className='size-5' />
+            </Button>
+          )}
+          {onUploadMp3 && isEditable && (
+            <Button
+              onClick={onUploadMp3}
+              title='Upload Audio'
+              variant='secondary'
+              className='p-2'
+            >
+              <CloudArrowUpIcon className='size-5' />
             </Button>
           )}
           {identifier && (
