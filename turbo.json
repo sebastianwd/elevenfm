@@ -1,6 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "globalEnv": ["NODE_ENV", "TURSO_CONNECTION_URL", "TURSO_AUTH_TOKEN"],
+  "globalEnv": ["NODE_ENV", "TURSO_CONNECTION_URL", "TURSO_AUTH_TOKEN", "PROXY"],
   "tasks": {
     "build": {
       "env": [
