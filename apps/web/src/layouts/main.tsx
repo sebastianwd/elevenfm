@@ -21,10 +21,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           </main>
           <RightSidebar />
         </DragSongContext>
+        <FooterPlayer />
       </div>
       <Attribution />
       <div className='h-28' />
-      <FooterPlayer />
       <Toaster />
       <Modal />
     </>

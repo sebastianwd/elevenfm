@@ -172,7 +172,7 @@ export const ArtistPage = (props: ArtistPageProps) => {
                       <ArtistAlbums
                         selectedAlbum={selectedAlbum}
                         onAlbumSelect={onAlbumSelect}
-                        artist={artist}
+                        artist={data?.name || artist}
                       />
                     </TabPanel>
                     <TabPanel>

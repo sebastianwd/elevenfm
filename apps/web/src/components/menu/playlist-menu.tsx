@@ -12,6 +12,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { head } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
+import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
@@ -20,9 +21,9 @@ import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 import { Dropdown } from '~/components/dropdown'
+import { Loader } from '~/components/icons'
 import { useModalStore } from '~/store/use-modal'
 
-import { WavesLoader } from '../loader'
 import { EditPlaylistDetailsModal } from '../modals/edit-playlist-details-modal'
 import { ImportPlaylistModal } from '../modals/import-playlist-modal'
 import { Toast } from '../toast'
@@ -67,7 +68,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
   const closeModal = useModalStore((state) => state.closeModal)
 
   return (
-    <div
+    <motion.div
       key={playlist.id}
       className={twMerge(
         `flex items-center rounded-lg bg-surface-800 text-left transition-colors`,
@@ -75,6 +76,14 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
           'border border-solid border-primary-500 bg-surface-900 text-primary-500'
       )}
       ref={setNodeRef}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0.25, height: 0 }}
+      transition={{
+        duration: 0.2,
+        ease: 'easeOut',
+      }}
+      layoutId={playlist.id}
     >
       <Link
         className='relative grow px-3 py-1'
@@ -164,7 +173,7 @@ export const PlaylistMenuItem = (props: PlaylistMenuItemProps) => {
           },
         ]}
       />
-    </div>
+    </motion.div>
   )
 }
 
@@ -200,7 +209,7 @@ export const PlaylistMenu = () => {
     if (userPlaylists.isPending) {
       return (
         <div className='flex h-full items-center justify-center'>
-          <WavesLoader className='h-5' />
+          <Loader className='size-16' />
         </div>
       )
     }
@@ -216,9 +225,11 @@ export const PlaylistMenu = () => {
           }}
         >
           <div className='flex flex-col gap-2'>
-            {userPlaylists.data?.map((playlist) => (
-              <PlaylistMenuItem key={playlist.id} playlist={playlist} />
-            ))}
+            <AnimatePresence initial={false}>
+              {userPlaylists.data?.map((playlist) => (
+                <PlaylistMenuItem key={playlist.id} playlist={playlist} />
+              ))}
+            </AnimatePresence>
           </div>
         </SimpleBar>
       )
@@ -234,7 +245,7 @@ export const PlaylistMenu = () => {
   }
 
   return (
-    <div className='flex h-full flex-col px-4 py-7'>
+    <div className='flex h-full flex-col px-4 py-7 md:pb-28 xl:pb-7'>
       <div className='flex justify-between'>
         <h1 className='text-xl font-semibold text-gray-300'>Your playlists</h1>
         {session.data?.user.id && (

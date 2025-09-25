@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { orderBy } from 'es-toolkit'
 import { useCallback, useEffect } from 'react'
 import { toast } from 'sonner'
+import { twMerge } from 'tailwind-merge'
 import { useShallow } from 'zustand/react/shallow'
 
 import { ArtistHeader } from '~/components/artist-header'
@@ -36,8 +37,6 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
       enabled: !!playlistId,
     })
   )
-
-  console.log('playlist', playlist.isPending)
 
   // need a separate state for instant playlist update when reordering
   const { setCurrentPlaylist, currentPlaylist } = useLayoutState(
@@ -135,40 +134,56 @@ export function PlaylistPage({ playlistId }: PlaylistPageProps) {
   const { theaterMode } = useLayoutState()
 
   return (
-    <div className='container mx-auto flex min-h-full w-full max-w-[1920px] flex-col'>
+    <div className='relative'>
       <Seo />
-      {theaterMode ? (
-        <TheaterMode />
-      ) : (
-        <>
-          <div className='relative grid bg-top bg-no-repeat bg-gradient-blend-surface lg:grid-cols-3'>
-            <header className='col-span-2 flex h-48 md:h-72'>
-              <div className='z-10 mt-auto mb-16 flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
-                <ArtistHeader
-                  subtitle={
-                    playlist.isPending
-                      ? ''
-                      : `${
-                          isRadio ? `Made for 👤${playlistUser}` : playlistUser
-                        } - ${playlist.data?.songs?.length} songs`
-                  }
-                  title={playlist.data?.name ?? ''}
-                  externalUrls={{}}
+      {theaterMode ? null : (
+        <div
+          className={twMerge(`absolute top-0 left-0 flex h-80 w-full flex-col`)}
+        >
+          <div
+            className={twMerge(
+              'size-full bg-top bg-no-repeat',
+              'bg-gradient-blend-surface'
+            )}
+          ></div>
+        </div>
+      )}
+      <div className='relative container mx-auto flex min-h-full w-full max-w-[1920px] flex-col'>
+        {theaterMode ? (
+          <TheaterMode />
+        ) : (
+          <>
+            <div className='relative grid lg:grid-cols-3'>
+              <header className='col-span-2 flex h-48 md:h-72'>
+                <div className='z-10 mt-auto mb-16 flex w-full flex-col items-center gap-7 px-8 md:flex-row'>
+                  <ArtistHeader
+                    subtitle={
+                      playlist.isPending
+                        ? ''
+                        : `${
+                            isRadio
+                              ? `Made for 👤${playlistUser}`
+                              : playlistUser
+                          } - ${playlist.data?.songs?.length} songs`
+                    }
+                    title={playlist.data?.name ?? ''}
+                    externalUrls={{}}
+                  />
+                </div>
+              </header>
+              <div className='z-10 col-span-2 flex justify-center lg:col-span-1 lg:justify-end'>
+                <VideoPlayerPortalContainer
+                  position='playlist-page'
+                  className='aspect-video max-w-full [&_iframe]:rounded-2xl'
                 />
               </div>
-            </header>
-            <div className='z-10 col-span-2 flex justify-center lg:col-span-1 lg:justify-end'>
-              <VideoPlayerPortalContainer
-                position='playlist-page'
-                className='aspect-video max-w-full [&_iframe]:rounded-2xl'
-              />
             </div>
-          </div>
-          <div className='grid'>
-            <div className='md:px-8'>{renderSongList()}</div>
-          </div>
-        </>
-      )}
+            <div className='grid'>
+              <div className='md:px-8'>{renderSongList()}</div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }

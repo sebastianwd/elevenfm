@@ -1,0 +1,52 @@
+@import 'tailwindcss' source('../src');
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-500: #fc3967;
+  --color-primary-600: #f9043e;
+  --color-primary-700: #c20330;
+  --color-primary-800: #8b0222;
+  --color-surface-50: #a3a3a3;
+  --color-surface-100: #999999;
+  --color-surface-200: #8a8a8a;
+  --color-surface-300: #7a7a7a;
+  --color-surface-400: #696969;
+  --color-surface-500: #474747;
+  --color-surface-600: #383838;
+  --color-surface-700: #292929;
+  --color-surface-800: #202020;
+  --color-surface-900: #0f0f0f;
+  --color-surface-950: #0a0a0a;
+
+  --font-family-poppins: Poppins, sans-serif;
+  --font-family-roboto: Roboto, sans-serif;
+
+  --animate-waves: waves 1s linear infinite;
+  --animate-pulse-size: pulse-size 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes waves {
+    0%,
+    100% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse-size {
+    0%,
+    100% {
+      height: 4px;
+      transform: translateY(11px);
+    }
+    50% {
+      height: 26px;
+      transform: translateY(0px);
+    }
+  }
+}

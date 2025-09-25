@@ -33,6 +33,7 @@ interface MenuItemProps {
   active?: boolean
   loading?: boolean
   tag?: 'button' | 'a' | 'div'
+  hotkey?: string
 }
 
 const MenuItem = ({
@@ -44,6 +45,7 @@ const MenuItem = ({
   active,
   loading,
   tag = 'button',
+  hotkey,
 }: MenuItemProps) => {
   const pathname = usePathname()
 
@@ -77,6 +79,11 @@ const MenuItem = ({
           >
             {children}
           </span>
+          {hotkey && (
+            <span className='mt-0.5 hidden text-xs text-gray-500 md:block'>
+              {hotkey}
+            </span>
+          )}
         </span>
       </Wrapper>
     </li>
@@ -201,16 +208,17 @@ export const Menu = () => {
           />
         )}
       </AnimatePresence>
-      <div className='sticky top-0 z-[41] size-full px-4 md:fixed md:z-20 md:w-36 md:px-0'>
+      <div className='sticky top-0 z-[41] size-full px-4 md:fixed md:z-40 md:w-36 md:px-0'>
         <div className='sticky top-0 flex h-full grow rounded-[40px] bg-surface-950 p-4 md:rounded-none md:p-0'>
           <div className='relative flex w-full'>
-            <ul className='z-10 flex w-full items-center justify-between bg-surface-950 md:flex-col md:gap-4 md:py-10'>
+            <ul className='z-10 flex w-full items-center justify-between bg-surface-950 md:flex-col md:gap-4 md:pt-10 md:pb-28 xl:pb-7'>
               <MenuItem href='/' icon={<HomeIcon />}>
                 Home
               </MenuItem>
               <MenuItem
                 onClick={() => setIsOpen(true)}
                 icon={<MagnifyingGlassIcon />}
+                hotkey='⌘K'
               >
                 Search
               </MenuItem>

@@ -1,49 +1,52 @@
 'use client'
 
 import { orpc, queryClient } from '@repo/api/lib/orpc.client'
-import { debounce } from 'es-toolkit'
+import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import type { ComponentProps } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import { CommandPalette } from '~/components/command-palette'
 import { useGlobalSearchStore } from '~/store/use-global-search'
 
 export const ArtistSearchCommand = () => {
-  const { isOpen, setIsOpen, search, setSearch, setResults, results } =
-    useGlobalSearchStore()
+  const { isOpen, setIsOpen, search, setSearch } = useGlobalSearchStore()
 
   const router = useRouter()
 
   const [isSearching, setIsSearching] = useState(false)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const delayedSearch = useCallback(
-    debounce(async (value: string) => {
-      if (value.length < 3) {
-        setResults([])
-        return
-      }
+  const searchQuery = useQuery({
+    queryKey: ['artist-search', search],
+    queryFn: async () => {
+      if (!search || search.length < 3) return []
 
-      setIsSearching(true)
-
-      const searchArtistQueryResponse = await queryClient.fetchQuery(
+      const response = await queryClient.fetchQuery(
         orpc.artist.search.queryOptions({
-          input: { artist: value },
+          input: { artist: search },
         })
       )
-
-      setResults(searchArtistQueryResponse)
-      setIsSearching(false)
-    }, 300),
-    []
-  )
+      return response
+    },
+    enabled: !!search && search.length >= 3,
+    staleTime: 5 * 60 * 1000,
+  })
 
   useEffect(() => {
-    if (search) {
-      delayedSearch(search)
+    setIsSearching(searchQuery.isFetching)
+  }, [searchQuery.isFetching, setIsSearching])
+
+  useHotkeys(
+    'ctrl+k',
+    (event) => {
+      event.preventDefault()
+      setIsOpen(true)
+    },
+    {
+      enableOnFormTags: true,
     }
-  }, [delayedSearch, search])
+  )
 
   const onSelect: ComponentProps<typeof CommandPalette>['onSelect'] = (
     value
@@ -56,16 +59,16 @@ export const ArtistSearchCommand = () => {
   return (
     <CommandPalette
       onSelect={onSelect}
-      commands={results}
+      commands={searchQuery.data || []}
       value={search}
       isLoading={isSearching}
+      hasSearched={searchQuery.isFetched}
       onInputChange={(value) => {
         setSearch(value)
       }}
       isOpen={isOpen}
       onClose={() => {
         setSearch('')
-        setResults([])
         setIsOpen(false)
       }}
     />

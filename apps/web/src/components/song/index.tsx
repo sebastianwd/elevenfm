@@ -1,4 +1,8 @@
-import { MinusCircleIcon, SquaresPlusIcon } from '@heroicons/react/24/outline'
+import {
+  MinusCircleIcon,
+  SquaresPlusIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline'
 import {
   EllipsisHorizontalIcon,
   MusicalNoteIcon,
@@ -181,6 +185,14 @@ export const Song = (props: SongProps) => {
           onClick: addToQueue,
         },
 
+        {
+          label: 'Go to artist',
+          icon: <UserIcon className='mr-2 h-5 shrink-0' />,
+          onClick: () => {
+            const mainArtist = getMainArtist(props.artist)
+            router.push(`/artist/${mainArtist}`)
+          },
+        },
         {
           label: 'Go to song radio',
           icon: <MusicalNoteIcon className='mr-2 h-5 shrink-0' />,
