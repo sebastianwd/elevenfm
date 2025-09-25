@@ -217,7 +217,7 @@ export const Lyrics = (props: LyricsProps) => {
           props.className
         )}
         classNames={{
-          scrollbar: 'bg-primary-500/40 rounded',
+          scrollbar: 'bg-primary-800 rounded',
         }}
       >
         {renderContent()}
