@@ -703,127 +703,124 @@ export const addToPlaylist = protectedProcedure
     return true
   })
 
-export const createSongRadio = protectedProcedure
-  .input(CreateSongRadioInput)
-  .output(CreateSongRadioResponse)
-  .handler(async ({ input, context }) => {
-    if (!input.songId && !input.songTitle) {
-      throw new ORPCError('BAD_REQUEST', { message: 'No song provided' })
-    }
+export const createSongRadio = protectedProcedure.input(CreateSongRadioInput).handler(async ({ input, context }) => {
+  if (!input.songId && !input.songTitle) {
+    throw new ORPCError('BAD_REQUEST', { message: 'No song provided' })
+  }
 
-    const { id: playlistId, name } = getTableColumns(Playlists)
-    const { id: colSongId } = getTableColumns(Songs)
+  const { id: playlistId, name } = getTableColumns(Playlists)
+  const { id: colSongId } = getTableColumns(Songs)
 
-    const [existingSong] =
-      input.songTitle && input.songArtist && !input.songId
-        ? await db
-            .select({ id: colSongId })
-            .from(Songs)
-            .where(and(eq(Songs.title, input.songTitle), eq(Songs.artist, input.songArtist)))
-        : [null]
+  const [existingSong] =
+    input.songTitle && input.songArtist && !input.songId
+      ? await db
+          .select({ id: colSongId })
+          .from(Songs)
+          .where(and(eq(Songs.title, input.songTitle), eq(Songs.artist, input.songArtist)))
+      : [null]
 
-    const existingSongId = input.songId || existingSong?.id
+  const existingSongId = input.songId || existingSong?.id
 
-    if (existingSongId) {
-      const [radioPlaylist] = await db
-        .select({
-          playlistId,
-          name
-        })
-        .from(Playlists)
-        .where(and(eq(Playlists.userId, context.session.user.id), eq(Playlists.radioSongId, existingSongId)))
+  if (existingSongId) {
+    const [radioPlaylist] = await db
+      .select({
+        playlistId,
+        name
+      })
+      .from(Playlists)
+      .where(and(eq(Playlists.userId, context.session.user.id), eq(Playlists.radioSongId, existingSongId)))
 
-      if (radioPlaylist) {
-        return {
-          id: radioPlaylist.playlistId,
-          name: radioPlaylist.name,
-          user: {
-            id: context.session.user.id
-          }
+    if (radioPlaylist) {
+      return {
+        id: radioPlaylist.playlistId,
+        name: radioPlaylist.name,
+        user: {
+          id: context.session.user.id
         }
       }
     }
+  }
 
-    const { data: videoData } = await invidious.getVideos({
-      query: `${input.songArtist} - ${input.songTitle}`
-    })
-
-    const video = videoData[0]
-
-    if (!video) {
-      throw new ORPCError('NOT_FOUND', { message: 'Video not found' })
-    }
-
-    const { data: radioData } = await invidious.getMix({
-      videoId: video.videoId
-    })
-
-    if (!radioData) {
-      throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Could not create radio from song' })
-    }
-
-    const songs = radioData.videos.map((video) => formatYoutubeTitle(video.title, video.author))
-
-    const radioPlaylistName = `${input.songArtist} Radio`
-
-    const createdRadioPlaylist = await db.transaction(async (tx) => {
-      const [createdRadioSong] = await tx
-        .insert(Songs)
-        .values({
-          title: input.songTitle!,
-          artist: input.songArtist!
-        })
-        .onConflictDoUpdate({
-          target: [Songs.title, Songs.artist, Songs.album],
-          set: { updatedAt: new Date() }
-        })
-        .returning({ insertedId: Songs.id })
-
-      const [createdPlaylist] = await tx
-        .insert(Playlists)
-        .values({
-          name: radioPlaylistName,
-          userId: context.session.user.id,
-          radioSongId: createdRadioSong!.insertedId,
-          type: playlistType.RADIO,
-          updatedAt: new Date()
-        })
-        .returning({ insertedId: Playlists.id })
-
-      await Promise.all(
-        chunk(songs, 50).map(async (chunk) => {
-          const createdSongs = await tx
-            .insert(Songs)
-            .values(chunk)
-            .onConflictDoUpdate({
-              target: [Songs.title, Songs.artist, Songs.album],
-              set: { updatedAt: new Date() }
-            })
-            .returning({ insertedId: Songs.id })
-
-          await tx
-            .insert(PlaylistsToSongs)
-            .values(
-              createdSongs.map((song) => ({
-                playlistId: createdPlaylist!.insertedId,
-                songId: song.insertedId
-              }))
-            )
-            .onConflictDoNothing()
-        })
-      )
-
-      return createdPlaylist
-    })
-
-    return {
-      id: createdRadioPlaylist!.insertedId,
-      name: radioPlaylistName,
-      user: {
-        id: context.session.user.id
-      }
-    }
+  const { data: videoData } = await invidious.getVideos({
+    query: `${input.songArtist} - ${input.songTitle}`
   })
+
+  const video = videoData[0]
+
+  if (!video) {
+    throw new ORPCError('NOT_FOUND', { message: 'Video not found' })
+  }
+
+  const { data: radioData } = await invidious.getMix({
+    videoId: video.videoId
+  })
+
+  if (!radioData) {
+    throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Could not create radio from song' })
+  }
+
+  const songs = radioData.videos.map((video) => formatYoutubeTitle(video.title, video.author))
+
+  const radioPlaylistName = `${input.songArtist} Radio`
+
+  const createdRadioPlaylist = await db.transaction(async (tx) => {
+    const [createdRadioSong] = await tx
+      .insert(Songs)
+      .values({
+        title: input.songTitle!,
+        artist: input.songArtist!
+      })
+      .onConflictDoUpdate({
+        target: [Songs.title, Songs.artist, Songs.album],
+        set: { updatedAt: new Date() }
+      })
+      .returning({ insertedId: Songs.id })
+
+    const [createdPlaylist] = await tx
+      .insert(Playlists)
+      .values({
+        name: radioPlaylistName,
+        userId: context.session.user.id,
+        radioSongId: createdRadioSong!.insertedId,
+        type: playlistType.RADIO,
+        updatedAt: new Date()
+      })
+      .returning({ insertedId: Playlists.id })
+
+    await Promise.all(
+      chunk(songs, 50).map(async (chunk) => {
+        const createdSongs = await tx
+          .insert(Songs)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: [Songs.title, Songs.artist, Songs.album],
+            set: { updatedAt: new Date() }
+          })
+          .returning({ insertedId: Songs.id })
+
+        await tx
+          .insert(PlaylistsToSongs)
+          .values(
+            createdSongs.map((song) => ({
+              playlistId: createdPlaylist!.insertedId,
+              songId: song.insertedId
+            }))
+          )
+          .onConflictDoNothing()
+      })
+    )
+
+    return createdPlaylist
+  })
+
+  return {
+    id: createdRadioPlaylist!.insertedId,
+    name: radioPlaylistName,
+    user: {
+      id: context.session.user.id
+    }
+  }
+})
 
 export const updatePlaylistSongRank = protectedProcedure
   .input(UpdatePlaylistSongRankInput)
