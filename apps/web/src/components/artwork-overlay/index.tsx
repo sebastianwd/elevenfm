@@ -23,7 +23,7 @@ export const ArtworkOverlay = memo(
 
     return (
       <div
-        className={`absolute inset-2 z-10 flex items-center justify-center ${className || ''}`}
+        className={`absolute inset-2 bottom-8 flex items-center justify-center ${className || ''}`}
       >
         <div className='flex flex-col items-center space-y-3'>
           <img

@@ -16,7 +16,7 @@ import { Playlists, PlaylistsToSongs, Songs } from '../db/schema'
 import { Users } from '../db/schema/auth'
 import { invidious } from '../integrations/invidious/invidious'
 import { soundcloud } from '../integrations/soundcloud/soundcloud'
-import { protectedProcedure } from '../lib/orpc.server'
+import { o, protectedProcedure } from '../lib/orpc.server'
 import { logger } from '../utils/logger'
 import { generateFileKey, generatePresignedDownloadUrl, generatePresignedUploadUrl } from '../utils/r2'
 
@@ -451,7 +451,7 @@ export const userPlaylists = protectedProcedure.output(UserPlaylistsResponse).ha
   }))
 })
 
-export const getPlaylist = protectedProcedure
+export const getPlaylist = o
   .input(GetPlaylistInput)
   .output(GetPlaylistResponse)
   .handler(async ({ input }) => {

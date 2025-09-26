@@ -160,8 +160,6 @@ const VideoPlayer = memo(() => {
     },
   })
 
-  console.log('isPlaying', isPlaying)
-
   return (
     <DynamicReactPlayer
       width='100%'
