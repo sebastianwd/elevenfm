@@ -10,7 +10,6 @@ import dynamic from 'next/dynamic'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type ReactPlayer from 'react-player'
 
-import { useSongChangeDetection } from '~/hooks/use-song-change-detection'
 import { useLayoutState, type VideoPosition } from '~/store/use-layout-state'
 import {
   usePlayerInstance,
@@ -90,16 +89,6 @@ const VideoPlayer = memo(() => {
     setIsPlaying(false)
   }, [setIsPlaying])
 
-  const onPlayerProgress = useCallback(
-    (options: { playedSeconds: number; played: number }) => {
-      setPlayerProgress({
-        playedSeconds: options.playedSeconds,
-        played: options.played,
-      })
-    },
-    [setPlayerProgress]
-  )
-
   const updatePlayerProgress = useCallback(
     (node: Omit<ReactPlayer, 'refs'>) => {
       if (playedProgress !== 0) {
@@ -148,17 +137,29 @@ const VideoPlayer = memo(() => {
     setVideoChoice(0)
   }, [currentSong?.title, currentSong?.artist])
 
-  useSongChangeDetection({
-    currentSong,
-    currentProgress: playedProgress,
-    onSongChange: () => {
+  const resetProgressRef = useRef(false)
+  const previousUrlRef = useRef(url)
+  useEffect(() => {
+    if (resetProgressRef.current || previousUrlRef.current === url) {
+      return
+    }
+    resetProgressRef.current = true
+    regeneratedR2UrlRef.current = null
+    previousUrlRef.current = url
+  }, [url, setPlayerProgress])
+
+  const onPlayerProgress = useCallback(
+    (options: { playedSeconds: number; played: number }) => {
+      if (resetProgressRef.current) {
+        return
+      }
       setPlayerProgress({
-        playedSeconds: 0,
-        played: 0,
+        playedSeconds: options.playedSeconds,
+        played: options.played,
       })
-      regeneratedR2UrlRef.current = null
     },
-  })
+    [setPlayerProgress]
+  )
 
   return (
     <DynamicReactPlayer
@@ -205,7 +206,16 @@ const VideoPlayer = memo(() => {
 
         instance.current = node
 
-        // Always restore progress when player is ready (handles theater mode switching)
+        if (resetProgressRef.current) {
+          setPlayerProgress({
+            playedSeconds: 0,
+            played: 0,
+          })
+          resetProgressRef.current = false
+          return
+        }
+
+        // handles theater mode switching
         updatePlayerProgress(instance.current)
       }}
     />
