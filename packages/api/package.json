@@ -49,6 +49,7 @@
     "sonner": "catalog:",
     "soundcloud.ts": "catalog:",
     "spotify-url-info": "catalog:",
+    "youtubei.js": "^16.0.1",
     "youtubei": "catalog:"
   },
   "devDependencies": {

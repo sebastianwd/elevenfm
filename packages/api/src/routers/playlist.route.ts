@@ -16,6 +16,8 @@ import { Playlists, PlaylistsToSongs, Songs } from '../db/schema'
 import { Users } from '../db/schema/auth'
 import { invidious } from '../integrations/invidious/invidious'
 import { soundcloud } from '../integrations/soundcloud/soundcloud'
+import type { Video } from '../integrations/youtube/youtube'
+import { searchVideos } from '../integrations/youtube/youtube'
 import { o, protectedProcedure } from '../lib/orpc.server'
 import { logger } from '../utils/logger'
 import { generateFileKey, generatePresignedDownloadUrl, generatePresignedUploadUrl } from '../utils/r2'
@@ -741,25 +743,25 @@ export const createSongRadio = protectedProcedure.input(CreateSongRadioInput).ha
     }
   }
 
-  const { data: videoData } = await invidious.getVideos({
-    query: `${input.songArtist} - ${input.songTitle}`
-  })
+  const searchResults = await searchVideos(`${input.songArtist} - ${input.songTitle}`, { type: 'video' })
 
-  const video = videoData[0]
+  const videos = searchResults.videos
+  const video = videos[0]
 
   if (!video) {
     throw new ORPCError('NOT_FOUND', { message: 'Video not found' })
   }
 
+  const videoId = (video as unknown as Video).video_id || ''
   const { data: radioData } = await invidious.getMix({
-    videoId: video.videoId
+    videoId
   })
 
   if (!radioData) {
     throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Could not create radio from song' })
   }
 
-  const songs = radioData.videos.map((video) => formatYoutubeTitle(video.title, video.author))
+  const songs = radioData.videos.map((radioVideo) => formatYoutubeTitle(radioVideo.title, radioVideo.author))
 
   const radioPlaylistName = `${input.songArtist} Radio`
 
