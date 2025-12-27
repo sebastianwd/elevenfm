@@ -1,9 +1,9 @@
 import { type } from 'arktype'
 import { isEmpty } from 'es-toolkit/compat'
 
-import { invidious } from '../integrations/invidious/invidious'
 import { lastFM } from '../integrations/lastfm/lastfm'
 import { getLyrics as getLyricsIntegration } from '../integrations/lyrics/lyrics'
+import { searchVideos, type Video } from '../integrations/youtube/youtube'
 import { o } from '../lib/orpc.server'
 import { getLastFMCoverImage } from '../utils/get-cover-image'
 
@@ -53,23 +53,23 @@ export const getVideoInfo = o
   .input(GetVideoInfoInput)
   .output(GetVideoInfoResponse)
   .handler(async ({ input }) => {
-    const { data } = await invidious.getVideos({
-      query: input.query
-    })
+    const searchResults = await searchVideos(input.query, { type: 'video' })
 
-    const video = data.map((video) => ({
-      title: video.title,
-      artist: video.author,
-      videoId: video.videoId,
-      videoUrl: `https://www.youtube.com/watch?v=${video.videoId}`,
-      thumbnailUrl: video.videoThumbnails.find((vt) => vt.quality === 'default')?.url ?? ''
+    const videos = searchResults.videos
+
+    const video = videos.slice(0, 5).map((video) => ({
+      title: (video as Video).title.text || '',
+      artist: (video as Video).author.name || '',
+      videoId: (video as Video).video_id || '',
+      videoUrl: `https://www.youtube.com/watch?v=${(video as Video).video_id || ''}`,
+      thumbnailUrl: (video as Video).thumbnails[0]?.url || ''
     }))
 
     if (isEmpty(video)) {
       throw new Error(`Video not found for query: ${input.query}`)
     }
 
-    return video.slice(0, 5)
+    return video
   })
 
 export const getAlbumBySong = o

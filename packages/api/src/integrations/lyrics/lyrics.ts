@@ -6,7 +6,7 @@ import { cache } from '../../utils/cache'
 import { logger } from '../../utils/logger'
 import type { GetLyricsOptions } from './types'
 
-const extractLyricsFromResponse = (lyricsText: string): string => {
+const extractLyricsFromResponse = (lyricsText: string = ''): string => {
   const breakingWord = 'Lyrics'
   const lyricsIndex = lyricsText.indexOf(breakingWord)
 
@@ -49,7 +49,7 @@ export const getLyrics = async (args: Pick<GetLyricsOptions, 'artist' | 'title'>
 
       logger.info(`Successfully fetched lyrics using proxy: ${proxy}`)
 
-      return extractLyricsFromResponse(result)
+      return result ? extractLyricsFromResponse(result) : ''
     } catch (error) {
       logger.warn(`Proxy ${proxy} failed: ${String(error)}`)
       cache.set(cacheKey, 'true')

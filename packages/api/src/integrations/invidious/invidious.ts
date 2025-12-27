@@ -15,6 +15,7 @@ const invidious = async <T>(method: InvidiousMethods) => {
   let response = {} as AxiosResponse<T>
 
   for (const invidiousUrl of invidiousUrls) {
+    console.log('invidiousUrl', invidiousUrl)
     const cacheKey = `rateLimit:${invidiousUrl}`
     if (cache.has(cacheKey)) continue
 
@@ -33,8 +34,8 @@ const invidious = async <T>(method: InvidiousMethods) => {
         logger.info(`Invidious error: ${invidiousUrl} - ${JSON.stringify(e.response?.data)}`)
         if (
           e.response?.data &&
-          ['Too Many Requests', 'Gateway', 'Bad Response', 'API disabled', 'blocked', 'undefined'].some((error) =>
-            String(e.response?.data).includes(error)
+          ['Too Many Requests', 'Gateway', 'Bad Response', 'API disabled', 'blocked', 'undefined', 'Forbidden'].some(
+            (error) => String(e.response?.data).includes(error)
           )
         ) {
           cache.set(cacheKey, 'true')
@@ -56,6 +57,8 @@ const invidious = async <T>(method: InvidiousMethods) => {
       continue
     }
   }
+
+  console.log('response', response)
 
   return response
 }
